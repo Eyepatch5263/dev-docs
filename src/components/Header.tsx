@@ -10,7 +10,7 @@ export function Header() {
             <div className="flex h-14 items-center justify-between px-6">
                 <Link href="/docs" className="flex items-center space-x-2">
                     <BookOpen className="h-5 w-5 text-primary" />
-                    <span className="text-lg font-semibold">System Design Docs</span>
+                    <span className="text-lg font-semibold">Developer Docs</span>
                 </Link>
                 <div className="flex items-center gap-1">
                     <ThemeToggle />

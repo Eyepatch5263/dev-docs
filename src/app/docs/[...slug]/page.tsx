@@ -2,6 +2,7 @@ import { notFound } from "next/navigation";
 import { MDXRemote } from "next-mdx-remote/rsc";
 import rehypeSlug from "rehype-slug";
 import rehypePrettyCode from "rehype-pretty-code";
+import remarkGfm from "remark-gfm";
 import { getAllSlugs, getDocBySlug } from "@/lib/docs";
 import { extractHeadings } from "@/lib/toc";
 import { TableOfContents } from "@/components/TableOfContents";
@@ -63,6 +64,7 @@ export default async function DocPage({ params }: DocPageProps) {
                         components={mdxComponents}
                         options={{
                             mdxOptions: {
+                                remarkPlugins: [remarkGfm],
                                 rehypePlugins: [
                                     rehypeSlug,
                                     [

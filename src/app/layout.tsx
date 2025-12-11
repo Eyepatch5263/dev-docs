@@ -1,20 +1,22 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
+import { Inria_Sans, Inria_Serif } from "next/font/google";
 import { ThemeProvider } from "@/components/ThemeProvider";
 import "./globals.css";
 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
+const Inria_Sans_Font = Inria_Sans({
   subsets: ["latin"],
+  variable: "--font-inria-sans",
+  weight: ["400", "700"],
 });
 
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
+const Inria_Serif_Font = Inria_Serif({
   subsets: ["latin"],
+  variable: "--font-inria-serif",
+  weight: ["400", "700"],
 });
 
 export const metadata: Metadata = {
-  title: "System Design Docs",
+  title: "Developer Documentation",
   description: "A comprehensive guide to system design fundamentals",
 };
 
@@ -26,7 +28,7 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning>
       <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
+        className={`${Inria_Serif_Font.className}`}
       >
         <ThemeProvider
           attribute="class"

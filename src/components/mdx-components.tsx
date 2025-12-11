@@ -150,9 +150,77 @@ function Img({
     );
 }
 
+// Add these table components
+function Table({ className, ...props }: ComponentPropsWithoutRef<"table">) {
+    return (
+        <div className="my-6 w-full overflow-x-auto">
+            <table
+                className={cn(
+                    "w-full border-collapse text-sm",
+                    className
+                )}
+                {...props}
+            />
+        </div>
+    );
+}
+
+function Thead({ className, ...props }: ComponentPropsWithoutRef<"thead">) {
+    return (
+        <thead
+            className={cn("bg-muted/50", className)}
+            {...props}
+        />
+    );
+}
+
+function Tbody({ className, ...props }: ComponentPropsWithoutRef<"tbody">) {
+    return <tbody className={cn("", className)} {...props} />;
+}
+
+function Tr({ className, ...props }: ComponentPropsWithoutRef<"tr">) {
+    return (
+        <tr
+            className={cn("border-b border-border", className)}
+            {...props}
+        />
+    );
+}
+
+function Th({ className, ...props }: ComponentPropsWithoutRef<"th">) {
+    return (
+        <th
+            className={cn(
+                "px-4 py-3 text-left font-semibold text-foreground border border-border",
+                className
+            )}
+            {...props}
+        />
+    );
+}
+
+function Td({ className, ...props }: ComponentPropsWithoutRef<"td">) {
+    return (
+        <td
+            className={cn(
+                "px-4 py-3 text-muted-foreground border border-border",
+                className
+            )}
+            {...props}
+        />
+    );
+}
+
+// Update your exports
 export const mdxComponents = {
     pre: Pre,
     code: Code,
     figure: Figure,
     img: Img,
+    table: Table,
+    thead: Thead,
+    tbody: Tbody,
+    tr: Tr,
+    th: Th,
+    td: Td,
 };
