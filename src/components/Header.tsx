@@ -17,7 +17,7 @@ export function Header() {
                     <Separator orientation="vertical" className="mx-2 h-6" />
                     <Button variant="ghost" size="icon" asChild className="h-9 w-9">
                         <a
-                            href="https://github.com"
+                            href="https://github.com/Eyepatch5263/dev-docs"
                             target="_blank"
                             rel="noopener noreferrer"
                         >
