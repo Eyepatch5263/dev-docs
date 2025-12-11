@@ -1,0 +1,196 @@
+---
+title: Load Balancing
+description: Distributing traffic across multiple servers efficiently
+order: 3
+category: System Design
+---
+
+# Load Balancing
+
+Load balancing is the process of distributing network traffic across multiple servers to ensure no single server bears too much demand. This improves responsiveness and availability of applications.
+
+## Types of Load Balancers
+
+### Layer 4 (L4) Load Balancing
+
+Operates at the transport layer (TCP/UDP). Makes routing decisions based on IP addresses and ports.
+
+```plaintext
+Client → L4 Load Balancer → Server
+         ↓
+  Routes based on:
+  - Source IP
+  - Destination IP
+  - Source Port
+  - Destination Port
+```
+
+**Characteristics:**
+- Very fast (minimal packet inspection)
+- Protocol agnostic
+- No SSL termination
+- Cannot make content-based decisions
+
+### Layer 7 (L7) Load Balancing
+
+Operates at the application layer (HTTP/HTTPS). Can inspect content and make intelligent routing decisions.
+
+```plaintext
+Client → L7 Load Balancer → Server
+         ↓
+  Routes based on:
+  - URL path
+  - HTTP headers
+  - Cookies
+  - Request content
+```
+
+**Characteristics:**
+- Content-aware routing
+- SSL termination
+- Can modify requests/responses
+- More resource-intensive
+
+## Load Balancing Algorithms
+
+### Round Robin
+
+Requests are distributed sequentially across servers.
+
+```typescript
+class RoundRobinBalancer {
+  private servers: string[];
+  private current = 0;
+
+  getNextServer(): string {
+    const server = this.servers[this.current];
+    this.current = (this.current + 1) % this.servers.length;
+    return server;
+  }
+}
+```
+
+**Pros:** Simple, equal distribution
+**Cons:** Ignores server load and capacity
+
+### Weighted Round Robin
+
+Servers are assigned weights based on their capacity.
+
+```typescript
+class WeightedRoundRobin {
+  private servers = [
+    { host: 'server1', weight: 5 },
+    { host: 'server2', weight: 3 },
+    { host: 'server3', weight: 2 },
+  ];
+  
+  // server1 gets 50% of traffic
+  // server2 gets 30% of traffic
+  // server3 gets 20% of traffic
+}
+```
+
+### Least Connections
+
+Routes to the server with the fewest active connections.
+
+```typescript
+class LeastConnections {
+  private servers = new Map<string, number>();
+
+  getNextServer(): string {
+    let minServer = '';
+    let minConnections = Infinity;
+    
+    for (const [server, connections] of this.servers) {
+      if (connections < minConnections) {
+        minConnections = connections;
+        minServer = server;
+      }
+    }
+    return minServer;
+  }
+}
+```
+
+**Best for:** Varying request processing times
+
+### IP Hash
+
+Routes based on client IP address, ensuring the same client always reaches the same server.
+
+```typescript
+function ipHash(clientIp: string, serverCount: number): number {
+  let hash = 0;
+  for (let i = 0; i < clientIp.length; i++) {
+    hash = (hash * 31 + clientIp.charCodeAt(i)) % serverCount;
+  }
+  return hash;
+}
+```
+
+**Best for:** Session persistence without cookies
+
+### Consistent Hashing
+
+Distributes requests using a hash ring, minimizing redistribution when servers are added/removed.
+
+```plaintext
+        Server A
+           ●
+          /|\
+         / | \
+        /  |  \
+   ●---●   |   ●---●
+ Key1     |     Key2
+          ●
+       Server B
+```
+
+**Best for:** Distributed caches, session storage
+
+## Health Checks
+
+Load balancers monitor server health to route traffic only to healthy instances.
+
+### Passive Health Checks
+
+Monitor response codes and timeouts during normal traffic:
+
+```yaml
+upstream backend {
+  server backend1.example.com max_fails=3 fail_timeout=30s;
+  server backend2.example.com max_fails=3 fail_timeout=30s;
+}
+```
+
+### Active Health Checks
+
+Periodically probe servers with health check requests:
+
+```yaml
+health_check:
+  path: /health
+  interval: 10s
+  timeout: 5s
+  healthy_threshold: 2
+  unhealthy_threshold: 3
+```
+
+## Common Load Balancers
+
+| Software | Type | Use Case |
+|----------|------|----------|
+| NGINX | L7 | Web traffic, reverse proxy |
+| HAProxy | L4/L7 | High-performance TCP/HTTP |
+| AWS ALB | L7 | AWS cloud applications |
+| AWS NLB | L4 | AWS high-throughput TCP |
+
+## Best Practices
+
+1. **Use Multiple Load Balancers**: Avoid single points of failure
+2. **Implement Health Checks**: Both active and passive
+3. **Enable Session Persistence**: When stateful apps require it
+4. **SSL Termination**: Offload encryption to load balancers
+5. **Monitor Metrics**: Track latency, error rates, and throughput

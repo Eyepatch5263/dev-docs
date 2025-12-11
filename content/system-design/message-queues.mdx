@@ -1,0 +1,311 @@
+---
+title: Message Queues
+description: Asynchronous communication patterns with message brokers
+order: 6
+category: System Design
+---
+
+# Message Queues
+
+Message queues enable asynchronous communication between services by allowing producers to send messages that consumers process independently. This decoupling improves scalability, reliability, and flexibility.
+
+## Why Use Message Queues?
+
+### Decoupling
+
+Services don't need to know about each other:
+
+```plaintext
+Without Queue:
+Order Service → User Service → Email Service → Analytics
+
+With Queue:
+Order Service → Queue ← User Service
+                     ← Email Service  
+                     ← Analytics
+```
+
+### Load Leveling
+
+Handle traffic spikes by buffering requests:
+
+```plaintext
+Traffic Spike:        Normal Processing:
+████████████          ████
+████████████   →      ████
+████████████          ████
+    Queue             Workers
+```
+
+### Reliability
+
+Messages persist until successfully processed:
+
+```typescript
+// Producer sends message
+await queue.send({ orderId: '123', action: 'process' });
+
+// Consumer processes with acknowledgment
+const message = await queue.receive();
+try {
+  await processOrder(message.data);
+  await message.ack(); // Confirm processing
+} catch (error) {
+  await message.nack(); // Return to queue
+}
+```
+
+## Message Queue Patterns
+
+### Point-to-Point (Queue)
+
+One producer, one consumer per message.
+
+```plaintext
+Producer → Queue → Consumer
+              ↓
+         Message goes to
+         ONE consumer only
+```
+
+### Publish-Subscribe (Topic)
+
+One producer, multiple subscribers receive copies.
+
+```plaintext
+Publisher → Topic → Subscriber A
+                 → Subscriber B
+                 → Subscriber C
+                 
+All subscribers receive
+every message
+```
+
+### Fan-Out
+
+Broadcast to multiple queues for different processing.
+
+```plaintext
+Order Created → Fan-out Exchange
+                    ├→ Inventory Queue → Inventory Service
+                    ├→ Email Queue → Email Service
+                    └→ Analytics Queue → Analytics Service
+```
+
+## Popular Message Queues
+
+### Apache Kafka
+
+Distributed streaming platform designed for high throughput.
+
+```typescript
+import { Kafka } from 'kafkajs';
+
+const kafka = new Kafka({
+  clientId: 'my-app',
+  brokers: ['kafka1:9092', 'kafka2:9092'],
+});
+
+// Producer
+const producer = kafka.producer();
+await producer.send({
+  topic: 'orders',
+  messages: [
+    { key: 'order-123', value: JSON.stringify({ amount: 100 }) },
+  ],
+});
+
+// Consumer
+const consumer = kafka.consumer({ groupId: 'order-processor' });
+await consumer.subscribe({ topic: 'orders' });
+await consumer.run({
+  eachMessage: async ({ topic, partition, message }) => {
+    console.log(`Received: ${message.value}`);
+  },
+});
+```
+
+**Best for:**
+- High throughput (millions of messages/sec)
+- Event streaming and replay
+- Log aggregation
+- Real-time analytics
+
+### RabbitMQ
+
+Traditional message broker with flexible routing.
+
+```typescript
+import amqp from 'amqplib';
+
+// Producer
+const connection = await amqp.connect('amqp://localhost');
+const channel = await connection.createChannel();
+await channel.assertQueue('tasks');
+channel.sendToQueue('tasks', Buffer.from(JSON.stringify({ task: 'process' })));
+
+// Consumer
+await channel.consume('tasks', (msg) => {
+  if (msg) {
+    const task = JSON.parse(msg.content.toString());
+    processTask(task);
+    channel.ack(msg);
+  }
+});
+```
+
+**Best for:**
+- Complex routing requirements
+- Request-reply patterns
+- Traditional job queues
+- Lower latency requirements
+
+### Amazon SQS
+
+Fully managed queue service.
+
+```typescript
+import { SQS } from '@aws-sdk/client-sqs';
+
+const sqs = new SQS({ region: 'us-east-1' });
+
+// Send message
+await sqs.sendMessage({
+  QueueUrl: 'https://sqs.us-east-1.amazonaws.com/123456789/my-queue',
+  MessageBody: JSON.stringify({ orderId: '123' }),
+});
+
+// Receive message
+const response = await sqs.receiveMessage({
+  QueueUrl: 'https://sqs.us-east-1.amazonaws.com/123456789/my-queue',
+  MaxNumberOfMessages: 10,
+});
+```
+
+**Best for:**
+- AWS-native applications
+- Simple queue needs
+- Serverless architectures
+
+## Delivery Guarantees
+
+### At-Most-Once
+
+Message may be lost, never duplicated.
+
+```plaintext
+Producer → Queue → Consumer
+              ↓
+         If consumer crashes,
+         message is lost
+```
+
+**Implementation:** No acknowledgment, fire-and-forget
+
+### At-Least-Once
+
+Message will be delivered, may be duplicated.
+
+```plaintext
+Producer → Queue → Consumer (crash!)
+              ↓
+         Message redelivered
+         to another consumer
+```
+
+**Implementation:** Acknowledge after processing
+
+```typescript
+const message = await queue.receive();
+await processMessage(message); // May run twice
+await message.ack();
+```
+
+### Exactly-Once
+
+Message delivered exactly once—the holy grail.
+
+**Implementation:** Requires idempotent processing or transactional guarantees
+
+```typescript
+// Idempotent processing
+async function processOrder(orderId: string, data: OrderData) {
+  // Check if already processed
+  const existing = await db.orders.findById(orderId);
+  if (existing) {
+    return existing; // Already processed, skip
+  }
+  
+  // Process and store
+  return db.orders.create({ id: orderId, ...data });
+}
+```
+
+## Kafka vs RabbitMQ
+
+| Feature | Kafka | RabbitMQ |
+|---------|-------|----------|
+| Model | Log-based | Queue-based |
+| Throughput | Very High | High |
+| Message Retention | Configurable (days) | Until consumed |
+| Replay | Yes | No |
+| Routing | Topics/Partitions | Exchanges/Bindings |
+| Ordering | Per partition | Per queue |
+| Protocol | Custom | AMQP |
+
+## Handling Failures
+
+### Dead Letter Queues (DLQ)
+
+Messages that fail processing go to a separate queue.
+
+```typescript
+async function processWithDLQ(message: Message) {
+  try {
+    await processMessage(message);
+    await message.ack();
+  } catch (error) {
+    if (message.retryCount >= 3) {
+      // Send to dead letter queue
+      await dlq.send(message);
+      await message.ack();
+    } else {
+      // Retry with backoff
+      await message.nack({ delay: Math.pow(2, message.retryCount) * 1000 });
+    }
+  }
+}
+```
+
+### Idempotency Keys
+
+Ensure processing the same message twice has the same effect.
+
+```typescript
+async function processPayment(payment: Payment) {
+  const idempotencyKey = `payment:${payment.orderId}:${payment.amount}`;
+  
+  // Check if already processed
+  const processed = await redis.get(idempotencyKey);
+  if (processed) {
+    return JSON.parse(processed);
+  }
+  
+  // Process payment
+  const result = await paymentGateway.charge(payment);
+  
+  // Store result for idempotency
+  await redis.setex(idempotencyKey, 86400, JSON.stringify(result));
+  
+  return result;
+}
+```
+
+## Best Practices
+
+1. **Make Consumers Idempotent**: Assume messages may be delivered multiple times
+2. **Use Dead Letter Queues**: Don't lose failed messages
+3. **Set Appropriate Timeouts**: Visibility timeout > processing time
+4. **Monitor Queue Depth**: Alert on growing backlogs
+5. **Order When Necessary**: Use partition keys for ordering guarantees
+6. **Batch for Throughput**: Process messages in batches when possible

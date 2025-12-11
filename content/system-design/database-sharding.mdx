@@ -1,0 +1,268 @@
+---
+title: Database Sharding
+description: Partitioning data across multiple databases for scale
+order: 5
+category: System Design
+---
+
+# Database Sharding
+
+Sharding is a database architecture pattern where data is horizontally partitioned across multiple database instances called shards. Each shard contains a subset of the total data.
+
+## Why Shard?
+
+When a single database can't handle:
+
+- **Data Volume**: Terabytes of data won't fit on one machine
+- **Write Throughput**: Single master bottleneck
+- **Read Throughput**: Even with replicas, it's not enough
+- **Geographic Distribution**: Data needs to be closer to users
+
+## Sharding Strategies
+
+### Range-Based Sharding
+
+Data is partitioned based on ranges of a key value.
+
+```plaintext
+Shard 1: user_id 1 - 1,000,000
+Shard 2: user_id 1,000,001 - 2,000,000
+Shard 3: user_id 2,000,001 - 3,000,000
+```
+
+```typescript
+function getShard(userId: number): string {
+  if (userId <= 1_000_000) return 'shard1';
+  if (userId <= 2_000_000) return 'shard2';
+  return 'shard3';
+}
+```
+
+**Pros:**
+- Simple to implement
+- Range queries are efficient
+- Easy to understand and debug
+
+**Cons:**
+- Uneven distribution (hot shards)
+- Resharding is difficult
+- New users all hit the same shard
+
+### Hash-Based Sharding
+
+Data is distributed using a hash function on the shard key.
+
+```typescript
+function getShard(userId: string, numShards: number): number {
+  const hash = createHash('md5').update(userId).digest('hex');
+  const hashInt = parseInt(hash.substring(0, 8), 16);
+  return hashInt % numShards;
+}
+
+// Example
+getShard('user_123', 4); // Returns 0, 1, 2, or 3
+```
+
+**Pros:**
+- Even data distribution
+- No hot spots (usually)
+- Works well with UUID keys
+
+**Cons:**
+- Range queries require scatter-gather
+- Adding shards requires data redistribution
+- Hash function choice matters
+
+### Directory-Based Sharding
+
+A lookup service maps keys to shards.
+
+```typescript
+class ShardDirectory {
+  private directory = new Map<string, string>();
+  
+  async getShard(key: string): Promise<string> {
+    // Check directory first
+    if (this.directory.has(key)) {
+      return this.directory.get(key)!;
+    }
+    
+    // Assign to shard with least data
+    const shard = await this.findLeastLoadedShard();
+    this.directory.set(key, shard);
+    return shard;
+  }
+}
+```
+
+**Pros:**
+- Flexible shard assignment
+- Can rebalance without changing keys
+- Custom placement logic
+
+**Cons:**
+- Directory is a single point of failure
+- Extra lookup latency
+- Directory must be highly available
+
+### Geographic Sharding
+
+Data is partitioned based on geographic location.
+
+```typescript
+function getShard(userRegion: string): string {
+  const regionToShard = {
+    'us-east': 'shard-us-east',
+    'us-west': 'shard-us-west',
+    'eu-west': 'shard-eu',
+    'ap-south': 'shard-asia',
+  };
+  return regionToShard[userRegion] || 'shard-default';
+}
+```
+
+**Best for:** Applications with strong data locality requirements (GDPR compliance)
+
+## Consistent Hashing
+
+Minimizes data redistribution when adding or removing shards.
+
+```plaintext
+Hash Ring:
+        0
+      /   \
+   S3       S1
+     \     /
+       S2
+      
+Adding S4:
+        0
+      / | \
+   S3  S4  S1
+     \   /
+       S2
+       
+Only keys between S3 and S4 need to move!
+```
+
+```typescript
+class ConsistentHash {
+  private ring: Map<number, string> = new Map();
+  private sortedKeys: number[] = [];
+  
+  addServer(server: string, replicas = 100) {
+    for (let i = 0; i < replicas; i++) {
+      const hash = this.hash(`${server}:${i}`);
+      this.ring.set(hash, server);
+      this.sortedKeys.push(hash);
+    }
+    this.sortedKeys.sort((a, b) => a - b);
+  }
+  
+  getServer(key: string): string {
+    const hash = this.hash(key);
+    for (const ringKey of this.sortedKeys) {
+      if (hash <= ringKey) {
+        return this.ring.get(ringKey)!;
+      }
+    }
+    return this.ring.get(this.sortedKeys[0])!;
+  }
+  
+  private hash(key: string): number {
+    // Simple hash for illustration
+    let hash = 0;
+    for (const char of key) {
+      hash = ((hash << 5) - hash) + char.charCodeAt(0);
+    }
+    return Math.abs(hash);
+  }
+}
+```
+
+## Challenges with Sharding
+
+### Cross-Shard Queries
+
+Queries spanning multiple shards are complex and slow.
+
+```typescript
+// ❌ Expensive: Query all shards and merge results
+async function searchUsers(query: string): Promise<User[]> {
+  const results = await Promise.all(
+    shards.map(shard => shard.query(query))
+  );
+  return results.flat().sort((a, b) => a.score - b.score);
+}
+
+// ✅ Better: Denormalize or use search index
+async function searchUsers(query: string): Promise<User[]> {
+  return elasticsearch.search('users', query);
+}
+```
+
+### Transactions Across Shards
+
+Distributed transactions are complex and slow.
+
+```typescript
+// ❌ Avoid: Cross-shard transaction
+async function transferMoney(from: string, to: string, amount: number) {
+  // Requires 2-phase commit across shards
+}
+
+// ✅ Better: Design to keep related data on same shard
+// Shard by account_group_id instead of account_id
+```
+
+### Resharding
+
+Adding or removing shards requires data migration.
+
+```typescript
+async function reshardData(oldShards: number, newShards: number) {
+  for (const record of getAllRecords()) {
+    const oldShard = hash(record.id) % oldShards;
+    const newShard = hash(record.id) % newShards;
+    
+    if (oldShard !== newShard) {
+      await migrateRecord(record, oldShard, newShard);
+    }
+  }
+}
+```
+
+## Shard Key Selection
+
+Choose a shard key that:
+
+1. **Has high cardinality**: Many unique values
+2. **Distributes evenly**: Avoid hot spots
+3. **Supports access patterns**: Queries should target single shards
+4. **Is immutable**: Changing shard keys requires data migration
+
+### Good Shard Keys
+
+| Use Case | Good Key | Why |
+|----------|----------|-----|
+| Multi-tenant SaaS | tenant_id | Isolates tenant data |
+| Social Network | user_id | User data accessed together |
+| E-commerce | order_id | Orders are independent |
+| Gaming | game_session_id | Session data is isolated |
+
+### Bad Shard Keys
+
+| Key | Problem |
+|-----|---------|
+| timestamp | Creates hot spots (recent data) |
+| boolean | Only 2 values |
+| country | Uneven distribution |
+| auto_increment | All writes to latest shard |
+
+## Best Practices
+
+1. **Delay Sharding**: Only shard when truly necessary
+2. **Plan Shard Key Early**: Changing it later is painful
+3. **Use Consistent Hashing**: Easier to add shards
+4. **Keep Shards Balanced**: Monitor and rebalance
+5. **Backup Individual Shards**: Easier recovery

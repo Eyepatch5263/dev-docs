@@ -1,0 +1,243 @@
+---
+title: Caching
+description: Strategies for improving performance with caching
+order: 4
+category: System Design
+---
+
+# Caching
+
+Caching is a technique for storing frequently accessed data in a fast-access storage layer to reduce latency and database load. Effective caching can dramatically improve application performance.
+
+## Cache Locations
+
+### Client-Side Cache
+
+Browser or application caches data locally.
+
+```http
+Cache-Control: max-age=3600, public
+ETag: "abc123"
+```
+
+### CDN (Content Delivery Network)
+
+Distributed servers cache static content closer to users.
+
+```plaintext
+User (Tokyo) → CDN Edge (Tokyo) → Origin (US)
+                    ↓
+              Cache HIT → Instant response
+```
+
+**Popular CDNs:**
+- Cloudflare
+- AWS CloudFront
+- Fastly
+- Akamai
+
+### Application Cache
+
+In-memory caches within application servers.
+
+```typescript
+const cache = new Map<string, { data: any; expiry: number }>();
+
+function getFromCache<T>(key: string): T | null {
+  const item = cache.get(key);
+  if (!item) return null;
+  if (Date.now() > item.expiry) {
+    cache.delete(key);
+    return null;
+  }
+  return item.data as T;
+}
+```
+
+### Distributed Cache
+
+Shared cache across multiple application instances.
+
+```typescript
+import Redis from 'ioredis';
+
+const redis = new Redis();
+
+async function cacheGet<T>(key: string): Promise<T | null> {
+  const data = await redis.get(key);
+  return data ? JSON.parse(data) : null;
+}
+
+async function cacheSet(key: string, value: any, ttl: number) {
+  await redis.setex(key, ttl, JSON.stringify(value));
+}
+```
+
+## Caching Strategies
+
+### Cache-Aside (Lazy Loading)
+
+Application manages cache population on demand.
+
+```typescript
+async function getUser(userId: string): Promise<User> {
+  // 1. Check cache first
+  const cached = await redis.get(`user:${userId}`);
+  if (cached) {
+    return JSON.parse(cached);
+  }
+  
+  // 2. Cache miss - fetch from database
+  const user = await db.users.findById(userId);
+  
+  // 3. Store in cache for next time
+  await redis.setex(`user:${userId}`, 3600, JSON.stringify(user));
+  
+  return user;
+}
+```
+
+**Pros:** Only caches requested data
+**Cons:** Cache miss penalty, potential stale data
+
+### Write-Through
+
+Data is written to cache and database simultaneously.
+
+```typescript
+async function updateUser(userId: string, data: Partial<User>) {
+  // 1. Update database
+  const user = await db.users.update(userId, data);
+  
+  // 2. Update cache immediately
+  await redis.setex(`user:${userId}`, 3600, JSON.stringify(user));
+  
+  return user;
+}
+```
+
+**Pros:** Cache always consistent with DB
+**Cons:** Write latency (two writes)
+
+### Write-Behind (Write-Back)
+
+Data is written to cache first, then asynchronously to database.
+
+```typescript
+async function updateUser(userId: string, data: Partial<User>) {
+  // 1. Update cache immediately
+  const user = { ...currentUser, ...data };
+  await redis.setex(`user:${userId}`, 3600, JSON.stringify(user));
+  
+  // 2. Queue database write for later
+  await queue.add('db-write', { userId, data });
+  
+  return user;
+}
+```
+
+**Pros:** Low write latency
+**Cons:** Risk of data loss, complexity
+
+### Write-Around
+
+Data is written directly to database, bypassing cache.
+
+```typescript
+async function createUser(data: UserInput): Promise<User> {
+  // Write directly to database
+  const user = await db.users.create(data);
+  
+  // Cache will be populated on first read
+  return user;
+}
+```
+
+**Pros:** Cache not flooded with write-once data
+**Cons:** First read always a cache miss
+
+## Cache Invalidation
+
+The hardest problem in caching is knowing when to invalidate cached data.
+
+### Time-Based Expiration (TTL)
+
+```typescript
+// Set TTL when caching
+await redis.setex('key', 300, 'value'); // Expires in 5 minutes
+```
+
+### Event-Based Invalidation
+
+```typescript
+// Invalidate on data change
+async function updateProduct(productId: string, data: ProductUpdate) {
+  await db.products.update(productId, data);
+  
+  // Invalidate all related caches
+  await redis.del(`product:${productId}`);
+  await redis.del(`category:${data.categoryId}:products`);
+  await redis.del('featured-products');
+}
+```
+
+### Version-Based Invalidation
+
+```typescript
+// Use version in cache key
+const cacheVersion = await redis.get('products:version');
+const cacheKey = `products:${cacheVersion}:list`;
+
+// Invalidate by incrementing version
+await redis.incr('products:version');
+```
+
+## Cache Patterns
+
+### Cache Stampede Prevention
+
+Prevent multiple simultaneous cache misses from overwhelming the database.
+
+```typescript
+async function getWithLock<T>(
+  key: string,
+  fetchFn: () => Promise<T>,
+  ttl: number
+): Promise<T> {
+  const cached = await redis.get(key);
+  if (cached) return JSON.parse(cached);
+  
+  // Try to acquire lock
+  const lockKey = `lock:${key}`;
+  const acquired = await redis.set(lockKey, '1', 'EX', 10, 'NX');
+  
+  if (acquired) {
+    const data = await fetchFn();
+    await redis.setex(key, ttl, JSON.stringify(data));
+    await redis.del(lockKey);
+    return data;
+  }
+  
+  // Wait and retry if another process is fetching
+  await sleep(100);
+  return getWithLock(key, fetchFn, ttl);
+}
+```
+
+## Redis vs Memcached
+
+| Feature | Redis | Memcached |
+|---------|-------|-----------|
+| Data Structures | Rich (strings, lists, sets, hashes) | Simple (strings only) |
+| Persistence | Yes | No |
+| Replication | Yes | No |
+| Memory Efficiency | Lower | Higher |
+| Multi-threading | Single-threaded | Multi-threaded |
+
+## Best Practices
+
+1. **Set Appropriate TTLs**: Balance freshness vs. cache hit rate
+2. **Monitor Cache Metrics**: Track hit rate, memory usage, evictions
+3. **Use Consistent Hashing**: For distributed caches
+4. **Plan for Cache Failures**: Gracefully degrade to database
+5. **Avoid Caching Sensitive Data**: Or encrypt it

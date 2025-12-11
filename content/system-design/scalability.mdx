@@ -1,0 +1,121 @@
+---
+title: Scalability
+description: Understanding vertical and horizontal scaling strategies
+order: 2
+category: System Design
+---
+
+# Scalability
+
+Scalability is the capability of a system to handle a growing amount of work by adding resources. A scalable system can maintain performance levels when facing increased demands.
+
+## Types of Scaling
+
+### Vertical Scaling (Scale Up)
+
+Vertical scaling involves adding more power to an existing machine—more CPU, RAM, or storage.
+
+```plaintext
+Before: 4 CPU cores, 8GB RAM
+After:  16 CPU cores, 64GB RAM
+```
+
+**Pros:**
+- Simple to implement
+- No application code changes required
+- No data partitioning complexity
+
+**Cons:**
+- Hardware limits (you can only add so much)
+- Single point of failure
+- Expensive high-end hardware
+- Downtime during upgrades
+
+### Horizontal Scaling (Scale Out)
+
+Horizontal scaling involves adding more machines to your resource pool.
+
+```plaintext
+Before: 1 server
+After:  10 servers behind a load balancer
+```
+
+**Pros:**
+- Theoretically unlimited scaling
+- Better fault tolerance
+- Cost-effective (commodity hardware)
+- No downtime for scaling
+
+**Cons:**
+- Application complexity (distributed systems)
+- Data consistency challenges
+- Network latency between nodes
+- Requires load balancing
+
+## Comparison Table
+
+| Aspect | Vertical Scaling | Horizontal Scaling |
+|--------|-----------------|-------------------|
+| Cost | Expensive | Cost-effective |
+| Complexity | Low | High |
+| Limit | Hardware bound | Virtually unlimited |
+| Downtime | Required | Not required |
+| Failure Impact | High | Low |
+
+## When to Use Each
+
+### Use Vertical Scaling When:
+
+- Your application is monolithic
+- You're in early stages with low traffic
+- Quick fixes are needed
+- Database that's hard to distribute
+
+### Use Horizontal Scaling When:
+
+- You expect significant growth
+- High availability is critical
+- You have a distributed architecture
+- Cost optimization is important
+
+## Scaling Patterns
+
+### Stateless Services
+
+Design services to be stateless for easy horizontal scaling:
+
+```typescript
+// ❌ Bad: Stateful service
+class UserService {
+  private sessions = new Map(); // State stored in memory
+  
+  getUser(sessionId: string) {
+    return this.sessions.get(sessionId);
+  }
+}
+
+// ✅ Good: Stateless service
+class UserService {
+  constructor(private redis: RedisClient) {}
+  
+  async getUser(sessionId: string) {
+    return this.redis.get(`session:${sessionId}`);
+  }
+}
+```
+
+### Database Scaling
+
+For databases, you typically combine both approaches:
+
+1. **Read Replicas**: Horizontal scaling for read operations
+2. **Larger Instance**: Vertical scaling for write-heavy primary
+3. **Sharding**: Horizontal scaling for write operations
+
+## Best Practices
+
+1. **Start Simple**: Begin with vertical scaling, move to horizontal when needed
+2. **Design for Horizontal**: Even if not needed now, architect for future scaling
+3. **Monitor and Measure**: Know your bottlenecks before scaling
+4. **Automate Scaling**: Use auto-scaling groups in cloud environments
+5. **Test at Scale**: Load test to validate scaling strategies
