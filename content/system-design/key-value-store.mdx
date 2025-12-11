@@ -1,0 +1,266 @@
+---
+title: Key Value Stores
+description: Understanding key-value storage systems
+order: 4
+category: Building Blocks
+---
+
+## Overview
+
+A **Key-Value Store** is the simplest form of NoSQL database. It stores data as a collection of key-value pairs, where the key is a unique identifier and the value is an opaque blob. This simplicity enables extremely fast lookups and high write throughput, making key-value stores a fundamental building block in distributed systems.
+
+## Data model
+
+```
+┌─────────────────────────────────────────┐
+│           Key-Value Store               │
+├─────────────────┬───────────────────────┤
+│      Key        │        Value          │
+├─────────────────┼───────────────────────┤
+│  user:1001      │  {"name": "Alice"}    │
+│  session:abc123 │  {token, expiry, ...} │
+│  cache:product5 │  <binary blob>        │
+│  counter:views  │  42                   │
+└─────────────────┴───────────────────────┘
+```
+
+### Key characteristics
+- **Key**: Unique identifier (string, number, or binary). Often hashed for distribution.
+- **Value**: Opaque blob — the store doesn't interpret the structure (JSON, binary, serialized objects)
+- **Metadata**: Optional TTL, version/timestamp, content type
+
+## Common use cases
+
+| Use Case | Example | Why Key-Value? |
+|----------|---------|----------------|
+| **Caching** | Redis, Memcached | Sub-millisecond reads |
+| **Session storage** | User sessions by session ID | Fast lookups, TTL support |
+| **Feature flags** | Config by feature name | Simple reads, atomic updates |
+| **Rate limiting** | Counters per user/IP | Atomic increment operations |
+| **User profiles** | Profile by user ID | Schema flexibility |
+| **Shopping carts** | Cart by session/user | Fast reads/writes |
+
+## Core operations
+
+```python
+# Basic operations
+PUT(key, value)      # Insert or update
+GET(key) → value     # Retrieve by key
+DELETE(key)          # Remove entry
+
+# Extended operations
+EXISTS(key) → bool   # Check existence
+EXPIRE(key, ttl)     # Set time-to-live
+INCR(key)            # Atomic increment
+MGET(keys[])         # Batch get
+MPUT(pairs[])        # Batch put
+```
+
+## Design considerations
+
+### Performance
+- **O(1) lookups**: Hash-based key access provides constant-time reads
+- **In-memory vs. persistent**: Trade-off between speed and durability
+- **Write patterns**: Append-only logs, LSM trees for write-heavy workloads
+
+### Data organization
+
+```
+┌──────────────────────────────────────────────────────────┐
+│                    In-Memory Store                       │
+│  ┌─────────────┐  ┌─────────────┐  ┌─────────────┐       │
+│  │  Hash Table │  │  Skip List  │  │   Bloom     │       │
+│  │   (index)   │  │  (sorted)   │  │   Filter    │       │
+│  └─────────────┘  └─────────────┘  └─────────────┘       │
+└──────────────────────────────────────────────────────────┘
+                          │
+                          ▼
+┌──────────────────────────────────────────────────────────┐
+│                   Persistent Storage                     │
+│  ┌─────────────┐  ┌─────────────┐  ┌─────────────┐       │
+│  │     WAL     │  │   SSTable   │  │  Snapshots  │       │
+│  │ (write log) │  │  (sorted)   │  │  (backup)   │       │
+│  └─────────────┘  └─────────────┘  └─────────────┘       │
+└──────────────────────────────────────────────────────────┘
+```
+
+## Partitioning (Sharding)
+
+Distribute keys across multiple nodes to scale horizontally.
+
+### Consistent hashing
+
+```
+        Node A              Node B              Node C
+           │                   │                   │
+    ┌──────┴──────┐     ┌──────┴──────┐     ┌──────┴──────┐
+    │  Keys 0-33  │     │  Keys 34-66 │     │  Keys 67-99 │
+    └─────────────┘     └─────────────┘     └─────────────┘
+
+Hash ring with virtual nodes:
+    0 ────── A ────── B ────── A ────── C ────── B ────── 100
+              │               │               │
+           key:user1       key:sess2       key:cart3
+```
+
+**Benefits of consistent hashing**:
+- Adding/removing nodes moves only K/N keys (K = total keys, N = nodes)
+- Virtual nodes balance load across heterogeneous hardware
+
+### Partitioning strategies
+
+| Strategy | Pros | Cons |
+|----------|------|------|
+| **Hash partitioning** | Even distribution | No range queries |
+| **Range partitioning** | Range queries | Hot spots possible |
+| **Consistent hashing** | Minimal rebalancing | Complexity |
+
+## Replication
+
+Keep copies of data on multiple nodes for availability and durability.
+
+```
+┌─────────────────────────────────────────────────────────┐
+│                    Replication                          │
+│                                                         │
+│   Write ──► Leader ──► Follower 1                       │
+│                    └──► Follower 2                      │
+│                    └──► Follower 3                      │
+│                                                         │
+│   Read  ◄── Any replica (eventual consistency)          │
+│         ◄── Leader only (strong consistency)            │
+└─────────────────────────────────────────────────────────┘
+```
+
+### Replication strategies
+
+- **Leader-follower**: Writes go to leader, replicated to followers
+- **Leaderless**: Any node accepts writes (Dynamo-style)
+- **Synchronous**: Wait for replicas before acknowledging (durable, slower)
+- **Asynchronous**: Acknowledge immediately, replicate in background (fast, potential data loss)
+
+## Consistency models
+
+### Tunable consistency (Dynamo-style)
+
+```
+N = Replication factor (total replicas)
+W = Write quorum (replicas that must acknowledge write)
+R = Read quorum (replicas that must respond to read)
+
+Strong consistency: W + R > N
+Example: N=3, W=2, R=2 → Always read latest write
+```
+
+| Configuration | W | R | Guarantee |
+|--------------|---|---|-----------|
+| Strong consistency | 2 | 2 | Always latest (N=3) |
+| Fast writes | 1 | 3 | Durable reads |
+| Fast reads | 3 | 1 | Durable writes |
+| Eventual | 1 | 1 | Fastest, may be stale |
+
+### Conflict resolution
+
+When concurrent writes occur:
+- **Last-write-wins (LWW)**: Timestamp-based, simple but can lose data
+- **Vector clocks**: Track causality, detect conflicts
+- **CRDTs**: Conflict-free data types that auto-merge
+- **Application-level**: Return conflicts to application to resolve
+
+## TTL and eviction
+
+### Expiration policies
+
+```python
+# Set TTL on write
+SET user:session:123 "data" EX 3600  # Expires in 1 hour
+
+# Passive expiration: Check on access
+GET key → if expired → return null, delete
+
+# Active expiration: Background thread samples and deletes
+```
+
+### Eviction policies (when memory is full)
+
+| Policy | Description | Use Case |
+|--------|-------------|----------|
+| **LRU** | Least Recently Used | General caching |
+| **LFU** | Least Frequently Used | Hot data retention |
+| **TTL** | Expire oldest TTL first | Session data |
+| **Random** | Random eviction | Simple, fast |
+| **No eviction** | Reject writes | Critical data |
+
+## Example systems
+
+| System | Type | Key Features |
+|--------|------|--------------|
+| **Redis** | In-memory | Rich data types, persistence, clustering |
+| **Memcached** | In-memory | Simple, multi-threaded, distributed |
+| **DynamoDB** | Managed | Auto-scaling, serverless, global tables |
+| **etcd** | Distributed | Strong consistency, leader election |
+| **RocksDB** | Embedded | LSM-tree, high write throughput |
+
+## Designing a distributed key-value store
+
+### High-level architecture
+
+```
+┌─────────────────────────────────────────────────────────────┐
+│                        Clients                              │
+└─────────────────────────────────────────────────────────────┘
+                              │
+                              ▼
+┌─────────────────────────────────────────────────────────────┐
+│                    Coordinator Layer                        │
+│         (routing, load balancing, request handling)         │
+└─────────────────────────────────────────────────────────────┘
+                              │
+              ┌───────────────┼───────────────┐
+              ▼               ▼               ▼
+        ┌──────────┐   ┌──────────┐   ┌──────────┐
+        │ Shard 1  │   │ Shard 2  │   │ Shard 3  │
+        │┌────────┐│   │┌────────┐│   │┌────────┐│
+        ││Leader  ││   ││Leader  ││   ││Leader  ││
+        │├────────┤│   │├────────┤│   │├────────┤│
+        ││Follower││   ││Follower││   ││Follower││
+        ││Follower││   ││Follower││   ││Follower││
+        │└────────┘│   │└────────┘│   │└────────┘│
+        └──────────┘   └──────────┘   └──────────┘
+```
+
+### Design checklist
+
+1. **Partitioning**: Use consistent hashing with virtual nodes
+2. **Replication**: 3 replicas per partition for durability
+3. **Consistency**: Tunable quorums (default: eventual, option for strong)
+4. **Failure detection**: Gossip protocol or heartbeats
+5. **Handoff**: Hinted handoff for temporary failures
+6. **Anti-entropy**: Merkle trees to sync replicas
+7. **Persistence**: WAL + periodic snapshots
+
+## Operational considerations
+
+### Monitoring metrics
+
+- **Latency**: p50, p95, p99 for GET/PUT operations
+- **Throughput**: Operations per second
+- **Cache hit ratio**: For caching use cases
+- **Memory usage**: Eviction rates, fragmentation
+- **Replication lag**: Time for replicas to catch up
+
+### Common issues
+
+| Issue | Cause | Solution |
+|-------|-------|----------|
+| Hot keys | Skewed access | Key hashing, local caching |
+| Memory pressure | Data growth | Eviction policies, sharding |
+| Replication lag | High write volume | Tune async settings |
+| Split brain | Network partition | Quorum-based consensus |
+
+## Further reading
+
+- Designing Data-Intensive Applications — Martin Kleppmann
+- Amazon Dynamo Paper (2007)
+- Redis documentation: https://redis.io/documentation
+- etcd documentation: https://etcd.io/docs/

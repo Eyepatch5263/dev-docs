@@ -1,0 +1,195 @@
+---
+title: CDN
+description: Designing Content Delivery Networks for optimal performance
+order: 5
+category: Building Blocks
+---
+
+## Overview
+
+A **Content Delivery Network (CDN)** is a geographically distributed system of cache servers that delivers web content to users with high availability and low latency. CDNs reduce load on origin servers, decrease latency by serving content from edge locations close to users, and improve reliability through replication and routing.
+
+## Why use a CDN?
+
+- **Reduced latency**: Content is served from edge servers geographically closer to users
+- **Lower origin load**: Static assets are offloaded from your origin servers
+- **High availability**: Distributed architecture provides redundancy and fault tolerance
+- **DDoS protection**: CDNs can absorb and mitigate large-scale attacks
+- **Bandwidth savings**: Caching reduces repeated data transfer from origin
+
+## How CDNs work
+
+```
+User Request → DNS Resolution → Nearest Edge Server → Cache Hit/Miss → Response
+                                        ↓
+                                   Cache Miss
+                                        ↓
+                                 Origin Server
+```
+
+1. **DNS routing**: User's DNS request is resolved to the nearest edge server using GeoDNS or Anycast
+2. **Edge caching**: CDN caches static assets at edge servers in multiple regions
+3. **Cache miss flow**: On a cache miss, the edge fetches from origin, caches it, then returns to user
+4. **Request routing**: CDNs use DNS-based routing, Anycast, or application-layer routing
+
+## Types of content served
+
+| Content Type | Examples | Cacheability |
+|-------------|----------|--------------|
+| Static assets | Images, CSS, JS, fonts | Highly cacheable |
+| Media | Video/audio (HLS/DASH segments) | Highly cacheable |
+| API responses | GET requests, public data | Conditionally cacheable |
+| Dynamic content | Personalized pages | Edge compute or no-cache |
+
+## CDN architectures
+
+### Push CDN
+Content is explicitly uploaded to the CDN before users request it.
+
+**Best for**: Video platforms, software distribution, large media files
+
+```
+Origin Server ---(upload)---> CDN Storage ---> Edge Servers ---> Users
+```
+
+### Pull CDN (Origin-Pull)
+CDN fetches content from origin on first request and caches it.
+
+**Best for**: Websites, APIs, frequently changing content
+
+```
+User ---> Edge Server ---(cache miss)---> Origin Server
+                ↓
+          (cache & serve)
+                ↓
+            User
+```
+
+### Multi-CDN
+Using multiple CDN providers for redundancy, performance, or cost optimization.
+
+```
+         ┌─── CDN A (Primary)
+Traffic ─┼─── CDN B (Failover)
+         └─── CDN C (Regional)
+```
+
+## Caching strategies
+
+### Cache-Control headers
+
+```http
+Cache-Control: public, max-age=31536000, immutable
+Cache-Control: private, no-cache
+Cache-Control: public, max-age=3600, stale-while-revalidate=86400
+```
+
+### Key caching concepts
+
+- **TTL (Time-to-Live)**: How long content stays cached before revalidation
+- **Cache invalidation/Purge**: Force removal of cached content when origin changes
+- **Stale-while-revalidate**: Serve stale content while fetching fresh copy in background
+- **Stale-if-error**: Serve stale content if origin is unavailable
+- **Cache hierarchy**: Edge → Regional → Origin (reduces origin load)
+
+### Cache key design
+
+```
+Cache Key = URL + Vary Headers + Query Params (selective)
+
+Example:
+/api/products?category=shoes
+Vary: Accept-Language, Accept-Encoding
+```
+
+## Performance optimizations
+
+- **Edge proximity**: Serve from servers closest to users (reduces RTT)
+- **Connection reuse**: Keep-alive connections, HTTP/2 multiplexing
+- **Protocol optimizations**: HTTP/2, HTTP/3 (QUIC), TLS 1.3
+- **Compression**: Gzip, Brotli at the edge
+- **Image optimization**: WebP/AVIF conversion, resizing at edge
+- **Prefetching**: Predictive content loading
+
+## Consistency considerations
+
+CDNs trade **immediate consistency** for **availability and performance**.
+
+| Strategy | Consistency | Performance |
+|----------|-------------|-------------|
+| Short TTL (seconds) | Higher | Lower cache hits |
+| Long TTL + Purge | Lower | Higher cache hits |
+| Versioned URLs | Immediate | Best cache hits |
+| Cache tags | Selective | Good balance |
+
+**Best practice**: Use versioned/fingerprinted URLs for assets:
+```
+/static/app.a1b2c3d4.js  ← Cache forever, new version = new URL
+```
+
+## Security features
+
+- **DDoS mitigation**: Absorb volumetric attacks across distributed edge
+- **TLS termination**: Terminate TLS at edge, reduce origin CPU
+- **WAF (Web Application Firewall)**: Filter malicious requests at edge
+- **Bot management**: Detect and block automated threats
+- **Origin shielding**: Hide origin IP, reduce direct attacks
+- **Token authentication**: Signed URLs for protected content
+
+## Operational considerations
+
+### Key metrics to monitor
+
+- **Cache hit ratio**: Target > 90% for static assets
+- **Origin traffic**: Should be minimal with good caching
+- **Latency (p50, p95, p99)**: Edge latency should be < 50ms
+- **Error rates**: 4xx/5xx from edge and origin
+- **Bandwidth**: Egress costs and capacity
+
+### Cost optimization
+
+- Maximize cache hit ratio (reduces origin egress)
+- Use appropriate TTLs (longer = cheaper)
+- Compress assets (reduces bandwidth)
+- Consider reserved capacity for predictable traffic
+
+## Example: CDN for a web application
+
+```
+┌─────────────────────────────────────────────────────────────┐
+│                        Internet                              │
+└─────────────────────────────────────────────────────────────┘
+                              │
+                              ▼
+┌─────────────────────────────────────────────────────────────┐
+│                     CDN Edge Layer                           │
+│  ┌─────────┐  ┌─────────┐  ┌─────────┐  ┌─────────┐        │
+│  │ Edge US │  │ Edge EU │  │Edge Asia│  │Edge SA  │        │
+│  └─────────┘  └─────────┘  └─────────┘  └─────────┘        │
+│       Static assets, API cache, WAF, DDoS protection        │
+└─────────────────────────────────────────────────────────────┘
+                              │
+                              ▼ (cache miss only)
+┌─────────────────────────────────────────────────────────────┐
+│                     Origin Infrastructure                    │
+│  ┌──────────────┐    ┌──────────────┐    ┌──────────────┐  │
+│  │  Web Servers │    │  API Servers │    │ Object Store │  │
+│  └──────────────┘    └──────────────┘    └──────────────┘  │
+└─────────────────────────────────────────────────────────────┘
+```
+
+## Popular CDN providers
+
+| Provider | Strengths |
+|----------|-----------|
+| **Cloudflare** | DDoS, WAF, Workers (edge compute), free tier |
+| **AWS CloudFront** | AWS integration, Lambda@Edge |
+| **Fastly** | Real-time purging, VCL customization |
+| **Akamai** | Enterprise scale, global reach |
+| **Google Cloud CDN** | GCP integration, global load balancing |
+
+## Further reading
+
+- High Performance Browser Networking — Ilya Grigorik
+- CDN provider documentation (Cloudflare, Fastly, AWS CloudFront)
+- HTTP Caching (MDN Web Docs)

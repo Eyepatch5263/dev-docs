@@ -3,42 +3,53 @@ import { MDXRemote } from "next-mdx-remote/rsc";
 import rehypeSlug from "rehype-slug";
 import rehypePrettyCode from "rehype-pretty-code";
 import remarkGfm from "remark-gfm";
-import { getAllSlugs, getDocBySlug } from "@/lib/docs";
+import { getAllSlugsForTopic, getDocBySlug, getTopicMeta } from "@/lib/docs";
 import { extractHeadings } from "@/lib/toc";
 import { TableOfContents } from "@/components/TableOfContents";
 import { Separator } from "@/components/ui/separator";
 import { mdxComponents } from "@/components/mdx-components";
 
 interface DocPageProps {
-    params: Promise<{ slug: string[] }>;
+    params: Promise<{ topic: string; slug: string[] }>;
 }
 
 export async function generateStaticParams() {
-    const slugs = getAllSlugs();
-    return slugs.map((slug) => ({
-        slug: slug.split("/"),
-    }));
+    const topics = ["system-design", "networking", "operating-systems", "dbms"];
+    const params: { topic: string; slug: string[] }[] = [];
+
+    for (const topic of topics) {
+        const slugs = getAllSlugsForTopic(topic);
+        for (const slug of slugs) {
+            params.push({
+                topic,
+                slug: slug.split("/"),
+            });
+        }
+    }
+
+    return params;
 }
 
 export async function generateMetadata({ params }: DocPageProps) {
-    const { slug } = await params;
+    const { topic, slug } = await params;
     const slugPath = slug.join("/");
-    const doc = getDocBySlug(slugPath);
+    const doc = getDocBySlug(topic, slugPath);
+    const topicMeta = getTopicMeta(topic);
 
     if (!doc) {
         return { title: "Not Found" };
     }
 
     return {
-        title: `${doc.title} | System Design Docs`,
+        title: `${doc.title} | ${topicMeta?.title || topic} | CS Docs`,
         description: doc.description,
     };
 }
 
 export default async function DocPage({ params }: DocPageProps) {
-    const { slug } = await params;
+    const { topic, slug } = await params;
     const slugPath = slug.join("/");
-    const doc = getDocBySlug(slugPath);
+    const doc = getDocBySlug(topic, slugPath);
 
     if (!doc) {
         notFound();
@@ -47,8 +58,8 @@ export default async function DocPage({ params }: DocPageProps) {
     const headings = extractHeadings(doc.content);
 
     return (
-        <div className="flex">
-            <article className="flex-1 min-w-0 px-8 py-8 max-w-3xl">
+        <div className="flex flex-1 w-full">
+            <article className="w-[80%] min-w-0 px-8 py-8">
                 <header className="space-y-2 mb-6">
                     <h1 className="text-3xl font-bold tracking-tight">{doc.title}</h1>
                     {doc.description && (
