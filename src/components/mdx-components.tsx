@@ -126,8 +126,33 @@ function Code({
     );
 }
 
+// Custom image component with styling
+function Img({
+    src,
+    alt,
+    ...props
+}: ComponentPropsWithoutRef<"img">) {
+    return (
+        <span className="block my-6">
+            <img
+                src={src}
+                alt={alt || ""}
+                className="rounded-lg border border-border shadow-md max-w-full h-auto"
+                loading="lazy"
+                {...props}
+            />
+            {alt && (
+                <span className="block text-center text-sm text-muted-foreground mt-2">
+                    {alt}
+                </span>
+            )}
+        </span>
+    );
+}
+
 export const mdxComponents = {
     pre: Pre,
     code: Code,
     figure: Figure,
+    img: Img,
 };

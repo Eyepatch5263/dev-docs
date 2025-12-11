@@ -122,6 +122,26 @@ function hello(name: string): string {
 
 Supported languages include: JavaScript, TypeScript, Python, Go, Rust, SQL, Bash, JSON, YAML, and more.
 
+### Adding Images
+
+Place images in the `public/images/` folder and reference them in your MDX files:
+
+```mdx
+![System Architecture Diagram](/images/architecture.png)
+```
+
+Images automatically get:
+- Rounded corners and border styling
+- Shadow effect
+- Caption text from the alt attribute
+- Lazy loading for performance
+
+You can also use external image URLs:
+
+```mdx
+![External Diagram](https://example.com/diagram.png)
+```
+
 ### Organizing Content
 
 - **Root level files** (`content/*.mdx`) appear in "Getting Started" section
