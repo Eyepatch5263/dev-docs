@@ -73,13 +73,17 @@ html.dark {
 /* Dual theme code blocks - show light theme by default, dark in dark mode */
 [data-rehype-pretty-code-figure] code[data-theme*=" "],
 [data-rehype-pretty-code-figure] code[data-theme*=" "] span {
-  color: var(--shiki-light, #24292f);
+  color: var(--shiki-light, #1f2328);
   background-color: var(--shiki-light-bg, transparent);
 }
 
-/* Base text color fallback for light mode */
+/* Base text color fallback for light mode - ensure ASCII diagrams are visible */
 [data-rehype-pretty-code-figure] pre {
-  color: #24292f;
+  color: #1f2328 !important;
+}
+
+[data-rehype-pretty-code-figure] pre code {
+  color: inherit;
 }
 
 .dark [data-rehype-pretty-code-figure] code[data-theme*=" "],
@@ -90,7 +94,7 @@ html.dark {
 
 /* Base text color fallback for dark mode */
 .dark [data-rehype-pretty-code-figure] pre {
-  color: #e6edf3;
+  color: #e6edf3 !important;
 }
 
 /* Smooth scrolling for anchor links */
@@ -119,15 +123,15 @@ html {
 
 /* Prose customizations */
 .prose pre {
-  @apply !bg-[#24292e];
+  @apply bg-[#f6f8fa] dark:bg-[#0d1117];
 }
 
 .prose code {
-  @apply bg-gray-100 dark:bg-gray-800 px-1.5 py-0.5 rounded text-sm font-normal;
+  @apply bg-gray-100 dark:bg-gray-800 px-1.5 py-0.5 rounded text-sm font-normal text-gray-800 dark:text-gray-200;
 }
 
 .prose pre code {
-  @apply bg-transparent p-0;
+  @apply bg-transparent p-0 text-[#1f2328] dark:text-[#e6edf3];
 }
 
 /* Table styling */

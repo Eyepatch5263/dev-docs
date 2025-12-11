@@ -90,7 +90,7 @@ function Figure({
                 <div className="w-13" />
             </div>
             {/* Code content */}
-            <div className="[&_pre]:!m-0 [&_pre]:!rounded-none [&_pre]:!border-0 [&_pre]:p-4 [&_pre]:!bg-transparent [&_code]:!bg-transparent">
+            <div className="[&_pre]:!m-0 [&_pre]:!rounded-none [&_pre]:!border-0 [&_pre]:p-4 [&_pre]:!bg-transparent [&_code]:!bg-transparent text-[#1f2328] dark:text-[#e6edf3]">
                 {children}
             </div>
         </figure>

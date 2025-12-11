@@ -37,7 +37,7 @@ export function Sidebar({ navigation, basePath }: SidebarProps) {
     };
 
     return (
-        <aside className="w-[18%] min-w-[200px] shrink-0 border-r border-border">
+        <aside className="hidden md:block w-[18%] min-w-[200px] shrink-0 border-r border-border">
             <ScrollArea className="h-[calc(100vh-3.5rem)] py-6">
                 <nav className="px-3 space-y-1">
                     {navigation.map((category) => {

@@ -59,11 +59,11 @@ export default async function DocPage({ params }: DocPageProps) {
 
     return (
         <div className="flex flex-1 w-full">
-            <article className="w-[80%] min-w-0 px-8 py-8">
+            <article className="w-full xl:w-[80%] min-w-0 px-4 md:px-8 py-6 md:py-8">
                 <header className="space-y-2 mb-6">
-                    <h1 className="text-3xl font-bold tracking-tight">{doc.title}</h1>
+                    <h1 className="text-2xl md:text-3xl font-bold tracking-tight">{doc.title}</h1>
                     {doc.description && (
-                        <p className="text-lg text-muted-foreground">{doc.description}</p>
+                        <p className="text-base md:text-lg text-muted-foreground">{doc.description}</p>
                     )}
                 </header>
 

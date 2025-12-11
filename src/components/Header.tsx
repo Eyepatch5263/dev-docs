@@ -4,14 +4,21 @@ import { ThemeToggle } from "./ThemeToggle";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 
-export function Header() {
+interface HeaderProps {
+    children?: React.ReactNode;
+}
+
+export function Header({ children }: HeaderProps) {
     return (
-        <header className="sticky top-0 z-50 w-full border-b border-border bg-background/95 backdrop-blur supports-backdrop-filter:bg-background/60">
-            <div className="flex h-14 items-center justify-between px-6">
-                <Link href="/docs" className="flex items-center space-x-2">
-                    <BookOpen className="h-5 w-5 text-primary" />
-                    <span className="text-lg font-semibold">Developer Docs</span>
-                </Link>
+        <header className="sticky top-0 z-40 w-full border-b border-border bg-background/95 backdrop-blur supports-backdrop-filter:bg-background/60">
+            <div className="flex h-14 items-center justify-between px-4 md:px-6">
+                <div className="flex items-center gap-2">
+                    {children}
+                    <Link href="/docs" className="flex items-center space-x-2">
+                        <BookOpen className="h-5 w-5 text-primary" />
+                        <span className="text-lg font-semibold">Developer Docs</span>
+                    </Link>
+                </div>
                 <div className="flex items-center gap-1">
                     <ThemeToggle />
                     <Separator orientation="vertical" className="mx-2 h-6" />
