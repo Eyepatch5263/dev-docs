@@ -40,9 +40,31 @@ export async function generateMetadata({ params }: DocPageProps) {
         return { title: "Not Found" };
     }
 
+    const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? "https://explainbytes.tech";
+    const canonical = `${siteUrl}/docs/${topic}/${slugPath}`;
+
+    const images = doc.image ? [`${siteUrl}${doc.image.startsWith("/") ? "" : "/"}${doc.image}`] : [`${siteUrl}/logo.svg`];
+
     return {
-        title: `${doc.title} | ${topicMeta?.title || topic} | CS Docs`,
+        title: `${doc.title} | ${topicMeta?.title || topic} | Explainbytes`,
         description: doc.description,
+        alternates: {
+            canonical,
+        },
+        openGraph: {
+            title: `${doc.title} | ${topicMeta?.title || topic}`,
+            description: doc.description,
+            url: canonical,
+            images: images.map((url) => ({ url })),
+            siteName: "Explainbytes",
+            type: "article",
+        },
+        twitter: {
+            card: "summary_large_image",
+            title: `${doc.title} | ${topicMeta?.title || topic}`,
+            description: doc.description,
+            images,
+        },
     };
 }
 

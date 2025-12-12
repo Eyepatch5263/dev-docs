@@ -1,22 +1,28 @@
 import Link from "next/link";
-import { BookOpen, Github } from "lucide-react";
+import { Github } from "lucide-react";
 import { ThemeToggle } from "./ThemeToggle";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
-
+import { Inria_Sans } from "next/font/google";
 interface HeaderProps {
     children?: React.ReactNode;
 }
+
+const Inria_Sans_Font = Inria_Sans({
+    subsets: ["latin"],
+    weight: ["400", "700"],
+    variable: "--font-inria-sans",
+});
 
 export function Header({ children }: HeaderProps) {
     return (
         <header className="sticky top-0 z-40 w-full border-b border-border bg-background/95 backdrop-blur supports-backdrop-filter:bg-background/60">
             <div className="flex h-14 items-center justify-between px-4 md:px-6">
-                <div className="flex items-center gap-2">
+                <div className="flex items-center gap-4">
                     {children}
                     <Link href="/docs" className="flex items-center space-x-2">
-                        <BookOpen className="h-5 w-5 text-primary" />
-                        <span className="text-lg font-semibold">Developer Docs</span>
+                        <img src="/logo.svg" alt="Explainbytes logo" className="h-6 w-6" />
+                        <span className={`${Inria_Sans_Font.className} text-lg font-semibold`}>Explainbytes</span>
                     </Link>
                 </div>
                 <div className="flex items-center gap-1">

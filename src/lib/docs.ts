@@ -8,6 +8,7 @@ export interface DocMeta {
     slug: string;
     title: string;
     description?: string;
+    image?: string;
     order?: number;
     category?: string;
 }
@@ -116,6 +117,7 @@ export function getAllDocsForTopic(topic: string): DocMeta[] {
             slug,
             title: data.title || slug,
             description: data.description,
+            image: data.image,
             order: data.order || 999,
             category: data.category,
         };
@@ -138,6 +140,7 @@ export function getDocBySlug(topic: string, slug: string): DocContent | null {
         slug,
         title: data.title || slug,
         description: data.description,
+        image: data.image,
         order: data.order || 999,
         category: data.category,
         content,

@@ -1,0 +1,6 @@
+User-agent: *
+Allow: /
+
+# Sitemap and host for Explainbytes
+Sitemap: https://explainbytes.tech/sitemap.xml
+Host: https://explainbytes.tech
