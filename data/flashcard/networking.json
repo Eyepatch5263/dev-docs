@@ -1,0 +1,50 @@
+[
+    {
+        "id": "net-1",
+        "category": "networking",
+        "question": "What is TCP?",
+        "answer": "Transmission Control Protocol - a reliable, connection-oriented transport layer protocol that ensures data is delivered in order and without errors. It uses acknowledgments and retransmission to guarantee delivery."
+    },
+    {
+        "id": "net-2",
+        "category": "networking",
+        "question": "What is DNS?",
+        "answer": "Domain Name System - a hierarchical naming system that translates human-readable domain names (like google.com) into IP addresses that computers use to identify each other on the network."
+    },
+    {
+        "id": "net-3",
+        "category": "networking",
+        "question": "What is the difference between TCP and UDP?",
+        "answer": "TCP is connection-oriented, reliable, and ensures ordered delivery but has higher overhead. UDP is connectionless, faster, but doesn't guarantee delivery or order. UDP is used for real-time applications like video streaming."
+    },
+    {
+        "id": "net-4",
+        "category": "networking",
+        "question": "What is HTTP/HTTPS?",
+        "answer": "HTTP (Hypertext Transfer Protocol) is an application layer protocol for transmitting web pages. HTTPS is the secure version that encrypts data using TLS/SSL to protect against eavesdropping and tampering."
+    },
+    {
+        "id": "net-5",
+        "category": "networking",
+        "question": "What is a subnet mask?",
+        "answer": "A 32-bit number that divides an IP address into network and host portions. It determines which part of the IP address identifies the network and which part identifies the specific device on that network."
+    },
+    {
+        "id": "net-6",
+        "category": "networking",
+        "question": "What is NAT?",
+        "answer": "Network Address Translation - a method of mapping private IP addresses to public IP addresses. It allows multiple devices on a local network to share a single public IP address for internet access."
+    },
+    {
+        "id": "net-7",
+        "category": "networking",
+        "question": "What is the OSI model?",
+        "answer": "A conceptual framework with 7 layers (Physical, Data Link, Network, Transport, Session, Presentation, Application) that standardizes network communication functions. It helps understand how data flows through a network."
+    },
+    {
+        "id": "net-8",
+        "category": "networking",
+        "question": "What is a CDN?",
+        "answer": "Content Delivery Network - a geographically distributed network of servers that cache and deliver content to users from the nearest location, reducing latency and improving load times for websites and applications."
+    }
+]

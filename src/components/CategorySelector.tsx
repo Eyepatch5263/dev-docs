@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { motion } from 'framer-motion';
-import type { CategoryInfo } from '@/data/flashcards';
+import { CategoryInfo } from '@/app/types/flashcard.type';
 
 interface CategorySelectorProps {
     categories: CategoryInfo[];

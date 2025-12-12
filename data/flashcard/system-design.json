@@ -1,0 +1,50 @@
+[
+    {
+        "id": "sd-1",
+        "category": "system-design",
+        "question": "What is load balancing?",
+        "answer": "The distribution of network traffic across multiple servers to ensure no single server becomes overwhelmed. It improves application availability, reliability, and performance by spreading the workload evenly."
+    },
+    {
+        "id": "sd-2",
+        "category": "system-design",
+        "question": "What is caching?",
+        "answer": "Temporarily storing frequently accessed data in a fast-access storage layer (like memory) to reduce retrieval time and database load. Common caching strategies include LRU, LFU, and write-through/write-back."
+    },
+    {
+        "id": "sd-3",
+        "category": "system-design",
+        "question": "What is horizontal vs vertical scaling?",
+        "answer": "Horizontal scaling (scale-out) adds more machines to distribute load, while vertical scaling (scale-up) adds more resources to existing machines. Horizontal scaling is more flexible and fault-tolerant."
+    },
+    {
+        "id": "sd-4",
+        "category": "system-design",
+        "question": "What is a microservices architecture?",
+        "answer": "An architectural style that structures an application as a collection of small, independent services that communicate via APIs. Each service is focused on a specific business capability and can be developed and deployed independently."
+    },
+    {
+        "id": "sd-5",
+        "category": "system-design",
+        "question": "What is CAP theorem?",
+        "answer": "States that a distributed system can only guarantee two of three properties: Consistency (all nodes see the same data), Availability (every request gets a response), and Partition tolerance (system continues despite network failures)."
+    },
+    {
+        "id": "sd-6",
+        "category": "system-design",
+        "question": "What is a message queue?",
+        "answer": "An asynchronous communication method where messages are stored in a queue until they are processed. It decouples services, enables load leveling, and provides fault tolerance. Examples include RabbitMQ and Apache Kafka."
+    },
+    {
+        "id": "sd-7",
+        "category": "system-design",
+        "question": "What is database replication?",
+        "answer": "The process of copying data from one database to another to ensure data availability and reliability. Common patterns include master-slave (read replicas) and master-master (multi-master) replication."
+    },
+    {
+        "id": "sd-8",
+        "category": "system-design",
+        "question": "What is rate limiting?",
+        "answer": "A technique to control the number of requests a user or service can make in a given time period. It prevents abuse, ensures fair resource usage, and protects against DDoS attacks. Common algorithms include token bucket and leaky bucket."
+    }
+]

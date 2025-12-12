@@ -8,7 +8,6 @@ import {
     getFlashcardsByCategory,
     getCategoryInfo,
     shuffleDeck,
-    type FlashcardCategory,
 } from '@/data/flashcards';
 import { useKeyboardControls } from '@/hooks/useKeyboardControls';
 import { useLocalStorage } from '@/hooks/useLocalStorage';
@@ -17,6 +16,7 @@ import { ArrowLeft, BookOpen } from 'lucide-react';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { useState, useEffect, useRef, use } from 'react';
+import { FlashcardCategory } from '@/app/types/flashcard.type';
 
 export default function CategoryPage({ params }: { params: Promise<{ category: string }> }) {
     const { category: categoryParam } = use(params);

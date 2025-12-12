@@ -1,0 +1,50 @@
+[
+  {
+    "id": "dbms-1",
+    "category": "dbms",
+    "question": "What is an index in a database?",
+    "answer": "A data structure that improves the speed of data retrieval operations on a database table. It works like a book index, using pointers to quickly locate data without scanning every row."
+  },
+  {
+    "id": "dbms-2",
+    "category": "dbms",
+    "question": "What is normalization?",
+    "answer": "The process of organizing data in a database to reduce redundancy and improve data integrity. It involves dividing large tables into smaller ones and defining relationships between them."
+  },
+  {
+    "id": "dbms-3",
+    "category": "dbms",
+    "question": "What is ACID in databases?",
+    "answer": "ACID stands for Atomicity, Consistency, Isolation, and Durability. These are properties that guarantee database transactions are processed reliably, ensuring data integrity even in case of errors or system failures."
+  },
+  {
+    "id": "dbms-4",
+    "category": "dbms",
+    "question": "What is the difference between SQL and NoSQL?",
+    "answer": "SQL databases are relational, use structured schemas, and support ACID transactions. NoSQL databases are non-relational, have flexible schemas, and are designed for horizontal scaling and handling unstructured data."
+  },
+  {
+    "id": "dbms-5",
+    "category": "dbms",
+    "question": "What is a primary key?",
+    "answer": "A unique identifier for each record in a database table. It must contain unique values and cannot contain NULL values. Each table can have only one primary key."
+  },
+  {
+    "id": "dbms-6",
+    "category": "dbms",
+    "question": "What is a foreign key?",
+    "answer": "A field in one table that refers to the primary key in another table. It creates a link between two tables and enforces referential integrity by ensuring the value exists in the referenced table."
+  },
+  {
+    "id": "dbms-7",
+    "category": "dbms",
+    "question": "What is database sharding?",
+    "answer": "A database partitioning technique that splits large databases into smaller, faster, more manageable parts called shards. Each shard is held on a separate database server instance to spread the load."
+  },
+  {
+    "id": "dbms-8",
+    "category": "dbms",
+    "question": "What is a transaction?",
+    "answer": "A sequence of database operations that are treated as a single unit of work. All operations must complete successfully, or none of them will be applied, ensuring data consistency."
+  }
+]

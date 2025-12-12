@@ -1,0 +1,50 @@
+[
+    {
+        "id": "os-1",
+        "category": "os",
+        "question": "What is a process?",
+        "answer": "An executing instance of a program with its own memory space, including code, data, and system resources. Each process runs independently and is isolated from other processes."
+    },
+    {
+        "id": "os-2",
+        "category": "os",
+        "question": "What is a thread?",
+        "answer": "A lightweight unit of execution within a process that shares memory and resources with other threads in the same process. Threads enable concurrent execution and are more efficient than creating separate processes."
+    },
+    {
+        "id": "os-3",
+        "category": "os",
+        "question": "What is virtual memory?",
+        "answer": "A memory management technique that creates an illusion of a large, contiguous memory space by using both RAM and disk storage. It allows programs to use more memory than physically available."
+    },
+    {
+        "id": "os-4",
+        "category": "os",
+        "question": "What is a deadlock?",
+        "answer": "A situation where two or more processes are unable to proceed because each is waiting for the other to release a resource. It occurs when four conditions are met: mutual exclusion, hold and wait, no preemption, and circular wait."
+    },
+    {
+        "id": "os-5",
+        "category": "os",
+        "question": "What is context switching?",
+        "answer": "The process of storing and restoring the state of a process or thread so that execution can be resumed later. It allows multiple processes to share a single CPU and is essential for multitasking."
+    },
+    {
+        "id": "os-6",
+        "category": "os",
+        "question": "What is paging?",
+        "answer": "A memory management scheme that eliminates the need for contiguous allocation of physical memory. It divides memory into fixed-size blocks called pages and maps them to physical frames."
+    },
+    {
+        "id": "os-7",
+        "category": "os",
+        "question": "What is the difference between kernel mode and user mode?",
+        "answer": "Kernel mode has unrestricted access to all hardware and system resources, while user mode has limited access. Programs run in user mode and switch to kernel mode via system calls to access protected resources."
+    },
+    {
+        "id": "os-8",
+        "category": "os",
+        "question": "What is a semaphore?",
+        "answer": "A synchronization primitive used to control access to shared resources in concurrent programming. It maintains a counter that gets incremented or decremented to signal resource availability."
+    }
+]
