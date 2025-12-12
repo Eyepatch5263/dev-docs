@@ -17,12 +17,12 @@ const Inria_Sans_Font = Inria_Sans({
 export function Header({ children }: HeaderProps) {
     return (
         <header className="sticky top-0 z-40 w-full border-b border-border bg-background/95 backdrop-blur supports-backdrop-filter:bg-background/60">
-            <div className="flex h-14 items-center justify-between px-4 md:px-6">
+            <div className="flex h-18 items-center justify-between px-4 md:px-6">
                 <div className="flex items-center gap-4">
                     {children}
-                    <Link href="/docs" className="flex items-center space-x-2">
-                        <img src="/logo.svg" alt="Explainbytes logo" className="h-6 w-6" />
-                        <span className={`${Inria_Sans_Font.className} text-lg font-semibold`}>Explainbytes</span>
+                    <Link href="/docs" className="flex items-center gap-3">
+                        <img src="/logo.svg" alt="Explainbytes logo" className="h-8 w-8" />
+                        <span className={`${Inria_Sans_Font.className} text-xl font-semibold`}>Explainbytes</span>
                     </Link>
                 </div>
                 <div className="flex items-center gap-1">

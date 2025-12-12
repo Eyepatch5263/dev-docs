@@ -109,8 +109,11 @@ function getAllMdxFiles(dir: string, baseDir = dir): string[] {
         const fullPath = path.join(dir, item);
         const stat = fs.statSync(fullPath);
 
+        // for reading dir recursively
         if (stat.isDirectory()) {
             files.push(...getAllMdxFiles(fullPath, baseDir));
+
+            // if .mdx file found push it in files array and return the array
         } else if (item.endsWith(".mdx")) {
             const relativePath = path.relative(baseDir, fullPath);
             files.push(relativePath);
