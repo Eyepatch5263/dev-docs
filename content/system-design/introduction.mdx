@@ -5,3 +5,242 @@ order: 1
 category: Introduction
 ---
 
+## What is System Design?
+
+**System Design** is the process of defining the architecture, components, modules, interfaces, and data flow of a system to satisfy specified requirements. It's about making high-level decisions that shape how software systems are built, scaled, and maintained.
+
+At its core, system design answers questions like:
+
+- How do we handle millions of users simultaneously?
+- How do we ensure data isn't lost when servers fail?
+- How do we make the system fast for users across the globe?
+- How do we evolve the system as requirements change?
+
+```
+┌─────────────────────────────────────────────────────────────────┐
+│                     System Design Spectrum                      │
+├─────────────────────────────────────────────────────────────────┤
+│                                                                 │
+│   Requirements ──► Architecture ──► Components ──► Data Flow    │
+│        │               │                │              │        │
+│        ▼               ▼                ▼              ▼        │
+│   Functional      High-Level       Databases      APIs &        │
+│   Non-functional  Decisions        Caches         Protocols     │
+│   Constraints     Trade-offs       Queues         Interfaces    │
+│                                                                 │
+└─────────────────────────────────────────────────────────────────┘
+```
+
+## Why Learn System Design?
+
+### 1. **Career Growth**
+System design interviews are a critical part of senior engineering roles at top tech companies. Understanding these concepts opens doors to Staff, Principal, and Architect positions.
+
+### 2. **Build Better Software**
+Even if you're not designing systems from scratch, understanding the "why" behind architectural decisions helps you:
+- Write code that scales
+- Debug distributed systems effectively
+- Communicate better with infrastructure teams
+
+### 3. **Develop Engineering Intuition**
+System design teaches you to think in trade-offs. There's rarely a "perfect" solution—only solutions that are optimal for specific constraints.
+
+## What We'll Cover
+
+This documentation is structured to take you from fundamentals to advanced topics:
+
+### Fundamentals
+| Topic | Description |
+|-------|-------------|
+| **Scaling** | Vertical vs. horizontal scaling, load balancing |
+| **Databases** | SQL vs. NoSQL, replication, sharding, indexing |
+| **Caching** | Cache strategies, eviction policies, CDNs |
+| **Networking** | DNS, HTTP/HTTPS, TCP/UDP, WebSockets |
+
+### Building Blocks
+| Topic | Description |
+|-------|-------------|
+| **Load Balancers** | Distributing traffic across servers |
+| **Message Queues** | Async processing, pub/sub patterns |
+| **Key-Value Stores** | Fast lookups, distributed caching |
+| **Blob Storage** | Storing images, videos, files at scale |
+| **CDNs** | Content delivery and edge caching |
+
+### Advanced Concepts
+| Topic | Description |
+|-------|-------------|
+| **CAP Theorem** | Consistency, Availability, Partition tolerance |
+| **Consistency Models** | Strong, eventual, causal consistency |
+| **Distributed Consensus** | Raft, Paxos, leader election |
+| **Rate Limiting** | Protecting systems from abuse |
+| **Monitoring & Observability** | Metrics, logs, traces |
+
+### Real-World System Designs
+| System | Key Concepts |
+|--------|--------------|
+| **URL Shortener** | Hashing, key generation, redirection |
+| **Twitter/X Feed** | Fan-out, timelines, caching |
+| **WhatsApp** | Real-time messaging, delivery guarantees |
+| **YouTube** | Video encoding, streaming, CDN |
+| **Uber** | Geospatial indexing, matching, ETA |
+
+## Prerequisites
+
+You don't need to be an expert, but familiarity with these topics will help:
+
+```
+┌─────────────────────────────────────────────────────────────────┐
+│                    Recommended Background                       │
+├─────────────────────────────────────────────────────────────────┤
+│                                                                 │
+│  ✓ Basic programming (any language)                             │
+│  ✓ Understanding of APIs (REST, HTTP methods)                   │
+│  ✓ Familiarity with databases (basic SQL)                       │
+│  ✓ Basic networking (IP, ports, DNS)                            │
+│  ✓ Command line / terminal basics                               │
+│                                                                 │
+│  Nice to have:                                                  │
+│  ○ Experience with cloud services (AWS, GCP, Azure)             │
+│  ○ Worked on production systems                                 │
+│  ○ Basic understanding of containers (Docker)                   │
+│                                                                 │
+└─────────────────────────────────────────────────────────────────┘
+```
+
+## The System Design Mindset
+
+Approaching system design requires a different mindset than writing code. Here are the key mental models:
+
+### 1. **Think in Trade-offs**
+
+There's no perfect solution. Every decision involves trade-offs:
+
+| Decision | Trade-off |
+|----------|-----------|
+| More caching | Faster reads, but stale data risk |
+| Stronger consistency | Correctness, but higher latency |
+| Microservices | Flexibility, but operational complexity |
+| Denormalization | Faster queries, but data duplication |
+
+**The right answer is always:** *"It depends on the requirements."*
+
+### 2. **Embrace "Good Enough"**
+
+Don't over-engineer. A system that handles 10x your current load is often sufficient. You can always iterate.
+
+```
+                    Over-engineering Trap
+                    
+    Requirements: 1,000 users/day
+    
+    ❌ Wrong: "Let's build for 1 billion users from day one!"
+              Result: 6 months of complexity, no product
+    
+    ✓ Right:  "Let's build for 100,000 users, with clear
+              scaling paths when needed."
+              Result: Ship fast, scale when you have the problem
+```
+
+### 3. **Understand the Numbers**
+
+Develop intuition for scale. Know these rough orders of magnitude:
+
+| Operation | Latency |
+|-----------|---------|
+| L1 cache reference | 1 ns |
+| RAM access | 100 ns |
+| SSD random read | 150 µs |
+| HDD seek | 10 ms |
+| Network round-trip (same datacenter) | 0.5 ms |
+| Network round-trip (cross-continent) | 150 ms |
+
+| Scale | Meaning |
+|-------|---------|
+| 1 million seconds | ~11.5 days |
+| 1 billion seconds | ~31.7 years |
+| 1 million requests/day | ~12 requests/second |
+| 1 billion requests/day | ~11,500 requests/second |
+
+### 4. **Start Simple, Add Complexity**
+
+Always begin with the simplest architecture that could work:
+
+```
+Evolution of Architecture:
+
+Stage 1: Monolith
+┌─────────────────┐
+│   Single App    │──► Database
+└─────────────────┘
+
+Stage 2: Add Caching
+┌─────────────────┐
+│   Single App    │──► Cache ──► Database
+└─────────────────┘
+
+Stage 3: Scale Horizontally
+         ┌─────────┐
+         │  App 1  │
+┌────┐   ├─────────┤        ┌─────────┐
+│ LB │──►│  App 2  │──►Cache│ Database│
+└────┘   ├─────────┤        └─────────┘
+         │  App 3  │
+         └─────────┘
+
+Stage 4: Split Services (only when needed)
+... and so on
+```
+
+### 5. **Ask Clarifying Questions**
+
+In interviews and real projects, always clarify:
+
+- **Functional requirements**: What features must the system have?
+- **Non-functional requirements**: Latency, throughput, availability targets?
+- **Scale**: How many users? How much data? Read-heavy or write-heavy?
+- **Constraints**: Budget? Team size? Existing infrastructure?
+
+## How to Use This Documentation
+
+### For Learning
+1. **Read sequentially**: Start with fundamentals, build up to advanced topics
+2. **Draw diagrams**: Sketch systems as you read—it helps retention
+3. **Question everything**: Ask "why?" for each design decision
+
+### For Interview Prep
+1. **Practice out loud**: Explain systems to a rubber duck or friend
+2. **Time yourself**: Practice 45-minute design sessions
+3. **Review real systems**: Read engineering blogs from Netflix, Uber, Meta
+
+### For Reference
+1. **Bookmark building blocks**: Quick refreshers during design discussions
+2. **Use diagrams**: Copy ASCII diagrams for your own documentation
+3. **Check the cheat sheets**: Summary tables for quick recall
+
+## Key Takeaways
+
+```
+┌─────────────────────────────────────────────────────────────────┐
+│                   System Design Principles                      │
+├─────────────────────────────────────────────────────────────────┤
+│                                                                 │
+│  1. There are no perfect solutions, only trade-offs             │
+│  2. Requirements drive architecture                             │
+│  3. Start simple, add complexity only when needed               │
+│  4. Understand the numbers (latency, throughput, scale)         │
+│  5. Design for failure—things will break                        │
+│  6. Iterate and evolve—you won't get it right the first time    │
+│                                                                 │
+└─────────────────────────────────────────────────────────────────┘
+```
+
+## Next Steps
+
+Ready to dive in? Here's the recommended path:
+
+1. **[Scaling Basics](/docs/system-design/scaling)** — Understand how systems grow
+2. **[Databases Deep Dive](/docs/system-design/databases)** — The foundation of most systems
+3. **[Caching Strategies](/docs/system-design/caching)** — Speed up everything
+4. **[Load Balancing](/docs/system-design/load-balancing)** — Distribute the load
+
+Let's build systems that scale! 

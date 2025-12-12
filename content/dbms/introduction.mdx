@@ -1,0 +1,164 @@
+---
+title: Introduction To Database Management Systems
+description: Getting started with database management system fundamentals
+order: 1
+category: Introduction
+---
+
+## What is a Database Management System (DBMS)?
+
+A **DBMS** is software that stores, retrieves, and manages data in databases. It provides abstractions for data models (relational, document, key-value), guarantees for transactions, and interfaces for querying and maintaining data.
+
+Databases are at the heart of most applications — understanding DBMS internals helps you design data models, choose the right storage engines, and reason about consistency and performance.
+
+```
+┌─────────────────────────────────────────────────────────────────┐
+│                       DBMS Architecture                         │
+├─────────────────────────────────────────────────────────────────┤
+│  Client API  ──►  Query Processor  ──►  Storage Engine  ──►  Disk │
+└─────────────────────────────────────────────────────────────────┘
+```
+
+## Why Learn DBMS Internals?
+
+- **Data correctness**: Ensuring transactions are ACID when needed.
+- **Performance**: Indexes, query plans, and storage formats determine speed.
+- **Scalability**: Replication and sharding strategies let systems scale.
+
+## What We'll Cover
+
+From models to distributed databases:
+
+### Fundamentals
+| Topic | Description |
+|-------|-------------|
+| **Data Models** | Relational, document, key-value, graph |
+| **Indexes** | B-trees, hash indexes, covering indexes |
+| **Transactions** | ACID properties, isolation levels |
+| **Storage** | Row vs column stores, write-ahead logs |
+
+### Building Blocks
+| Topic | Description |
+|-------|-------------|
+| **Query Optimization** | Parsing, planning, cost-based optimization |
+| **Replication** | Leader-follower, multi-leader, eventual consistency |
+| **Sharding** | Horizontal partitioning, consistent hashing |
+| **Caching** | Query caches, materialized views, memcached/redis patterns |
+
+### Advanced Topics
+| Topic | Description |
+|-------|-------------|
+| **Distributed Transactions** | Two-phase commit, optimistic concurrency |
+| **Consensus for Metadata** | Paxos/Raft for config/leader election |
+| **Analytical Databases** | OLAP, columnar storage, vectorized execution |
+
+### Real-World Examples
+| System | Key Concepts |
+|--------|--------------|
+| **PostgreSQL** | MVCC, planner, extensibility |
+| **MySQL/InnoDB** | B-tree indexes, clustered indexes |
+| **MongoDB** | Document model, replica sets, sharding |
+
+## Prerequisites
+
+```
+┌─────────────────────────────────────────────────────────────────┐
+│                    Recommended Background                       │
+├─────────────────────────────────────────────────────────────────┤
+│                                                                 │
+│  ✓ SQL basics                                                   │
+│  ✓ Basic data structures & algorithms                           │
+│  ✓ Understanding of transactions and concurrency at high level  │
+│                                                                 │
+│  Nice to have:                                                  │
+│  ○ Knowledge of a NoSQL datastore (Redis, MongoDB)              │
+│  ○ Familiarity with distributed systems concepts                │
+│                                                                 │
+└─────────────────────────────────────────────────────────────────┘
+```
+
+## DBMS Mindset
+
+### 1. Data is the system's state — model it well
+
+Design schemas for access patterns. Denormalize when necessary for read performance, but be mindful of update complexity.
+
+### 2. Think in terms of cost
+
+Indexing speeds reads but slows writes and uses space. Choose trade-offs based on read/write profile.
+
+### 3. Boundaries & Consistency
+
+Decide where strong consistency is required and where eventual consistency suffices. Use idempotent operations to handle retries.
+
+## Important Concepts & Numbers
+
+| Concept | Notes |
+|--------|-------|
+| MVCC | Multi-version concurrency control avoids read locks for many workloads |
+| WAL | Write-ahead log for durability and crash recovery |
+| Replication lag | Practical indicator of eventual consistency |
+
+## Key Components (Illustrative)
+
+### Indexes
+
+| Type | Use case |
+|------|----------|
+| B-tree | Range queries, ordered scans |
+| Hash | Exact-match lookups |
+| GiST/GIN | Full-text, geo, custom indexing |
+
+### Transactions & Isolation
+
+| Isolation Level | Guarantees | Anomalies |
+|-------------------|------------|----------|
+| Read Uncommitted | Lowest | Dirty reads |
+| Read Committed | No dirty reads | Non-repeatable reads possible |
+| Repeatable Read | Repeatable reads | Phantom reads possible (DB-specific) |
+| Serializable | Strongest | Higher contention/abort rates |
+
+## Scaling Strategies
+
+- **Vertical scaling**: Bigger machines — simple but limited.
+- **Read replicas**: Offload reads to followers.
+- **Sharding**: Partition data across nodes; requires routing and resharding logic.
+
+## Observability & Tools
+
+| Tool | Purpose |
+|------|---------|
+| `EXPLAIN` / `EXPLAIN ANALYZE` | Inspect query plans |
+| `pg_stat_activity` / `performance_schema` | Monitor active queries |
+| Backup tools | Consistent backups, point-in-time recovery |
+
+## How to Use This Documentation
+
+1. Start with data models and indexing.
+2. Practice by designing schemas for concrete use cases (e-commerce, analytics).
+3. Experiment with replication and small-scale sharding in a sandbox.
+
+## Key Takeaways
+
+```
+┌─────────────────────────────────────────────────────────────────┐
+│                      DBMS Design Principles                     │
+├─────────────────────────────────────────────────────────────────┤
+│                                                                 │
+│  1. Model data for queries, not just storage                     │
+│  2. Balance read/write trade-offs with indexes and caching       │
+│  3. Plan for durability and backups                              │
+│  4. Use replication/sharding appropriately for scale             │
+│                                                                 │
+└─────────────────────────────────────────────────────────────────┘
+```
+
+## Next Steps
+
+1. **[Relational Databases](/docs/dbms/relational)** — Schema design, normalization, indexes
+2. **[NoSQL & Key-Value Stores](/docs/dbms/key-value)** — Use cases and patterns
+3. **[Distributed Databases](/docs/dbms/distributed)** — Replication, sharding, consensus
+
+Happy modeling — data matters!
+
+

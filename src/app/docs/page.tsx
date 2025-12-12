@@ -25,7 +25,7 @@ const topics = [
             "Understand computer networks, protocols, TCP/IP, HTTP, DNS, and how data travels across the internet.",
         icon: Network,
         color: "from-purple-500 to-pink-500",
-        articles: 0,
+        articles: 1,
     },
     {
         id: "operating-systems",
@@ -34,7 +34,7 @@ const topics = [
             "Explore process management, memory management, file systems, and how operating systems work under the hood.",
         icon: HardDrive,
         color: "from-orange-500 to-red-500",
-        articles: 0,
+        articles: 1,
     },
     {
         id: "dbms",
@@ -43,7 +43,7 @@ const topics = [
             "Master database concepts, SQL, NoSQL, indexing, transactions, and data modeling techniques.",
         icon: Database,
         color: "from-green-500 to-emerald-500",
-        articles: 0,
+        articles: 1,
     },
 ];
 

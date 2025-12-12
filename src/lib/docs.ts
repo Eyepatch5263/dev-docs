@@ -42,7 +42,7 @@ const topics: Record<string, TopicMeta> = {
         description:
             "Learn the fundamentals of designing scalable, reliable, and efficient systems. Covers distributed systems, microservices, and architectural patterns.",
     },
-    networking: {
+    "networking": {
         id: "networking",
         title: "Networking",
         description:
@@ -54,7 +54,7 @@ const topics: Record<string, TopicMeta> = {
         description:
             "Explore process management, memory management, file systems, and how operating systems work under the hood.",
     },
-    dbms: {
+    "dbms": {
         id: "dbms",
         title: "Database Management",
         description:

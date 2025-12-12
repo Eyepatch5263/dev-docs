@@ -14,7 +14,7 @@ export function TableOfContents({ headings }: TableOfContentsProps) {
     }
 
     return (
-        <aside className="hidden xl:block w-[10%] min-w-[180px] shrink-0 pr-4">
+        <aside className="hidden xl:block w-[20%] min-w-180px shrink-0 pr-4">
             <div className="sticky top-14">
                 <ScrollArea className="h-[calc(100vh-3.5rem)] py-6 pl-2">
                     <div className="space-y-2 border-l border-border pl-4">

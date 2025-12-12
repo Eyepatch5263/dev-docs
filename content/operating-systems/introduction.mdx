@@ -1,0 +1,241 @@
+---
+title: Introduction To Operating Systems
+description: Getting started with operating system fundamentals
+order: 1
+category: Introduction
+## What is an Operating System?
+---
+
+An **Operating System (OS)** is the software layer that manages hardware resources and provides common services for computer programs. It abstracts the complexities of hardware and exposes a consistent interface for applications, enabling multitasking, resource sharing, and secure execution.
+
+At a high level, the OS is responsible for:
+
+- Managing processes and threads
+- Scheduling CPU time
+- Managing memory and virtual memory
+- Providing file system abstractions
+- Handling device I/O and drivers
+- Enforcing security and isolation
+
+```
+┌─────────────────────────────────────────────────────────────────┐
+│                      Operating System Stack                     │
+├─────────────────────────────────────────────────────────────────┤
+│                                                                 │
+│  Applications  ──►  System Libraries  ──►  OS Kernel  ──►  Hardware │
+│                                                                 │
+└─────────────────────────────────────────────────────────────────┘
+```
+
+## Why Learn Operating Systems?
+
+### 1. **Foundational Knowledge**
+OS concepts underpin many advanced areas: distributed systems, databases, virtualization, and performance engineering.
+
+### 2. **Practical Skills**
+Understanding OS internals helps you write efficient, safe, and portable programs, debug low-level issues, and tune system performance.
+
+### 3. **Career Benefits**
+System-level roles (kernel engineers, SREs, performance engineers) require deep OS knowledge; interviews often include OS problems.
+
+## What We'll Cover
+
+This section is structured to take you from core principles to practical system-level patterns:
+
+### Fundamentals
+| Topic | Description |
+|-------|-------------|
+| **Processes & Threads** | Process model, thread model, context switch |
+| **Scheduling** | CPU scheduling algorithms, fairness, priorities |
+| **Memory Management** | Paging, segmentation, virtual memory, page replacement |
+| **File Systems** | Inodes, directories, journaling, block allocation |
+| **I/O & Drivers** | Device model, interrupts, DMA, blocking vs non-blocking I/O |
+
+### Building Blocks
+| Topic | Description |
+|-------|-------------|
+| **Concurrency & Synchronization** | Locks, semaphores, condition variables, deadlocks |
+| **Virtualization** | Virtual machines, hypervisors, paravirtualization |
+| **Security/Permissions** | Users, groups, capabilities, access control lists |
+| **Resource Management** | Limits, quotas, cgroups/container control |
+
+### Advanced Topics
+| Topic | Description |
+|-------|-------------|
+| **Kernel Design** | Monolithic vs microkernel, modules, system calls |
+| **Performance & Profiling** | Bottleneck analysis, latency vs throughput, tracing |
+| **Distributed OS Concepts** | Network file systems, distributed shared memory |
+
+### Real-World Examples
+| System | Key Concepts |
+|--------|--------------|
+| **Linux Kernel** | Process model, scheduling classes, virtual memory |
+| **Windows NT** | Object manager, security model, I/O subsystem |
+| **macOS (XNU)** | Hybrid kernel, Mach messaging, BSD layer |
+
+## Prerequisites
+
+You don't need to be a kernel developer to get value from these notes, but the following help:
+
+```
+┌─────────────────────────────────────────────────────────────────┐
+│                    Recommended Background                       │
+├─────────────────────────────────────────────────────────────────┤
+│                                                                 │
+│  ✓ Programming (C, C++, or systems-level language helpful)      │
+│  ✓ Basic data structures & algorithms                           │
+│  ✓ Familiarity with processes and files at the user level       │
+│  ✓ Comfortable with the command line                            │
+│                                                                 │
+│  Nice to have:                                                  │
+│  ○ Experience with Linux/Unix                                   │
+│  ○ Basic networking knowledge                                   │
+│  ○ Exposure to virtualization (VMs, Docker)                     │
+│                                                                 │
+└─────────────────────────────────────────────────────────────────┘
+```
+
+## The OS Mindset
+
+Designing and reasoning about OS behavior requires different mental models than application programming.
+
+### 1. **Think About Concurrency First**
+
+At the OS level, multiple activities run concurrently. Race conditions and ordering bugs are common—anticipate them.
+
+| Concern | Approach |
+|---------|----------|
+| Shared state between threads | Use synchronization primitives (mutexes, atomics) |
+| Deadlocks | Detect via ordering, avoid nested locks, use timeouts |
+
+### 2. **Resource Accounting Matters**
+
+Memory, CPU, file descriptors are finite. The OS enforces limits and provides mechanisms (cgroups, ulimits) to isolate workloads.
+
+### 3. **Understand Hardware Impact**
+
+Low-level behavior (caches, TLBs, page faults, DMA) affects software performance; know the cost of system calls and I/O.
+
+### 4. **Failure is Normal**
+
+Devices fail, processes crash, and memory leaks happen. Design systems to survive and recover from failures.
+
+## Important Numbers & Costs
+
+Knowing approximate costs helps make decisions:
+
+| Operation | Typical Cost |
+|-----------|--------------|
+| System call (user→kernel) | 100s of ns – µs |
+| Context switch | 1–10 µs (depends on architecture) |
+| Page fault (minor) | 10s–100s µs |
+| Page fault (major, disk) | ms – 10s ms |
+| Disk seek | ~10 ms |
+| SSD read | 100–200 µs |
+
+## Key Concepts (Illustrative)
+
+### Processes, Threads & Scheduling
+
+```
+Process A   Process B
+	 │            │
+	 ▼            ▼
+ ┌────┐  context-switch  ┌────┐
+ │CPU1│◄─────────────────►│CPU2│
+ └────┘                 └────┘
+```
+
+- **Process**: Address space + resources + threads.
+- **Thread**: Execution context (stack, registers) sharing address space.
+- **Scheduler**: Chooses next runnable thread—algorithms: FIFO, Round-Robin, CFS (Linux), multilevel feedback queues.
+
+### Memory & Virtual Memory
+
+```
+Virtual Address Space
+┌───────────┐  ┌────────────┐  ┌────────┐
+│Process VA │►│Page Table  │►│Physical│
+└───────────┘  └────────────┘  └────────┘
+```
+
+- **Paging**: Break memory into pages; use page tables to map VA→PA.
+- **TLB**: Cache for page table entries; TLB misses are expensive.
+- **Page replacement**: LRU, Clock, FIFO algorithms.
+
+### File Systems & Storage
+
+| Component | Role |
+|-----------|------|
+| Superblock | Filesystem metadata |
+| Inode | File metadata (size, pointers) |
+| Directory | Map names → inodes |
+| Journal | Ensure consistency after crashes |
+
+## Concurrency & Synchronization
+
+Common primitives:
+- **Mutex/Lock**: Exclusive access
+- **Semaphore**: Counting resource control
+- **Condition variable**: Wait/notify pattern
+- **Atomic operations**: Lock-free updates
+
+Deadlock conditions (Coffman): mutual exclusion, hold-and-wait, no preemption, circular wait. Prevent by breaking at least one condition.
+
+## Virtualization & Containers
+
+Virtualization allows multiple OS instances on one physical host.
+
+| Technique | Use case |
+|-----------|----------|
+| Full virtualization (VMs) | Strong isolation, heavy-weight |
+| Paravirtualization | Faster I/O, guest-aware |
+| Containers (cgroups + namespaces) | Lightweight isolation for processes |
+
+## Security & Permissions
+
+File permissions, user/group separation, capabilities, and SELinux/AppArmor provide layered defense. Least privilege is the guiding principle.
+
+## Troubleshooting & Tools
+
+Common tools and when to use them:
+
+| Tool | Purpose |
+|------|---------|
+| `top` / `htop` | CPU/Memory live view |
+| `ps` | Process listing |
+| `strace` | Trace syscalls |
+| `lsof` | Open files and sockets |
+| `perf` / `eBPF` | Profiling and tracing |
+
+## How to Use This Documentation
+
+1. Start with **Processes & Scheduling**, then **Memory**, then **File Systems**.
+2. Draw diagrams and implement small programs that demonstrate concepts (e.g., create threads, use mutexes).
+3. Use virtualization or a VM to safely experiment with kernel parameters.
+
+## Key Takeaways
+
+```
+┌─────────────────────────────────────────────────────────────────┐
+│                   Operating Systems Principles                  │
+├─────────────────────────────────────────────────────────────────┤
+│                                                                 │
+│  1. Concurrency is everywhere—design for it                      │
+│  2. Resources are finite—account and isolate                    │
+│  3. Hardware costs dominate some decisions (I/O, page faults)   │
+│  4. Failures are expected—design for recovery                    │
+│  5. Start with simplicity, measure, then optimize               │
+│                                                                 │
+└─────────────────────────────────────────────────────────────────┘
+```
+
+## Next Steps
+
+1. **[Processes & Threads](/docs/operating-systems/processes)** — Process model and context switching
+2. **[Memory Management](/docs/operating-systems/memory)** — Paging, TLBs, and page replacement
+3. **[File Systems](/docs/operating-systems/filesystems)** — Inodes, journaling, and consistency
+4. **[Concurrency & Synchronization](/docs/operating-systems/concurrency)** — Locks, deadlocks, and lock-free algorithms
+
+Happy learning — kernel-level curiosity pays off! 
+

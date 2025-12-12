@@ -1,0 +1,171 @@
+---
+title: Introduction To Networking
+description: Getting started with networking fundamentals
+order: 1
+category: Introduction
+---
+
+## What is Networking?
+
+Computer **Networking** is the practice of connecting computers and devices to share resources and exchange data. Networking covers everything from the physical cabling and radios to protocols and application-level services that run over those links.
+
+Networking enables the Internet and every distributed system — understanding it is crucial for building reliable, fast, and secure systems.
+
+```
+┌─────────────────────────────────────────────────────────────────┐
+│                           Networking Stack                      │
+├─────────────────────────────────────────────────────────────────┤
+│ Application │ Transport (TCP/UDP) │ Network (IP) │ Link (Ethernet/Wi‑Fi) │
+└─────────────────────────────────────────────────────────────────┘
+```
+
+## Why Learn Networking?
+
+- **Performance**: Latency and bandwidth directly impact application UX.
+- **Reliability**: Network partitions and failures are common — design to tolerate them.
+- **Security**: Many attacks exploit networking — secure protocols and proper configuration matter.
+
+## What We'll Cover
+
+From fundamentals to real-world patterns:
+
+### Fundamentals
+| Topic | Description |
+|-------|-------------|
+| **OSI vs TCP/IP** | Models for understanding layered protocols |
+| **IP Addressing** | IPv4/IPv6, subnets, CIDR |
+| **Routing** | Static vs dynamic, BGP, OSPF |
+| **Transport** | TCP reliability, UDP simplicity, QUIC |
+
+### Building Blocks
+| Topic | Description |
+|-------|-------------|
+| **DNS** | Name resolution, caching, TTL |
+| **Load Balancing** | L4 vs L7, health checks |
+| **CDN & Caching** | Edge caching, cache-control headers |
+| **Proxies & Gateways** | Reverse proxies, API gateways |
+
+### Advanced Topics
+| Topic | Description |
+|-------|-------------|
+| **BGP & Internet Routing** | Inter-domain routing, prefix hijacks |
+| **Network Security** | TLS, VPNs, mTLS, zero-trust |
+| **Observability** | Netflow, packet captures, latency heatmaps |
+
+### Real-World Examples
+| System | Key Concepts |
+|--------|--------------|
+| **HTTP over TCP** | Connection, slow start, congestion control |
+| **QUIC** | UDP-based transport with TLS integrated |
+| **gRPC** | HTTP/2, streaming, performance considerations |
+
+## Prerequisites
+
+```
+┌─────────────────────────────────────────────────────────────────┐
+│                    Recommended Background                       │
+├─────────────────────────────────────────────────────────────────┤
+│                                                                 │
+│  ✓ Basic TCP/IP familiarity                                      │
+│  ✓ Comfort with command line tools (curl, netstat, tcpdump)     │
+│  ✓ Understanding of HTTP and APIs                                │
+│                                                                 │
+│  Nice to have:                                                  │
+│  ○ Experience with cloud networking (VPCs, subnets)             │
+│  ○ Familiarity with TLS and certificates                        │
+│                                                                 │
+└─────────────────────────────────────────────────────────────────┘
+```
+
+## Networking Mindset
+
+### 1. Measure First
+
+Don't guess; measure latency, bandwidth, packet loss, and retries. Use tools (`ping`, `iperf`, `tcpdump`) to gather data.
+
+### 2. Think in Layers
+
+Design at the appropriate layer — don't reinvent transport-level concerns at the application layer.
+
+### 3. Design for Failure Modes
+
+Networks fail in well-known ways: partitions, congestion, blackholing. Use retries with backoff, idempotency, and circuit breakers.
+
+## Important Numbers & Rules of Thumb
+
+| Metric | Typical Value |
+|--------|---------------|
+| LAN latency (within datacenter) | &lt;1 ms |
+| Cross-continent RTT | 100–200 ms |
+| DNS lookup | 20–200 ms (cached) |
+| TCP handshake | 1 RTT |
+
+## Key Concepts (Illustrative)
+
+### TCP vs UDP
+
+| Feature | TCP | UDP |
+|---------|-----|-----|
+| Reliability | Yes | No |
+| Ordering | Yes | No |
+| Use cases | Web, file transfer | DNS, VoIP, QUIC base |
+
+### Load Balancer Patterns
+
+```
+Clients ─► LB ─► App Pool
+		  └─ health checks
+```
+
+Consider session affinity only when necessary; prefer stateless services with shared storage or sticky cookies carefully.
+
+### DNS Best Practices
+
+- Keep TTLs moderate: low TTL for services that move often, higher TTL for stable records.
+- Use multiple authoritative name servers across providers/regions.
+
+## Security
+
+- Use TLS everywhere (HTTPS, mTLS for service-to-service).
+- Validate certificates and pin where appropriate.
+- Rate-limit and filter suspicious traffic at the edge.
+
+## Troubleshooting & Tools
+
+| Tool | Purpose |
+|------|---------|
+| `tcpdump` / `wireshark` | Packet capture and analysis |
+| `mtr` | Latency + routing diagnosis |
+| `dig` / `nslookup` | DNS inspection |
+| `iperf` | Bandwidth testing |
+
+## How to Use This Documentation
+
+1. Start with the transport and addressing sections.
+2. Practice with packet captures and simulated failures.
+3. Build small services and measure the effect of changes (keep/tear down connections, change congestion windows).
+
+## Key Takeaways
+
+```
+┌─────────────────────────────────────────────────────────────────┐
+│                        Networking Principles                    │
+├─────────────────────────────────────────────────────────────────┤
+│                                                                 │
+│  1. Measure before optimizing                                    │
+│  2. Failures are common — design resilience                       │
+│  3. Use the right layer for the right problem                    │
+│  4. Secure the transport and endpoints                           │
+│                                                                 │
+└─────────────────────────────────────────────────────────────────┘
+```
+
+## Next Steps
+
+1. **[Transport & Protocols](/docs/networking/transport)** — Deep dive into TCP, UDP, QUIC
+2. **[DNS & Service Discovery](/docs/networking/dns)** — Name resolution and discovery patterns
+3. **[Load Balancing & CDNs](/docs/networking/load-balancing)** — Edge delivery and traffic distribution
+
+Happy networking — the Internet is your playground!
+
+
