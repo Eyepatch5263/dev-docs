@@ -59,20 +59,20 @@ export default function DocsLandingPage() {
                             <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
                             <span className="relative inline-flex rounded-full h-2 w-2 bg-green-500"></span>
                         </span>
-                        Actively maintained documentation
+                        Actively Maintained Documentation
                     </div>
 
-                    <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold tracking-tight mb-4 bg-gradient-to-r from-foreground to-foreground/70 bg-clip-text text-transparent">
-                        Computer Science
+                    <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold tracking-tight mb-4 bg-linear-to-r from-foreground to-foreground/70 bg-clip-text text-transparent">
+                        Developer's
                         <br />
                         <span className="text-gray-400 bg-clip-text">
-                            Documentation Hub
+                            Documentation Doom
                         </span>
                     </h1>
 
                     <p className="text-lg md:text-xl text-muted-foreground max-w-2xl mb-12">
-                        Comprehensive guides and references for core computer science topics.
-                        Choose a topic below to start learning.
+                        Comprehensive guides and references for software developers
+                        to build, deploy, and scale applications effectively.
                     </p>
 
                     {/* Topic Cards Grid */}
@@ -95,7 +95,7 @@ export default function DocsLandingPage() {
                                     >
                                         <CardHeader className="space-y-4 items-center text-center">
                                             <div
-                                                className={`w-12 h-12 rounded-lg bg-gradient-to-br ${topic.color} flex items-center justify-center mx-auto`}
+                                                className={`w-12 h-12 rounded-lg bg-linear-to-br ${topic.color} flex items-center justify-center mx-auto`}
                                             >
                                                 <Icon className="h-6 w-6 text-white" />
                                             </div>
