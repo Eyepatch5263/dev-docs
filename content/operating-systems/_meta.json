@@ -1,0 +1,9 @@
+{
+    "id": "operating-systems",
+        "title": "Operating Systems",
+        "description":
+            "Explore process management, memory management, file systems, and how operating systems work under the hood.",
+        "icon": "HardDrive",
+        "color": "from-orange-500 to-red-500",
+        "articles": 1
+}

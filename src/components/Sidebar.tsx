@@ -6,7 +6,7 @@ import { useState } from "react";
 import { ChevronRight } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import type { NavCategory } from "@/lib/docs";
+import { NavCategory } from "@/app/types/nav.type";
 
 interface SidebarProps {
     navigation: NavCategory[];
@@ -37,7 +37,7 @@ export function Sidebar({ navigation, basePath }: SidebarProps) {
     };
 
     return (
-        <aside className="hidden md:block w-[18%] min-w-[200px] shrink-0 border-r border-border">
+        <aside className="hidden md:block w-[18%] min-w-200px shrink-0 border-r border-border">
             <ScrollArea className="h-[calc(100vh-3.5rem)] py-6">
                 <nav className="px-3 space-y-1">
                     {navigation.map((category) => {
@@ -70,7 +70,7 @@ export function Sidebar({ navigation, basePath }: SidebarProps) {
                                 <div
                                     className={cn(
                                         "overflow-hidden transition-all duration-200",
-                                        isExpanded ? "max-h-[1000px] opacity-100" : "max-h-0 opacity-0"
+                                        isExpanded ? "max-h-1000px opacity-100" : "max-h-0 opacity-0"
                                     )}
                                 >
                                     <ul className="ml-2 pl-2 border-l border-border space-y-1 py-1">

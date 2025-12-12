@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { ArrowRight, Server, Network, HardDrive, Database } from "lucide-react";
+import { ArrowRight, Server, Network, HardDrive, Database, FileText, LucideIcon, CloudUploadIcon } from "lucide-react";
 import {
     Card,
     CardDescription,
@@ -7,47 +7,25 @@ import {
     CardTitle,
 } from "@/components/ui/card";
 import { Header } from "@/components/Header";
+import { getAllTopics } from "@/lib/docs";
 
-const topics = [
-    {
-        id: "system-design",
-        title: "System Design",
-        description:
-            "Learn the fundamentals of designing scalable, reliable, and efficient systems. Covers distributed systems, microservices, and architectural patterns.",
-        icon: Server,
-        color: "from-blue-500 to-cyan-500",
-        articles: 9,
-    },
-    {
-        id: "networking",
-        title: "Networking",
-        description:
-            "Understand computer networks, protocols, TCP/IP, HTTP, DNS, and how data travels across the internet.",
-        icon: Network,
-        color: "from-purple-500 to-pink-500",
-        articles: 1,
-    },
-    {
-        id: "operating-systems",
-        title: "Operating Systems",
-        description:
-            "Explore process management, memory management, file systems, and how operating systems work under the hood.",
-        icon: HardDrive,
-        color: "from-orange-500 to-red-500",
-        articles: 1,
-    },
-    {
-        id: "dbms",
-        title: "Database Management",
-        description:
-            "Master database concepts, SQL, NoSQL, indexing, transactions, and data modeling techniques.",
-        icon: Database,
-        color: "from-green-500 to-emerald-500",
-        articles: 1,
-    },
-];
+// Map icon names from _meta.json to actual Lucide components
+const iconMap: Record<string, LucideIcon> = {
+    Server,
+    Network,
+    HardDrive,
+    Database,
+    CloudUploadIcon,
+    FileText,
+};
+
+// Default values for missing metadata
+const defaultColor = "from-gray-500 to-slate-500";
+const DefaultIcon = FileText;
 
 export default function DocsLandingPage() {
+    const topics = getAllTopics();
+
     return (
         <div className="min-h-screen bg-background">
             <Header />
@@ -78,8 +56,10 @@ export default function DocsLandingPage() {
                     {/* Topic Cards Grid */}
                     <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4 max-w-6xl w-full">
                         {topics.map((topic) => {
-                            const Icon = topic.icon;
-                            const isAvailable = topic.articles > 0;
+                            const Icon = topic.icon ? (iconMap[topic.icon] || DefaultIcon) : DefaultIcon;
+                            const color = topic.color || defaultColor;
+                            const articleCount = topic.articles || 0;
+                            const isAvailable = articleCount > 0;
 
                             return (
                                 <Link
@@ -95,7 +75,7 @@ export default function DocsLandingPage() {
                                     >
                                         <CardHeader className="space-y-4 items-center text-center">
                                             <div
-                                                className={`w-12 h-12 rounded-lg bg-linear-to-br ${topic.color} flex items-center justify-center mx-auto`}
+                                                className={`w-12 h-12 rounded-lg bg-linear-to-br ${color} flex items-center justify-center mx-auto`}
                                             >
                                                 <Icon className="h-6 w-6 text-white" />
                                             </div>
@@ -113,7 +93,7 @@ export default function DocsLandingPage() {
                                             <div className="pt-2 border-t border-border">
                                                 <span className="text-xs text-muted-foreground">
                                                     {isAvailable
-                                                        ? `${topic.articles} articles`
+                                                        ? `${articleCount} articles`
                                                         : "Coming soon"}
                                                 </span>
                                             </div>

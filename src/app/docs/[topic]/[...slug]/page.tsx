@@ -3,7 +3,7 @@ import { MDXRemote } from "next-mdx-remote/rsc";
 import rehypeSlug from "rehype-slug";
 import rehypePrettyCode from "rehype-pretty-code";
 import remarkGfm from "remark-gfm";
-import { getAllSlugsForTopic, getDocBySlug, getTopicMeta } from "@/lib/docs";
+import { getAllSlugsForTopic, getDocBySlug, getTopicMeta, discoverTopics } from "@/lib/docs";
 import { extractHeadings } from "@/lib/toc";
 import { TableOfContents } from "@/components/TableOfContents";
 import { Separator } from "@/components/ui/separator";
@@ -14,7 +14,7 @@ interface DocPageProps {
 }
 
 export async function generateStaticParams() {
-    const topics = ["system-design", "networking", "operating-systems", "dbms"];
+    const topics = discoverTopics();
     const params: { topic: string; slug: string[] }[] = [];
 
     for (const topic of topics) {
@@ -29,7 +29,7 @@ export async function generateStaticParams() {
 
     return params;
 }
-
+// generates metadata for each doc page dynamically for SEO
 export async function generateMetadata({ params }: DocPageProps) {
     const { topic, slug } = await params;
     const slugPath = slug.join("/");
@@ -37,25 +37,35 @@ export async function generateMetadata({ params }: DocPageProps) {
     const topicMeta = getTopicMeta(topic);
 
     if (!doc) {
-        return { title: "Not Found" };
+        return notFound();
     }
 
     const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? "https://explainbytes.tech";
-    const canonical = `${siteUrl}/docs/${topic}/${slugPath}`;
+    const canonical = encodeURI(`${siteUrl}/docs/${topic}/${slugPath}`);
 
-    const images = doc.image ? [`${siteUrl}${doc.image.startsWith("/") ? "" : "/"}${doc.image}`] : [`${siteUrl}/logo.svg`];
+    const images = doc.image
+        ? [`${siteUrl}${doc.image.startsWith("/") ? "" : "/"}${doc.image}`]
+        : [`${siteUrl}/logo.svg`];
 
     return {
         title: `${doc.title} | ${topicMeta?.title || topic} | Explainbytes`,
         description: doc.description,
-        alternates: {
-            canonical,
+        alternates: { canonical },
+        robots: {
+            index: true,
+            follow: true,
         },
         openGraph: {
             title: `${doc.title} | ${topicMeta?.title || topic}`,
             description: doc.description,
             url: canonical,
-            images: images.map((url) => ({ url })),
+            images: images.map((url) => ({
+                url,
+                // optionally add width/height/alt if you have them
+                // width: 1200,
+                // height: 630,
+                // alt: doc.title,
+            })),
             siteName: "Explainbytes",
             type: "article",
         },
@@ -77,11 +87,13 @@ export default async function DocPage({ params }: DocPageProps) {
         notFound();
     }
 
+    // extract headings for table of contents
     const headings = extractHeadings(doc.content);
 
     return (
         <div className="flex flex-1 w-full">
             <article className="w-full xl:w-[80%] min-w-0 px-4 md:px-8 py-6 md:py-8">
+                {/* Document header with title and description */}
                 <header className="space-y-2 mb-6">
                     <h1 className="text-2xl md:text-3xl font-bold tracking-tight">{doc.title}</h1>
                     {doc.description && (
@@ -91,6 +103,7 @@ export default async function DocPage({ params }: DocPageProps) {
 
                 <Separator className="mb-8" />
 
+                {/* for rendering mdx component */}
                 <div className="prose prose-neutral dark:prose-invert max-w-none prose-headings:scroll-mt-20 prose-headings:font-semibold prose-h2:text-2xl prose-h3:text-xl prose-a:text-primary prose-code:before:content-none prose-code:after:content-none prose-pre:m-0 prose-pre:p-0 prose-pre:bg-transparent prose-pre:border-0">
                     <MDXRemote
                         source={doc.content}

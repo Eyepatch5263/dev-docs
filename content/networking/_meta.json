@@ -1,0 +1,9 @@
+{
+    "id": "networking",
+        "title": "Networking",
+        "description":
+            "Understand computer networks, protocols, TCP/IP, HTTP, DNS, and how data travels across the internet.",
+        "icon": "Network",
+        "color": "from-purple-500 to-pink-500",
+        "articles": 1
+}

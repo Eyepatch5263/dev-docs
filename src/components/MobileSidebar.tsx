@@ -7,7 +7,7 @@ import { Menu, X, ChevronRight } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import type { NavCategory } from "@/lib/docs";
+import { NavCategory } from "@/app/types/nav.type";
 
 interface MobileSidebarProps {
     navigation: NavCategory[];
@@ -56,7 +56,7 @@ export function MobileSidebar({ navigation, basePath, topicTitle }: MobileSideba
             {/* Overlay */}
             {isOpen && (
                 <div
-                    className="fixed inset-0 z-[100] bg-black/50 md:hidden"
+                    className="fixed inset-0 z-100 bg-black/50 md:hidden"
                     onClick={closeSidebar}
                 />
             )}
@@ -64,7 +64,7 @@ export function MobileSidebar({ navigation, basePath, topicTitle }: MobileSideba
             {/* Sidebar drawer */}
             <aside
                 className={cn(
-                    "fixed inset-y-0 left-0 z-[110] w-72 border-r border-border transform transition-transform duration-300 ease-in-out md:hidden shadow-2xl",
+                    "fixed inset-y-0 left-0 z-110 w-72 border-r border-border transform transition-transform duration-300 ease-in-out md:hidden shadow-2xl",
                     isOpen ? "translate-x-0" : "-translate-x-full"
                 )}
                 style={{ backgroundColor: 'var(--sidebar-bg, #ffffff)' }}
@@ -116,7 +116,7 @@ export function MobileSidebar({ navigation, basePath, topicTitle }: MobileSideba
                                     <div
                                         className={cn(
                                             "overflow-hidden transition-all duration-200",
-                                            isExpanded ? "max-h-[1000px] opacity-100" : "max-h-0 opacity-0"
+                                            isExpanded ? "max-h-1000px opacity-100" : "max-h-0 opacity-0"
                                         )}
                                     >
                                         <ul className="ml-2 pl-2 border-l border-border space-y-1 py-1">

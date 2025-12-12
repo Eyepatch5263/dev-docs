@@ -1,0 +1,9 @@
+{
+    "id": "dbms",
+        "title": "Database Management",
+        "description":
+            "Master database concepts, SQL, NoSQL, indexing, transactions, and data modeling techniques.",
+        "icon": "Database",
+        "color": "from-green-500 to-emerald-500",
+        "articles": 1
+}

@@ -1,73 +1,94 @@
 import fs from "fs";
 import path from "path";
 import matter from "gray-matter";
+import { DocContent, DocMeta, TopicMeta } from "@/app/types/docs.type";
+import { NavCategory, NavItem } from "@/app/types/nav.type";
 
 const contentDirectory = path.join(process.cwd(), "content");
 
-export interface DocMeta {
-    slug: string;
-    title: string;
-    description?: string;
-    image?: string;
-    order?: number;
-    category?: string;
+// Helper to convert folder name to display title
+// e.g., "system-design" -> "System Design", "dbms" -> "DBMS"
+function folderNameToTitle(folderName: string): string {
+    // Special cases for acronyms
+    const acronyms: Record<string, string> = {
+        dbms: "DBMS",
+        sql: "SQL",
+        api: "API",
+        http: "HTTP",
+        tcp: "TCP",
+        ip: "IP",
+        dns: "DNS",
+        os: "OS",
+    };
+
+    if (acronyms[folderName.toLowerCase()]) {
+        return acronyms[folderName.toLowerCase()];
+    }
+
+    return folderName
+        .split("-")
+        .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+        .join(" ");
 }
 
-export interface DocContent extends DocMeta {
-    content: string;
+// Dynamically discover all topics from the content directory
+export function discoverTopics(): string[] {
+    if (!fs.existsSync(contentDirectory)) {
+        return [];
+    }
+
+    return fs.readdirSync(contentDirectory).filter((item) => {
+        const itemPath = path.join(contentDirectory, item);
+        // Only include directories, exclude hidden folders and files
+        return fs.statSync(itemPath).isDirectory() && !item.startsWith("_") && !item.startsWith(".");
+    });
 }
 
-export interface NavItem {
-    title: string;
-    slug: string;
-    order: number;
-}
-
-export interface NavCategory {
-    name: string;
-    items: NavItem[];
-}
-
-export interface TopicMeta {
-    id: string;
-    title: string;
-    description: string;
-}
-
-// Topic metadata
-const topics: Record<string, TopicMeta> = {
-    "system-design": {
-        id: "system-design",
-        title: "System Design",
-        description:
-            "Learn the fundamentals of designing scalable, reliable, and efficient systems. Covers distributed systems, microservices, and architectural patterns.",
-    },
-    "networking": {
-        id: "networking",
-        title: "Networking",
-        description:
-            "Understand computer networks, protocols, TCP/IP, HTTP, DNS, and how data travels across the internet.",
-    },
-    "operating-systems": {
-        id: "operating-systems",
-        title: "Operating Systems",
-        description:
-            "Explore process management, memory management, file systems, and how operating systems work under the hood.",
-    },
-    "dbms": {
-        id: "dbms",
-        title: "Database Management",
-        description:
-            "Master database concepts, SQL, NoSQL, indexing, transactions, and data modeling techniques.",
-    },
-};
-
+// Get topic metadata - reads from _meta.json if exists, otherwise generates from folder name
 export function getTopicMeta(topic: string): TopicMeta | null {
-    return topics[topic] || null;
+    const topicDir = path.join(contentDirectory, topic);
+
+    if (!fs.existsSync(topicDir) || !fs.statSync(topicDir).isDirectory()) {
+        return null;
+    }
+
+    const metaPath = path.join(topicDir, "_meta.json");
+
+    // Count actual MDX files for articles count
+    const articleCount = getAllDocsForTopic(topic).length;
+
+    if (fs.existsSync(metaPath)) {
+        try {
+            const metaContent = fs.readFileSync(metaPath, "utf-8");
+            const meta = JSON.parse(metaContent);
+            return {
+                id: topic,
+                title: meta.title || folderNameToTitle(topic),
+                description: meta.description || `Documentation for ${folderNameToTitle(topic)}`,
+                icon: meta.icon,
+                color: meta.color,
+                articles: articleCount, // Use actual count instead of manual value
+            };
+        } catch {
+            // Fall through to default
+        }
+    }
+
+    // Default metadata generated from folder name
+    return {
+        id: topic,
+        title: folderNameToTitle(topic),
+        description: `Documentation for ${folderNameToTitle(topic)}`,
+        articles: articleCount,
+    };
 }
 
+// Returns metadata for all topics (dynamically discovered)
 export function getAllTopics(): TopicMeta[] {
-    return Object.values(topics);
+    const topicIds = discoverTopics();
+    return topicIds
+        .map((id) => getTopicMeta(id))
+        .filter((meta): meta is TopicMeta => meta !== null);
 }
 
 function getTopicDirectory(topic: string): string {
@@ -80,6 +101,8 @@ function getAllMdxFiles(dir: string, baseDir = dir): string[] {
     }
 
     const files: string[] = [];
+    // this reads all files and directories but recursively
+    // will return all the files in this case
     const items = fs.readdirSync(dir);
 
     for (const item of items) {
@@ -126,6 +149,7 @@ export function getAllDocsForTopic(topic: string): DocMeta[] {
     return docs.sort((a, b) => a.order - b.order);
 }
 
+// get the content and metadata for a specific doc by topic and slug
 export function getDocBySlug(topic: string, slug: string): DocContent | null {
     const filePath = path.join(getTopicDirectory(topic), `${slug}.mdx`);
 
@@ -200,8 +224,9 @@ export function getAllSlugsForTopic(topic: string): string[] {
 // Legacy functions for backward compatibility
 export function getAllDocs(): DocMeta[] {
     const allDocs: DocMeta[] = [];
+    const topicIds = discoverTopics();
 
-    for (const topic of Object.keys(topics)) {
+    for (const topic of topicIds) {
         const topicDocs = getAllDocsForTopic(topic);
         allDocs.push(
             ...topicDocs.map((doc) => ({

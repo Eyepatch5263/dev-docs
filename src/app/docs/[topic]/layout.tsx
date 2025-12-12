@@ -10,13 +10,20 @@ interface TopicLayoutProps {
 }
 
 export default async function TopicLayout({ children, params }: TopicLayoutProps) {
+
+    // fetches the topic from the url params
     const { topic } = await params;
+
+    // this will give metadata like title, description for given topic
     const topicMeta = getTopicMeta(topic);
 
     if (!topicMeta) {
         notFound();
     }
 
+    // This gives the whole navigation structure for the topic like system design 
+    // topics and their subtopics
+    // like introduction and all the subtopics related to introduction
     const navigation = getNavigationForTopic(topic);
 
     return (
