@@ -1,7 +1,6 @@
 'use client';
 
 import { motion, AnimatePresence } from 'framer-motion';
-import { useState } from 'react';
 import { Check, Clock } from 'lucide-react';
 
 interface FlashcardProps {
@@ -10,13 +9,13 @@ interface FlashcardProps {
     categoryColor?: string;
     isKnown?: boolean;
     isReview?: boolean;
+    isFlipped?: boolean;
+    onFlip?: () => void;
 }
 
-export function Flashcard({ question, answer, categoryColor = 'oklch(0.6 0.2 240)', isKnown = false, isReview = false }: FlashcardProps) {
-    const [isFlipped, setIsFlipped] = useState(false);
-
+export function Flashcard({ question, answer, categoryColor = 'oklch(0.6 0.2 240)', isKnown = false, isReview = false, isFlipped = false, onFlip }: FlashcardProps) {
     const handleFlip = () => {
-        setIsFlipped(!isFlipped);
+        onFlip?.();
     };
 
     return (

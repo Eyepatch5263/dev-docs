@@ -207,6 +207,8 @@ export default function CategoryPage({ params }: { params: Promise<{ category: s
                                         categoryColor={categoryInfo.color}
                                         isKnown={knownCards.has(currentCard.id)}
                                         isReview={reviewCards.has(currentCard.id)}
+                                        isFlipped={isFlipped}
+                                        onFlip={handleFlip}
                                     />
                                 </motion.div>
                             </AnimatePresence>
