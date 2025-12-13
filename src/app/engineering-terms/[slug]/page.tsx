@@ -3,8 +3,8 @@ import Link from 'next/link';
 import { ArrowLeft, BookOpen } from 'lucide-react';
 import { Header } from '@/components/Header';
 import { Badge } from '@/components/ui/badge';
-import { getTermBySlug } from '@/lib/elasticsearch';
-import { getRelatedTerms, sampleTerms } from '@/data/sample-terms';
+import { getTermBySlug, getRelatedTerms } from '@/lib/elasticsearch';
+import { sampleTerms } from '@/data/sample-terms';
 import { TermCard } from '@/components/TermCard';
 import type { Metadata } from 'next';
 
@@ -12,7 +12,7 @@ import type { Metadata } from 'next';
 const categoryVariantMap: Record<string, 'system-design' | 'dbms' | 'os' | 'networking' | 'devops'> = {
     'System Design': 'system-design',
     'DBMS': 'dbms',
-    'OS': 'os',
+    'Operating System': 'os',
     'Networking': 'networking',
     'DevOps': 'devops',
 };
@@ -55,7 +55,7 @@ export default async function TermDetailPage({ params }: PageProps) {
     }
 
     const variant = categoryVariantMap[term.category] || 'secondary';
-    const relatedTerms = getRelatedTerms(term, 3);
+    const relatedTerms = await getRelatedTerms(term, 3);
 
     return (
         <div className="min-h-screen bg-background">

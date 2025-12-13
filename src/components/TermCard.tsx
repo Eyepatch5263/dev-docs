@@ -8,12 +8,21 @@ interface TermCardProps {
 }
 
 // Map category to badge variant
-const categoryVariantMap: Record<string, 'system-design' | 'dbms' | 'os' | 'networking' | 'devops'> = {
+const categoryVariantMap: Record<string, string> = {
     'System Design': 'system-design',
     'DBMS': 'dbms',
-    'OS': 'os',
+    'Operating Systems': 'os',
     'Networking': 'networking',
     'DevOps': 'devops',
+    'Distributed Systems': 'distributed-systems',
+    'Cloud Computing': 'cloud-computing',
+    'Security': 'security',
+    'Web Technologies': 'web-technologies',
+    'Machine Learning': 'machine-learning',
+    'Algorithms': 'algorithms',
+    'Data Structures': 'data-structures',
+    'Information Retrieval': 'information-retrieval',
+    'Programming': 'programming',
 };
 
 // Highlight matching text in results
@@ -35,7 +44,7 @@ function highlightMatch(text: string, query: string): React.ReactNode {
 }
 
 export function TermCard({ term, searchQuery = '' }: TermCardProps) {
-    const variant = categoryVariantMap[term.category] || 'secondary';
+    const variant = (categoryVariantMap[term.category] || 'secondary') as any;
 
     // Truncate definition to ~150 characters
     const truncatedDefinition = term.definition.length > 150

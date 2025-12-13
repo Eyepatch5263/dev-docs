@@ -2,6 +2,12 @@ import { searchTermsLocally, type EngineeringTerm } from '@/data/sample-terms';
 
 import { Client } from '@elastic/elasticsearch';
 
+interface SearchResult {
+    terms: EngineeringTerm[];
+    total: number;
+    source: 'elasticsearch' | 'local';
+}
+
 // configure elasticsearch client
 const client = new Client({
     node: process.env.ELASTICSEARCH_URL,
@@ -37,12 +43,6 @@ function normalizeTermFromES(source: any, docId: string): EngineeringTerm {
     };
 }
 
-interface SearchResult {
-    terms: EngineeringTerm[];
-    total: number;
-    source: 'elasticsearch' | 'local';
-}
-
 /**
  * Search engineering terms using Elasticsearch (or fallback to local search)
  */
@@ -54,7 +54,7 @@ export async function searchTerms(query: string): Promise<SearchResult> {
     );
 
     if (!isElasticsearchConfigured) {
-        // Fallback to local search
+        // Fallback to local search if elasticsearch is not configured
         const terms = searchTermsLocally(query);
         return {
             terms,
@@ -132,6 +132,8 @@ export async function searchTerms(query: string): Promise<SearchResult> {
 
 /**
  * Get a single term by slug from Elasticsearch (or fallback)
+ * // this function is triggering when we have to search for the single term 
+ * when i got tons of suggestion and when i click on any one of the search this would trigger
  */
 export async function getTermBySlug(slug: string): Promise<EngineeringTerm | null> {
 
@@ -156,12 +158,11 @@ export async function getTermBySlug(slug: string): Promise<EngineeringTerm | nul
             query: {
                 bool: {
                     should: [
-                        // Try exact slug match
+                        // Try exact slug match (if your index has a slug field)
                         { term: { slug: slug } },
                         { term: { 'slug.keyword': slug } },
                         // Try matching by term name (derived from slug)
                         { match_phrase: { term: termNameFromSlug } },
-                        { match_phrase: { name: termNameFromSlug } },
                         // Try ID match
                         { term: { id: slug } },
                         { term: { _id: slug } },
@@ -184,5 +185,53 @@ export async function getTermBySlug(slug: string): Promise<EngineeringTerm | nul
         console.error('Elasticsearch get failed, using local fallback:', error);
         const { getTermBySlug: localGetTerm } = await import('@/data/sample-terms');
         return localGetTerm(slug) || null;
+    }
+}
+
+/**
+ * Get related terms by matching tags from Elasticsearch
+ * Finds terms that share at least one tag with the given term
+ */
+export async function getRelatedTerms(
+    term: EngineeringTerm,
+    limit: number = 3
+): Promise<EngineeringTerm[]> {
+    const isElasticsearchConfigured = !!(
+        process.env.ELASTICSEARCH_URL &&
+        process.env.ELASTICSEARCH_API_KEY
+    );
+
+    if (!isElasticsearchConfigured) {
+        // Fallback to local related terms
+        const { getRelatedTerms: localGetRelated } = await import('@/data/sample-terms');
+        return localGetRelated(term, limit);
+    }
+
+    try {
+        // Search for terms that share tags with the current term
+        const response = await client.search({
+            index: INDEX_NAME,
+            query: {
+                bool: {
+                    // Match any of the term's tags
+                    should: term.tags.map(tag => ({
+                        term: { tags: tag }
+                    })),
+                    // Exclude the current term
+                    must_not: [
+                        { match_phrase: { term: term.term } }
+                    ],
+                    minimum_should_match: 1,
+                }
+            },
+            size: limit,
+        });
+
+        const hits = response.hits.hits;
+        return hits.map((hit: any) => normalizeTermFromES(hit._source, hit._id));
+    } catch (error) {
+        console.error('Elasticsearch related terms failed, using local fallback:', error);
+        const { getRelatedTerms: localGetRelated } = await import('@/data/sample-terms');
+        return localGetRelated(term, limit);
     }
 }
