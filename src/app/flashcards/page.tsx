@@ -14,6 +14,7 @@ export default function FlashcardsPage() {
     }, {} as Record<string, number>);
 
     const totalCards = Object.values(cardCounts).reduce((sum, count) => sum + count, 0);
+    console.log("toalCards", totalCards);
 
     return (
         <div className="min-h-screen bg-background">

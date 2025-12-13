@@ -34,9 +34,6 @@ export function TopicCard({
 
     // Fallback color if undefined
     const cardColor = color || 'oklch(0.6 0.2 240)';
-
-    console.log('TopicCard color:', { id, color, cardColor });
-
     return (
         <motion.div
             key={id}

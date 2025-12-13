@@ -1,0 +1,50 @@
+[
+    {
+        "id": "devops-1",
+        "category": "devops",
+        "question": "What is CI/CD?",
+        "answer": "Continuous Integration/Continuous Deployment is a practice where code changes are automatically built, tested, and deployed. CI merges code frequently to detect issues early, while CD automates the release process to production."
+    },
+    {
+        "id": "devops-2",
+        "category": "devops",
+        "question": "What is Docker?",
+        "answer": "A containerization platform that packages applications and their dependencies into isolated containers. It ensures consistency across different environments and enables efficient resource utilization."
+    },
+    {
+        "id": "devops-3",
+        "category": "devops",
+        "question": "What is Kubernetes?",
+        "answer": "An open-source container orchestration platform that automates deployment, scaling, and management of containerized applications. It handles load balancing, self-healing, and rolling updates."
+    },
+    {
+        "id": "devops-4",
+        "category": "devops",
+        "question": "What is Infrastructure as Code (IaC)?",
+        "answer": "The practice of managing and provisioning infrastructure through code instead of manual processes. Tools like Terraform and CloudFormation enable version control, automation, and reproducibility of infrastructure."
+    },
+    {
+        "id": "devops-5",
+        "category": "devops",
+        "question": "What is a microservices architecture?",
+        "answer": "An architectural style where an application is built as a collection of small, independent services that communicate via APIs. Each service is independently deployable, scalable, and maintainable."
+    },
+    {
+        "id": "devops-6",
+        "category": "devops",
+        "question": "What is monitoring and observability?",
+        "answer": "Monitoring tracks system metrics and logs, while observability provides deeper insights into system behavior. Tools like Prometheus, Grafana, and ELK stack help detect issues, analyze performance, and troubleshoot problems."
+    },
+    {
+        "id": "devops-7",
+        "category": "devops",
+        "question": "What is blue-green deployment?",
+        "answer": "A deployment strategy where two identical production environments (blue and green) exist. Traffic is switched from the current version (blue) to the new version (green) instantly, enabling zero-downtime deployments and easy rollbacks."
+    },
+    {
+        "id": "devops-8",
+        "category": "devops",
+        "question": "What is GitOps?",
+        "answer": "A DevOps practice where Git is the single source of truth for declarative infrastructure and applications. Changes are made through Git commits, and automated processes sync the desired state to production."
+    }
+]

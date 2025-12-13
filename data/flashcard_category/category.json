@@ -7,7 +7,7 @@
         "description": "Master database concepts, indexing, and normalization"
     },
     {
-        "id": "os",
+        "id": "operating-systems",
         "name": "Operating Systems",
         "icon": "Cpu",
         "color": "oklch(0.6 0.2 140)",
@@ -24,6 +24,13 @@
         "id": "system-design",
         "name": "System Design",
         "icon": "Boxes",
+        "color": "oklch(0.6 0.2 280)",
+        "description": "Design scalable systems with load balancing and caching"
+    },
+    {
+        "id": "devops",
+        "name": "DevOps",
+        "icon": "CloudUploadIcon",
         "color": "oklch(0.6 0.2 280)",
         "description": "Design scalable systems with load balancing and caching"
     }

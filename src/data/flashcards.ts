@@ -1,15 +1,17 @@
 import { CategoryInfo, Flashcard, FlashcardCategory } from "@/app/types/flashcard.type";
 import dbms from "../../data/flashcard/dbms.json";
-import os from "../../data/flashcard/os.json";
+import os from "../../data/flashcard/operating-systems.json";
 import networking from "../../data/flashcard/networking.json";
 import systemDesign from "../../data/flashcard/system-design.json";
+import devops from "../../data/flashcard/devops.json";
 import category from "../../data/flashcard_category/category.json";
 
 export const flashcards: Flashcard[] = [
     ...(dbms as Flashcard[]),
     ...(os as Flashcard[]),
     ...(networking as Flashcard[]),
-    ...(systemDesign as Flashcard[])
+    ...(systemDesign as Flashcard[]),
+    ...(devops as Flashcard[])
 ];
 
 export const categories: CategoryInfo[] = [
