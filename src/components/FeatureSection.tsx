@@ -43,7 +43,7 @@ export function FeatureSection({
                         <div
                             className={`p-8 sm:p-12 lg:p-16 ${imagePosition === 'left' ? 'md:order-2' : ''}`}
                         >
-                            <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold mb-6 tracking-tight bg-gradient-to-br from-foreground to-foreground/70 bg-clip-text text-transparent">
+                            <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold mb-6 tracking-tight bg-linear-to-br from-foreground to-foreground/70 bg-clip-text text-transparent">
                                 {title}
                             </h2>
                             <p className="text-base sm:text-lg text-muted-foreground mb-8 leading-relaxed">
@@ -60,7 +60,7 @@ export function FeatureSection({
 
                         {/* Illustration with Overlay */}
                         <div
-                            className={`relative bg-gradient-to-br from-primary/5 to-accent/5 p-8 sm:p-12 lg:p-16 ${imagePosition === 'left' ? 'md:order-1' : ''
+                            className={`relative bg-linear-to-br from-primary/5 to-accent/5 p-8 sm:p-12 lg:p-16 ${imagePosition === 'left' ? 'md:order-1' : ''
                                 }`}
                         >
                             <div className="relative">

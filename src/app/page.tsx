@@ -49,6 +49,26 @@ export default function Home() {
         }
       />
 
+      {/* Engineering Terms Feature */}
+      <FeatureSection
+        title="Engineering Terms"
+        description="Explore a curated collection of engineering terms, definitions, and related concepts. Whether you're a student, engineer, or professional, our resources provide clear explanations and practical examples to help you understand complex topics."
+        buttonText="Explore Terms"
+        buttonLink="/engineering-terms"
+        imagePosition="right"
+        illustration={
+          <div className="relative w-full aspect-square max-w-md mx-auto">
+            <Image
+              src="/engineering-terms-illustration.jpg"
+              alt="Engineering Terms - Clear explanations and practical examples"
+              fill
+              className="object-contain"
+              priority
+            />
+          </div>
+        }
+      />
+
       {/* Newsletter Section */}
       <NewsletterForm />
 

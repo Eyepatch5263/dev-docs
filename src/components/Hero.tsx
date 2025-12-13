@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { motion } from 'framer-motion';
-import { ArrowRight, BookOpen, Layers } from 'lucide-react';
+import { ArrowRight, BookOpen, Layers, Search } from 'lucide-react';
 
 export function Hero() {
     return (
@@ -37,7 +37,7 @@ export function Hero() {
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ duration: 0.8, delay: 0.4, ease: 'easeOut' }}
-                    className="flex flex-col sm:flex-row gap-4 justify-center items-center"
+                    className="flex flex-col sm:flex-row gap-4 justify-center items-center flex-wrap"
                 >
                     <Link
                         href="/docs"
@@ -54,6 +54,15 @@ export function Hero() {
                     >
                         <Layers className="w-5 h-5" />
                         Try Flash Cards
+                        <ArrowRight className="w-5 h-5 transition-transform group-hover:translate-x-1" />
+                    </Link>
+
+                    <Link
+                        href="/engineering-terms"
+                        className="group relative inline-flex items-center gap-2 px-8 py-4 bg-secondary text-secondary-foreground rounded-lg font-medium text-lg transition-all hover:scale-105 hover:shadow-lg border border-border w-full sm:w-auto justify-center"
+                    >
+                        <Search className="w-5 h-5" />
+                        Engineering Terms
                         <ArrowRight className="w-5 h-5 transition-transform group-hover:translate-x-1" />
                     </Link>
                 </motion.div>
