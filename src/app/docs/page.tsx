@@ -19,13 +19,12 @@ export default function DocsLandingPage() {
                         </span>
                         Actively Maintained Documentation
                     </div>
-                    <HeroReusableComponent title="Developer's" subHeading="Documentation Doom" description="Deep-dive into system fundamentals with richly illustrated guides. Master databases, operating systems, and distributed architectures through diagrams, examples, and visual breakdowns."/>
+                    <HeroReusableComponent title="Developer's" subHeading="Documentation Doom" description="Deep-dive into system fundamentals with richly illustrated guides. Master databases, operating systems, and distributed architectures through diagrams, examples, and visual breakdowns." />
 
                     {/* Topic Cards Grid */}
                     <main className="container mx-auto px-4 py-12">
                         <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
                             {topics.map((topic, index) => {
-                                console.log("topic", topic)
                                 const articleCount = topic.articles || 0;
                                 const isAvailable = articleCount > 0;
 

@@ -4,6 +4,6 @@
         "description":
             "Understand computer networks, protocols, TCP/IP, HTTP, DNS, and how data travels across the internet.",
         "icon": "Network",
-        "color": "oklch(0.6 0.25 310)",
+        "color": "oklch(0.6 0.2 40)",
         "articles": 1
 }

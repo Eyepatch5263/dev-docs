@@ -4,6 +4,6 @@
         "description":
             "Master database concepts, SQL, NoSQL, indexing, transactions, and data modeling techniques.",
         "icon": "Database",
-        "color": "oklch(0.65 0.2 145)",
+        "color": "oklch(0.6 0.2 240)",
         "articles": 1
 }

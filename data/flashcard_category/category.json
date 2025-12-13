@@ -9,7 +9,7 @@
     {
         "id": "operating-systems",
         "name": "Operating Systems",
-        "icon": "Cpu",
+        "icon": "HardDrive",
         "color": "oklch(0.6 0.2 140)",
         "description": "Learn about processes, threads, and memory management"
     },
@@ -23,7 +23,7 @@
     {
         "id": "system-design",
         "name": "System Design",
-        "icon": "Boxes",
+        "icon": "Server",
         "color": "oklch(0.6 0.2 280)",
         "description": "Design scalable systems with load balancing and caching"
     },

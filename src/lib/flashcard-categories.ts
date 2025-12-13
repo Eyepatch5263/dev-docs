@@ -4,7 +4,6 @@ import { CategoryInfo } from '@/app/types/flashcard.type';
 // Server-side function to get categories from content folders
 export function getCategoriesFromContent(): CategoryInfo[] {
     const topics = getAllTopics();
-    console.log(topics);
 
     return topics.map(topic => ({
         id: topic.id as any, // Map to FlashcardCategory type

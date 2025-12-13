@@ -17,6 +17,7 @@ import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { useState, useEffect, useRef, use } from 'react';
 import { FlashcardCategory } from '@/app/types/flashcard.type';
+import { iconMap } from '@/lib/icon-map';
 
 export default function CategoryPage({ params }: { params: Promise<{ category: string }> }) {
     const { category: categoryParam } = use(params);
@@ -163,12 +164,14 @@ export default function CategoryPage({ params }: { params: Promise<{ category: s
                                     color: `isDark ? "white" : "black"`,
                                 }}
                             >
-                                <span className="text-2xl">
-                                    {categoryInfo.icon === 'Database' && '🗄️'}
-                                    {categoryInfo.icon === 'Cpu' && '⚙️'}
-                                    {categoryInfo.icon === 'Network' && '🌐'}
-                                    {categoryInfo.icon === 'Boxes' && '📦'}
-                                </span>
+                                {(() => {
+                                    const IconComponent = iconMap[categoryInfo.icon];
+                                    return IconComponent ? (
+                                        <IconComponent className="w-6 h-6" style={{color:categoryInfo.color}} />
+                                    ) : (
+                                        <BookOpen className="w-6 h-6" />
+                                    );
+                                })()}
                                 <span className='light:text-black'>{categoryInfo.name}</span>
                             </div>
                             <ThemeToggle />
