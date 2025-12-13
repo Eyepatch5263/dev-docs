@@ -13,6 +13,7 @@ export async function POST(request: Request) {
             );
         }
 
+        // Testing for valid email via regex pattern
         const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
         if (!emailRegex.test(email)) {
             return NextResponse.json(
@@ -22,7 +23,7 @@ export async function POST(request: Request) {
         }
 
         // Send welcome email using Resend
-        const { data, error } = await resend.emails.send({
+        const { error } = await resend.emails.send({
             from: 'Explain Bytes <newsletter@news.explainbytes.tech>',
             to: [email],
             replyTo: 'support@news.explainbytes.tech',

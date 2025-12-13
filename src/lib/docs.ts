@@ -4,6 +4,8 @@ import matter from "gray-matter";
 import { DocContent, DocMeta, TopicMeta } from "@/app/types/docs.type";
 import { NavCategory, NavItem } from "@/app/types/nav.type";
 
+// Re-export iconMap from shared location
+
 const contentDirectory = path.join(process.cwd(), "content");
 
 // Helper to convert folder name to display title

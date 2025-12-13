@@ -16,7 +16,6 @@ export const categories: CategoryInfo[] = [
     ...(category as CategoryInfo[])
 ];
 
-
 // Utility functions
 export function getFlashcardsByCategory(category: FlashcardCategory): Flashcard[] {
     return flashcards.filter(card => card.category === category);

@@ -4,6 +4,6 @@
         "description":
             "Learn the fundamentals of designing scalable, reliable, and efficient systems. Covers distributed systems, microservices, and architectural patterns.",
         "icon": "Server",
-        "color": "from-blue-500 to-cyan-500",
+        "color": "oklch(0.6 0.2 220)",
         "articles": 9
 }

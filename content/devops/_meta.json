@@ -4,6 +4,6 @@
         "description":
             "Learn about CI/CD, containerization, orchestration, infrastructure as code, and monitoring to streamline software delivery.",
         "icon": "CloudUploadIcon",
-        "color": "from-gray-600 to-blue-500",
+        "color": "oklch(0.55 0.15 250)",
         "articles": 1
 }
