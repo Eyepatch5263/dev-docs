@@ -4,7 +4,7 @@ import { useState, useEffect, useRef, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Search, Loader2, Zap } from 'lucide-react';
 import { Input } from '@/components/ui/input';
-import type { EngineeringTerm } from '@/data/sample-terms';
+import type { EngineeringTerm } from '../../../data/sample-terms';
 import { TermCard } from '@/components/TermCard';
 import HeroReusableComponent from '@/components/HeroReusableComponent';
 
@@ -98,7 +98,7 @@ export function EngineeringTermsClient() {
                 animate={{ opacity: 1, y: 0 }}
                 className="text-center mb-12"
             >
-                <HeroReusableComponent title='Search' subHeading='For Any Engineering Terms ' description='A comprehensive glossary of software engineering terms and definitions for developers.'/>
+                <HeroReusableComponent title='Search' subHeading='For Any Engineering Terms ' description='A comprehensive glossary of software engineering terms and definitions for developers.' />
                 {/* Search Input */}
                 <div className="relative max-w-2xl mx-auto">
                     <div className="relative group">

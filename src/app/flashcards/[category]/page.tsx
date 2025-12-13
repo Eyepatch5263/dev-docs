@@ -8,7 +8,7 @@ import {
     getFlashcardsByCategory,
     getCategoryInfo,
     shuffleDeck,
-} from '@/data/flashcards';
+} from '@/lib/flashcards';
 import { useKeyboardControls } from '@/hooks/useKeyboardControls';
 import { useLocalStorage } from '@/hooks/useLocalStorage';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -167,7 +167,7 @@ export default function CategoryPage({ params }: { params: Promise<{ category: s
                                 {(() => {
                                     const IconComponent = iconMap[categoryInfo.icon];
                                     return IconComponent ? (
-                                        <IconComponent className="w-6 h-6" style={{color:categoryInfo.color}} />
+                                        <IconComponent className="w-6 h-6" style={{ color: categoryInfo.color }} />
                                     ) : (
                                         <BookOpen className="w-6 h-6" />
                                     );

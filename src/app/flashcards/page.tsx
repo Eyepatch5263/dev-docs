@@ -1,5 +1,5 @@
 import { Header } from '@/components/Header';
-import { getFlashcardsByCategory } from '@/data/flashcards';
+import { getFlashcardsByCategory } from '@/lib/flashcards';
 import { getCategoriesFromContent } from '@/lib/flashcard-categories';
 import { FlashcardsClient } from './FlashcardsClient';
 

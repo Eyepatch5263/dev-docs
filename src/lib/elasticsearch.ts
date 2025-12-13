@@ -1,4 +1,4 @@
-import { searchTermsLocally, type EngineeringTerm } from '@/data/sample-terms';
+import { searchTermsLocally, type EngineeringTerm } from '../../data/sample-terms';
 
 import { Client } from '@elastic/elasticsearch';
 
@@ -145,7 +145,7 @@ export async function getTermBySlug(slug: string): Promise<EngineeringTerm | nul
 
     // if elasticsearch is not configured, use local fallback means get the searches from local file
     if (!isElasticsearchConfigured) {
-        const { getTermBySlug: localGetTerm } = await import('@/data/sample-terms');
+        const { getTermBySlug: localGetTerm } = await import('../../data/sample-terms');
         return localGetTerm(slug) || null;
     }
 
@@ -179,11 +179,11 @@ export async function getTermBySlug(slug: string): Promise<EngineeringTerm | nul
         }
 
         // If not found in Elasticsearch, try local fallback
-        const { getTermBySlug: localGetTerm } = await import('@/data/sample-terms');
+        const { getTermBySlug: localGetTerm } = await import('../../data/sample-terms');
         return localGetTerm(slug) || null;
     } catch (error) {
         console.error('Elasticsearch get failed, using local fallback:', error);
-        const { getTermBySlug: localGetTerm } = await import('@/data/sample-terms');
+        const { getTermBySlug: localGetTerm } = await import('../../data/sample-terms');
         return localGetTerm(slug) || null;
     }
 }
@@ -203,7 +203,7 @@ export async function getRelatedTerms(
 
     if (!isElasticsearchConfigured) {
         // Fallback to local related terms
-        const { getRelatedTerms: localGetRelated } = await import('@/data/sample-terms');
+        const { getRelatedTerms: localGetRelated } = await import('../../data/sample-terms');
         return localGetRelated(term, limit);
     }
 
@@ -231,7 +231,7 @@ export async function getRelatedTerms(
         return hits.map((hit: any) => normalizeTermFromES(hit._source, hit._id));
     } catch (error) {
         console.error('Elasticsearch related terms failed, using local fallback:', error);
-        const { getRelatedTerms: localGetRelated } = await import('@/data/sample-terms');
+        const { getRelatedTerms: localGetRelated } = await import('../../data/sample-terms');
         return localGetRelated(term, limit);
     }
 }

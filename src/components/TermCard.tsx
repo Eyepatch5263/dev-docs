@@ -1,6 +1,6 @@
 import Link from 'next/link';
 import { Badge } from '@/components/ui/badge';
-import type { EngineeringTerm } from '@/data/sample-terms';
+import type { EngineeringTerm } from '../../data/sample-terms';
 
 interface TermCardProps {
     term: EngineeringTerm;

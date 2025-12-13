@@ -42,6 +42,15 @@ A modern, full-stack documentation and learning platform built with Next.js 15, 
 - **Card-Based Layout**: Beautiful topic cards with hover effects
 - **Gradient Accents**: Subtle color gradients for visual hierarchy
 
+### 🔍 **Engineering Terms Search** 
+- **Elasticsearch Integration**: Fast, full-text search across 900+ engineering terms
+- **Search-as-You-Type**: Instant results with `match_phrase_prefix` queries
+- **Multi-Category Support**: System Design, DBMS, OS, Networking, DevOps, Machine Learning, Security, and more
+- **Related Terms**: Discover related concepts by matching tags
+- **Graceful Fallback**: Works with local data when Elasticsearch is unavailable
+- **Category Badges**: Color-coded badges for easy visual identification
+- **Detail Pages**: Full term definitions with related concepts
+
 ---
 
 ## 🚀 Quick Start
@@ -63,7 +72,11 @@ npm install
 
 # Set up environment variables
 cp .env.example .env
-# Add your RESEND_API_KEY to .env
+# Add your environment variables to .env:
+# - RESEND_API_KEY (for newsletter)
+# - ELASTICSEARCH_URL (for engineering terms search)
+# - ELASTICSEARCH_API_KEY (for engineering terms search)
+# - ELASTICSEARCH_INDEX (optional, defaults to 'engineering-terms')
 
 # Run development server
 npm run dev
@@ -102,6 +115,7 @@ explain-bytes/
 │   │   └── flashcards.ts         # Flashcard utilities
 │   ├── lib/                      # Utilities
 │   │   ├── docs.ts               # Documentation utilities
+│   │   ├── elasticsearch.ts      # Elasticsearch client & queries
 │   │   ├── icon-map.ts           # Icon mapping
 │   │   └── resend.ts             # Email client
 │   └── hooks/                    # Custom React hooks
@@ -111,15 +125,17 @@ explain-bytes/
 │   ├── networking/               # Networking docs
 │   ├── system-design/            # System design docs
 │   └── devops/                   # DevOps docs
-├── data/                         # Flashcard data
+├── data/                         # Data files
 │   ├── flashcard/                # Flashcard JSON files
 │   │   ├── dbms.json
 │   │   ├── operating-systems.json
 │   │   ├── networking.json
 │   │   ├── system-design.json
 │   │   └── devops.json
-│   └── flashcard_category/       # Category metadata
-│       └── category.json
+│   ├── flashcard_category/       # Category metadata
+│   │   └── category.json
+│   ├── sample-terms.ts           # Local engineering terms fallback
+│   └── elasticsearch.ndjson      # Elasticsearch bulk import data
 └── public/                       # Static assets
 ```
 
@@ -141,6 +157,9 @@ explain-bytes/
 - **[MDX](https://mdxjs.com/)** - Markdown with JSX support
 - **[Gray Matter](https://github.com/jonschlinkert/gray-matter)** - Frontmatter parser
 - **[Next MDX Remote](https://github.com/hashicorp/next-mdx-remote)** - MDX rendering
+
+### Search
+- **[Elasticsearch](https://www.elastic.co/)** - Full-text search engine for engineering terms
 
 ### Email
 - **[Resend](https://resend.com/)** - Email API
@@ -164,6 +183,14 @@ explain-bytes/
 3. **Dynamic Categories**: Categories auto-generated from content folders
 4. **Progress Tracking**: localStorage saves known/review card states
 5. **Keyboard Controls**: Full keyboard navigation for efficient studying
+
+### Engineering Terms Search
+
+1. **Elasticsearch Backend**: Full-text search using `match_phrase_prefix` for autocomplete
+2. **Data Import**: Use `data/elasticsearch.ndjson` to bulk import terms
+3. **Normalization**: ES results normalized to `EngineeringTerm` interface with auto-generated slugs
+4. **Related Terms**: Tag-based matching finds related concepts
+5. **Graceful Fallback**: Uses local `sample-terms.ts` when Elasticsearch is unavailable
 
 ---
 
