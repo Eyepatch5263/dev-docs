@@ -10,6 +10,7 @@ Thank you for your interest in contributing to Explain Bytes! This guide will he
 - [Project Architecture](#project-architecture)
 - [Adding Documentation](#adding-documentation)
 - [Creating Flashcards](#creating-flashcards)
+- [Contributing Engineering Terms](#contributing-engineering-terms)
 - [Code Style Guidelines](#code-style-guidelines)
 - [Submitting Changes](#submitting-changes)
 
@@ -260,6 +261,86 @@ npm run dev
 # Visit http://localhost:3000/flashcards
 # Click on your new category
 ```
+
+---
+
+## 🔍 Contributing Engineering Terms
+
+We have an Elasticsearch-powered search for engineering terms, but the dataset is still small and needs your contributions!
+
+### Current Dataset
+
+The data file is located at `data/elasticsearch.ndjson`. It contains terms like:
+- System Design concepts
+- Database terminology
+- Networking terms
+- Machine Learning concepts
+- DevOps and Cloud Computing terms
+
+### How to Add New Terms
+
+#### Step 1: Understand the Format
+
+The file uses **NDJSON** (Newline Delimited JSON) format. Each term requires **2 lines**:
+
+```json
+{"index":{"_index":"engineering_terms"}}
+{"term":"Your Term","definition":"Clear, concise definition here.","category":"Category Name","tags":["tag1","tag2"]}
+```
+
+#### Step 2: Add Your Terms
+
+Open `data/elasticsearch.ndjson` and add new terms at the end:
+
+```json
+{"index":{"_index":"engineering_terms"}}
+{"term":"Circuit Breaker","definition":"A design pattern that prevents cascading failures in distributed systems by stopping requests to failing services.","category":"System Design","tags":["resilience","fault-tolerance","microservices"]}
+{"index":{"_index":"engineering_terms"}}
+{"term":"Blue-Green Deployment","definition":"A deployment strategy that reduces downtime by running two identical production environments.","category":"DevOps","tags":["deployment","zero-downtime","infrastructure"]}
+```
+
+#### Step 3: Validate Your JSON
+
+Make sure:
+- ✅ Each term has an index line before it
+- ✅ No trailing commas in JSON
+- ✅ Category matches existing categories or add a new one
+- ✅ Tags are relevant and lowercase
+
+**Available Categories**:
+- System Design
+- DBMS
+- Operating Systems
+- Networking
+- DevOps
+- Machine Learning
+- Security
+- Cloud Computing
+- Distributed Systems
+- Web Technologies
+- Algorithms
+- Data Structures
+- Programming
+- Information Retrieval
+
+#### Step 4: Test Your Changes
+
+If you have Elasticsearch running locally:
+
+```bash
+# Bulk import to Elasticsearch
+curl -X POST "localhost:9200/_bulk" -H "Content-Type: application/x-ndjson" --data-binary @data/elasticsearch.ndjson
+```
+
+If not, the app will fall back to local data—just make sure your JSON is valid!
+
+### Tips for Good Terms
+
+- **Be Specific**: Define one concept per term
+- **Be Clear**: Write for someone learning the concept
+- **Add Context**: Mention when/why the concept is used
+- **Use Examples**: Brief examples help understanding
+- **Choose Good Tags**: Think about related searches
 
 ---
 
