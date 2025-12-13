@@ -1,228 +1,238 @@
-# 📚 System Design Docs
+# 📚 Explain Bytes
 
-A modern, minimal documentation website built with Next.js 15+ and MDX for technical documentation. Perfect for developer guides, API references, and system design resources.
+> **Deep-dive into system fundamentals with richly illustrated guides. Master databases, operating systems, and distributed architectures through diagrams, examples, and visual breakdowns.**
 
-![Next.js](https://img.shields.io/badge/Next.js-16.0-black?style=flat-square&logo=next.js)
-![TypeScript](https://img.shields.io/badge/TypeScript-5.0-blue?style=flat-square&logo=typescript)
-![TailwindCSS](https://img.shields.io/badge/TailwindCSS-4.0-38B2AC?style=flat-square&logo=tailwind-css)
-![MDX](https://img.shields.io/badge/MDX-3.0-yellow?style=flat-square&logo=mdx)
+A modern, full-stack documentation and learning platform built with Next.js 15, featuring interactive flashcards and comprehensive technical documentation.
+
+![Next.js](https://img.shields.io/badge/Next.js-15-black?style=flat-square&logo=next.js)
+![TypeScript](https://img.shields.io/badge/TypeScript-5-blue?style=flat-square&logo=typescript)
+![TailwindCSS](https://img.shields.io/badge/TailwindCSS-3-38bdf8?style=flat-square&logo=tailwind-css)
+![License](https://img.shields.io/badge/License-MIT-green?style=flat-square)
+
+---
 
 ## ✨ Features
 
-- **⚡ Next.js 15+ App Router** - Latest React Server Components architecture
-- **📝 MDX Support** - Write documentation in Markdown with JSX components
-- **🎨 Syntax Highlighting** - Beautiful code blocks with [rehype-pretty-code](https://github.com/rehype-pretty/rehype-pretty-code) and dual theme support
-- **🖥️ Mac-Style Code Blocks** - Elegant code presentation with title bar and language labels
-- **🌗 Dark Mode** - Seamless light/dark theme switching with next-themes
-- **📑 Auto-Generated Navigation** - Sidebar automatically generated from content folder structure
-- **📖 Table of Contents** - Auto-generated TOC from H2/H3 headings
-- **🎯 shadcn/ui Components** - Clean, accessible UI components
-- **📱 Responsive Design** - Works beautifully on all devices
-- **🔍 SEO Optimized** - Meta tags and static generation for better discoverability
+### 📖 **FlashDocs - Technical Documentation**
+- **Rich Markdown Support**: Write documentation in MDX with full component support
+- **Automatic Topic Discovery**: Dynamically generates topics from folder structure
+- **Visual Learning**: Support for diagrams, code blocks, and illustrations
+- **Syntax Highlighting**: Beautiful code snippets with language-specific highlighting
+- **Dark/Light Mode**: Seamless theme switching with system preference detection
+- **Responsive Design**: Optimized for all devices from mobile to desktop
+
+### 🎯 **FlashCards - Interactive Learning**
+- **Spaced Repetition**: Track known and review cards for effective learning
+- **Keyboard Navigation**: Full keyboard shortcuts (Space, Arrow keys, K, R, S)
+- **Progress Tracking**: Monitor your learning journey with visual progress indicators
+- **Deck Shuffling**: Randomize cards for better retention
+- **Category-Based**: Organized by DBMS, OS, Networking, System Design, and DevOps
+- **Local Storage**: Your progress is saved automatically
+
+### 📧 **Newsletter Integration**
+- **Resend API**: Professional email delivery with verified domain
+- **Spam-Optimized**: Plain text + HTML emails with proper authentication
+- **Beautiful Templates**: Responsive email design with brand colors
+- **Easy Subscription**: Simple, elegant signup form on landing page
+
+### 🎨 **Modern UI/UX**
+- **Framer Motion**: Smooth animations and transitions
+- **Vercel-Inspired Design**: Clean, professional aesthetic
+- **Dynamic Icons**: Lucide React icons with color theming
+- **Card-Based Layout**: Beautiful topic cards with hover effects
+- **Gradient Accents**: Subtle color gradients for visual hierarchy
+
+---
 
 ## 🚀 Quick Start
 
 ### Prerequisites
 
-- Node.js 18.17 or later
-- npm, yarn, or pnpm
+- **Node.js** 18+ and npm/yarn/pnpm
+- **Git** for version control
 
 ### Installation
 
 ```bash
 # Clone the repository
-git clone https://github.com/Eyepatch5263/dev-docs.git
-cd dev-docs
+git clone https://github.com/yourusername/explain-bytes.git
+cd explain-bytes
 
 # Install dependencies
 npm install
 
-# Start development server
+# Set up environment variables
+cp .env.example .env
+# Add your RESEND_API_KEY to .env
+
+# Run development server
 npm run dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) to view the documentation site.
+Open [http://localhost:3000](http://localhost:3000) to see the app.
+
+---
 
 ## 📁 Project Structure
 
 ```
-├── content/                    # MDX documentation files
-│   ├── intro.mdx              # Getting started guide
-│   └── system-design/         # Topic category folder
-│       ├── scalability.mdx
-│       ├── load-balancing.mdx
-│       ├── caching.mdx
-│       ├── database-sharding.mdx
-│       └── message-queues.mdx
+explain-bytes/
 ├── src/
-│   ├── app/
-│   │   ├── docs/
-│   │   │   ├── [...slug]/     # Dynamic doc pages
-│   │   │   ├── layout.tsx     # Docs layout with sidebar
-│   │   │   └── page.tsx       # Docs home page
-│   │   ├── globals.css        # Global styles
-│   │   ├── layout.tsx         # Root layout
-│   │   └── page.tsx           # Home redirect
-│   ├── components/
-│   │   ├── ui/                # shadcn/ui components
-│   │   ├── Header.tsx         # Site header
-│   │   ├── Sidebar.tsx        # Navigation sidebar
-│   │   ├── TableOfContents.tsx
-│   │   ├── ThemeToggle.tsx    # Dark mode toggle
-│   │   ├── ThemeProvider.tsx
-│   │   └── mdx-components.tsx # Custom MDX components
-│   └── lib/
-│       ├── docs.ts            # Documentation utilities
-│       ├── toc.ts             # Table of contents extraction
-│       └── utils.ts           # Utility functions
-├── next.config.ts             # Next.js configuration
-├── components.json            # shadcn/ui configuration
-└── package.json
+│   ├── app/                      # Next.js App Router
+│   │   ├── api/                  # API routes
+│   │   │   ├── docs/             # Dynamic docs API
+│   │   │   └── subscribe/        # Newsletter subscription
+│   │   ├── docs/                 # Documentation pages
+│   │   │   ├── [topic]/          # Dynamic topic routes
+│   │   │   └── page.tsx          # Docs landing page
+│   │   ├── flashcards/           # Flashcard pages
+│   │   │   ├── [category]/       # Dynamic category routes
+│   │   │   └── page.tsx          # Flashcards landing
+│   │   ├── types/                # TypeScript types
+│   │   ├── layout.tsx            # Root layout
+│   │   └── page.tsx              # Home page
+│   ├── components/               # React components
+│   │   ├── CategorySelector.tsx  # Flashcard category grid
+│   │   ├── Flashcard.tsx         # Flip card component
+│   │   ├── TopicCard.tsx         # Reusable topic card
+│   │   ├── Hero.tsx              # Landing hero section
+│   │   ├── FeatureSection.tsx    # Feature showcase
+│   │   └── ...
+│   ├── data/                     # Static data
+│   │   └── flashcards.ts         # Flashcard utilities
+│   ├── lib/                      # Utilities
+│   │   ├── docs.ts               # Documentation utilities
+│   │   ├── icon-map.ts           # Icon mapping
+│   │   └── resend.ts             # Email client
+│   └── hooks/                    # Custom React hooks
+├── content/                      # Documentation content
+│   ├── dbms/                     # Database docs
+│   ├── operating-systems/        # OS docs
+│   ├── networking/               # Networking docs
+│   ├── system-design/            # System design docs
+│   └── devops/                   # DevOps docs
+├── data/                         # Flashcard data
+│   ├── flashcard/                # Flashcard JSON files
+│   │   ├── dbms.json
+│   │   ├── operating-systems.json
+│   │   ├── networking.json
+│   │   ├── system-design.json
+│   │   └── devops.json
+│   └── flashcard_category/       # Category metadata
+│       └── category.json
+└── public/                       # Static assets
 ```
 
-## 📝 Writing Documentation
-
-### Creating a New Page
-
-1. Create a new `.mdx` file in the `content/` directory:
-
-```mdx
 ---
-title: Your Page Title
-description: A brief description of the page
-order: 1
-category: Category Name
+
+## 🛠️ Tech Stack
+
+### Core
+- **[Next.js 15](https://nextjs.org/)** - React framework with App Router
+- **[TypeScript](https://www.typescriptlang.org/)** - Type-safe JavaScript
+- **[React 19](https://react.dev/)** - UI library
+
+### Styling
+- **[TailwindCSS](https://tailwindcss.com/)** - Utility-first CSS
+- **[Framer Motion](https://www.framer.com/motion/)** - Animation library
+- **[Lucide React](https://lucide.dev/)** - Icon library
+
+### Content
+- **[MDX](https://mdxjs.com/)** - Markdown with JSX support
+- **[Gray Matter](https://github.com/jonschlinkert/gray-matter)** - Frontmatter parser
+- **[Next MDX Remote](https://github.com/hashicorp/next-mdx-remote)** - MDX rendering
+
+### Email
+- **[Resend](https://resend.com/)** - Email API
+
 ---
 
-# Your Page Title
+## 📚 How It Works
 
-Your content here...
-```
+### Documentation System
 
-### Frontmatter Options
+1. **Content Structure**: Docs are organized in `/content/[topic]/` folders
+2. **Markdown Files**: Write `.mdx` files with frontmatter metadata
+3. **Auto-Discovery**: `getAllTopics()` scans folders and generates routes
+4. **Dynamic Routing**: `[topic]/[...slug]` handles nested documentation
+5. **Metadata**: `_meta.json` files define topic icons, colors, and descriptions
 
-| Field | Type | Description |
-|-------|------|-------------|
-| `title` | string | Page title (required) |
-| `description` | string | Brief description for SEO and preview |
-| `order` | number | Sort order in navigation (lower = higher) |
-| `category` | string | Category name for grouping |
+### Flashcard System
 
-### Adding Code Blocks
+1. **JSON Data**: Flashcards stored in `/data/flashcard/[category].json`
+2. **Type Safety**: TypeScript types ensure data consistency
+3. **Dynamic Categories**: Categories auto-generated from content folders
+4. **Progress Tracking**: localStorage saves known/review card states
+5. **Keyboard Controls**: Full keyboard navigation for efficient studying
 
-Use fenced code blocks with language identifiers:
+---
 
-````mdx
-```typescript
-function hello(name: string): string {
-  return `Hello, ${name}!`;
-}
-```
-````
-
-Supported languages include: JavaScript, TypeScript, Python, Go, Rust, SQL, Bash, JSON, YAML, and more.
-
-### Adding Images
-
-Place images in the `public/images/` folder and reference them in your MDX files:
-
-```mdx
-![System Architecture Diagram](/images/architecture.png)
-```
-
-Images automatically get:
-- Rounded corners and border styling
-- Shadow effect
-- Caption text from the alt attribute
-- Lazy loading for performance
-
-You can also use external image URLs:
-
-```mdx
-![External Diagram](https://example.com/diagram.png)
-```
-
-### Organizing Content
-
-- **Root level files** (`content/*.mdx`) appear in "Getting Started" section
-- **Subdirectories** (`content/topic/*.mdx`) create category groups
-- Files are sorted by the `order` frontmatter field
-
-## 🎨 Customization
-
-### Theming
-
-The project uses CSS variables for theming. Modify `src/app/globals.css` to customize colors:
-
-```css
-:root {
-  --background: oklch(1 0 0);
-  --foreground: oklch(0.145 0 0);
-  --primary: oklch(0.205 0 0);
-  /* ... */
-}
-
-.dark {
-  --background: oklch(0.145 0 0);
-  --foreground: oklch(0.985 0 0);
-  /* ... */
-}
-```
-
-### Adding UI Components
-
-This project uses [shadcn/ui](https://ui.shadcn.com/). Add new components with:
+## 🎯 Available Scripts
 
 ```bash
-npx shadcn@latest add [component-name]
+# Development
+npm run dev          # Start dev server
+npm run build        # Build for production
+npm run start        # Start production server
+
+# Code Quality
+npm run lint         # Run ESLint
+npm run type-check   # Run TypeScript compiler
 ```
 
-### Custom MDX Components
+---
 
-Extend `src/components/mdx-components.tsx` to add custom components available in MDX files.
+## 🌈 Color System
 
-## 🛠️ Available Scripts
+The app uses **OKLCH color space** for consistent, perceptually uniform colors:
 
-| Command | Description |
-|---------|-------------|
-| `npm run dev` | Start development server |
-| `npm run build` | Build for production |
-| `npm run start` | Start production server |
-| `npm run lint` | Run Biome linter |
-| `npm run format` | Format code with Biome |
+- **DBMS**: `oklch(0.6 0.2 240)` - Blue
+- **Operating Systems**: `oklch(0.6 0.2 140)` - Green
+- **Networking**: `oklch(0.6 0.2 40)` - Orange
+- **System Design**: `oklch(0.6 0.2 280)` - Purple
+- **DevOps**: `oklch(0.6 0.2 280)` - Purple
 
-## 📦 Tech Stack
+---
 
-- **Framework**: [Next.js 16](https://nextjs.org/)
-- **Language**: [TypeScript](https://www.typescriptlang.org/)
-- **Styling**: [Tailwind CSS 4](https://tailwindcss.com/)
-- **UI Components**: [shadcn/ui](https://ui.shadcn.com/)
-- **Content**: [MDX](https://mdxjs.com/)
-- **Syntax Highlighting**: [rehype-pretty-code](https://github.com/rehype-pretty/rehype-pretty-code) + [Shiki](https://shiki.style/)
-- **Dark Mode**: [next-themes](https://github.com/pacocoursey/next-themes)
-- **Linting**: [Biome](https://biomejs.dev/)
+## 📧 Newsletter Setup
+
+1. Sign up at [Resend](https://resend.com/)
+2. Verify your sending domain
+3. Add `RESEND_API_KEY` to `.env`
+4. Update sender email in `src/app/api/subscribe/route.ts`
+
+---
 
 ## 🤝 Contributing
 
-Contributions are welcome! Please feel free to submit a Pull Request.
-
-1. Fork the repository
-2. Create your feature branch (`git checkout -b feature/amazing-feature`)
-3. Commit your changes (`git commit -m 'Add some amazing feature'`)
-4. Push to the branch (`git push origin feature/amazing-feature`)
-5. Open a Pull Request
-
-## 📄 License
-
-This project is open source and available under the [MIT License](LICENSE).
-
-## 🙏 Acknowledgments
-
-- [Next.js Documentation](https://nextjs.org/docs)
-- [shadcn/ui](https://ui.shadcn.com/)
-- [Tailwind CSS](https://tailwindcss.com/)
-- [MDX](https://mdxjs.com/)
+We welcome contributions! Please see [CONTRIBUTING.md](./CONTRIBUTING.md) for:
+- How to add new documentation
+- How to create flashcards
+- Code style guidelines
+- Pull request process
 
 ---
 
-Built with ❤️ for developers, by developers.
+## � License
+
+This project is licensed under the MIT License - see the [LICENSE](./LICENSE) file for details.
+
+---
+
+## 🙏 Acknowledgments
+
+- Built with ❤️ by [EyePatch5263](https://github.com/EyePatch5263)
+- Inspired by modern documentation platforms
+- Icons by [Lucide](https://lucide.dev/)
+- Fonts by [Google Fonts](https://fonts.google.com/)
+
+---
+
+## 📬 Contact
+
+- **GitHub**: [@EyePatch5263](https://github.com/EyePatch5263)
+- **Website**: [explainbytes.tech](https://explainbytes.tech)
+
+---
+
+<p align="center">Made with 💙 for developers who want to truly understand</p>
