@@ -224,3 +224,84 @@ html {
     @apply bg-background text-foreground;
   }
 }
+
+/* TipTap Editor Styles */
+.tiptap {
+  outline: none;
+}
+
+.tiptap p.is-editor-empty:first-child::before {
+  content: attr(data-placeholder);
+  float: left;
+  color: var(--muted-foreground);
+  pointer-events: none;
+  height: 0;
+}
+
+/* Collaboration cursor styles */
+.collaboration-cursor__caret {
+  border-left: 1px solid;
+  border-right: 1px solid;
+  margin-left: -1px;
+  margin-right: -1px;
+  pointer-events: none;
+  position: relative;
+  word-break: normal;
+}
+
+.collaboration-cursor__label {
+  border-radius: 3px 3px 3px 0;
+  color: #fff;
+  font-size: 12px;
+  font-style: normal;
+  font-weight: 600;
+  left: -1px;
+  line-height: normal;
+  padding: 0.1rem 0.3rem;
+  position: absolute;
+  top: -1.4em;
+  user-select: none;
+  white-space: nowrap;
+}
+
+/* Editor prose overrides */
+.tiptap.prose h1 {
+  @apply text-3xl font-bold mt-8 mb-4;
+}
+
+.tiptap.prose h2 {
+  @apply text-2xl font-semibold mt-6 mb-3;
+}
+
+.tiptap.prose h3 {
+  @apply text-xl font-semibold mt-4 mb-2;
+}
+
+.tiptap.prose p {
+  @apply mb-4;
+}
+
+.tiptap.prose ul,
+.tiptap.prose ol {
+  @apply pl-6 mb-4;
+}
+
+.tiptap.prose li {
+  @apply mb-1;
+}
+
+.tiptap.prose blockquote {
+  @apply border-l-4 border-primary/50 pl-4 italic my-4;
+}
+
+.tiptap.prose hr {
+  @apply my-6 border-border;
+}
+
+.tiptap.prose code {
+  @apply bg-muted px-1.5 py-0.5 rounded text-sm font-mono;
+}
+
+.tiptap.prose mark {
+  @apply bg-yellow-200 dark:bg-yellow-900/50;
+}
