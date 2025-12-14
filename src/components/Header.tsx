@@ -7,6 +7,7 @@ import { UserButton } from "@/components/auth/UserButton";
 import { Inria_Sans } from "next/font/google";
 interface HeaderProps {
     children?: React.ReactNode;
+    githubHidden?: boolean;
 }
 
 const Inria_Sans_Font = Inria_Sans({
@@ -15,10 +16,10 @@ const Inria_Sans_Font = Inria_Sans({
     variable: "--font-inria-sans",
 });
 
-export function Header({ children }: HeaderProps) {
+export function Header({ children, githubHidden }: HeaderProps) {
     return (
         <header className="sticky top-0 z-40 w-full border-b border-border bg-background/95 backdrop-blur supports-backdrop-filter:bg-background/60">
-            <div className="flex h-18 items-center justify-between px-4 md:px-6">
+            <div className="flex h-18 items-center justify-between px-6 md:px-10">
                 <div className="flex items-center gap-4">
                     {children}
                     <Link href="/" className="flex items-center gap-3">
@@ -28,17 +29,21 @@ export function Header({ children }: HeaderProps) {
                 </div>
                 <div className="flex items-center gap-1">
                     <ThemeToggle />
-                    <Separator orientation="vertical" className="mx-2 h-6" />
-                    <Button variant="ghost" size="icon" asChild className="h-9 w-9">
-                        <a
-                            href="https://github.com/Eyepatch5263/dev-docs"
-                            target="_blank"
-                            rel="noopener noreferrer"
-                        >
-                            <Github className="h-4 w-4" />
-                            <span className="sr-only">GitHub</span>
-                        </a>
-                    </Button>
+                    {githubHidden ? null : (    
+                        <Separator orientation="vertical" className="mx-2 h-6" />
+                    )}
+                    {githubHidden ? null : (
+                        <Button variant="ghost" size="icon" asChild className="h-9 w-9">
+                            <a
+                                href={githubHidden ? "#" : "https://github.com/Eyepatch5263/dev-docs"}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                            >
+                                <Github className="h-4 w-4" />
+                                <span className="sr-only">GitHub</span>
+                            </a>
+                        </Button>
+                    )}
                     <Separator orientation="vertical" className="mx-2 h-6" />
                     <UserButton />
                 </div>

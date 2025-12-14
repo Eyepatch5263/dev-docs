@@ -103,16 +103,8 @@ export function SignUpForm() {
                 return;
             }
 
+            // Show success message - user needs to verify email
             setSuccess(true);
-
-            // Auto sign in after successful registration
-            setTimeout(async () => {
-                await signIn("credentials", {
-                    email: formData.email,
-                    password: formData.password,
-                    callbackUrl: "/",
-                });
-            }, 1500);
         } catch {
             setFormError("An unexpected error occurred");
         } finally {
@@ -140,9 +132,12 @@ export function SignUpForm() {
                 >
                     <CheckCircle2 className="h-8 w-8 text-emerald-500" />
                 </motion.div>
-                <h2 className="text-2xl font-bold mb-2">Account Created!</h2>
-                <p className="text-muted-foreground">
-                    Signing you in automatically...
+                <h2 className="text-2xl font-bold mb-2">Check Your Email!</h2>
+                <p className="text-muted-foreground mb-4">
+                    We&apos;ve sent a verification link to <strong>{formData.email}</strong>
+                </p>
+                <p className="text-sm text-muted-foreground">
+                    Please check your inbox and click the verification link to activate your account.
                 </p>
             </motion.div>
         );

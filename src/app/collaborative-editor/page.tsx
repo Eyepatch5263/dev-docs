@@ -3,14 +3,15 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import Link from "next/link";
 import { Plus, FileText, Clock, Users } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import { Header } from "@/components/Header";
+import { NewDocumentButton } from "@/components/editor/NewDocumentButton";
 
 export const metadata = {
     title: "Collaborative Editor - Explainbytes",
     description: "Create and collaborate on documents in real-time",
 };
 
-// Mock data for now - will be replaced with Supabase
+// Mock data
 const mockDocuments = [
     {
         id: "1",
@@ -25,6 +26,13 @@ const mockDocuments = [
         updatedAt: "2024-12-13T15:45:00Z",
         status: "pending_review",
         collaborators: 1,
+    },
+     {
+        id: "3",
+        title: "Introduction to Distributed",
+        updatedAt: "2024-12-14T10:30:00Z",
+        status: "draft",
+        collaborators: 3,
     },
 ];
 
@@ -57,6 +65,7 @@ function getStatusBadge(status: string) {
     );
 }
 
+// If no session exist redirect to signin
 export default async function CollaborativeEditorPage() {
     const session = await getServerSession(authOptions);
     if (!session) {
@@ -66,31 +75,7 @@ export default async function CollaborativeEditorPage() {
     return (
         <div className="min-h-screen bg-background">
             {/* Header */}
-            <header className="sticky top-0 z-40 border-b border-border bg-background/95 backdrop-blur">
-                <div className="container mx-auto flex h-16 items-center justify-between px-4">
-                    <div className="flex items-center gap-4">
-                        <Link href="/" className="flex items-center gap-3">
-                            <img src="/logo.svg" alt="Explainbytes" className="h-8 w-8" />
-                            <span className="text-xl font-semibold">Explainbytes</span>
-                        </Link>
-                        <span className="text-muted-foreground">/</span>
-                        <span className="font-medium">Collaborative Editor</span>
-                    </div>
-                    <div className="flex items-center gap-3">
-                        {session.user?.image ? (
-                            <img
-                                src={session.user.image}
-                                alt={session.user.name || "User"}
-                                className="h-8 w-8 rounded-full"
-                            />
-                        ) : (
-                            <div className="h-8 w-8 rounded-full bg-primary flex items-center justify-center text-primary-foreground text-sm font-medium">
-                                {session.user?.name?.charAt(0) || "U"}
-                            </div>
-                        )}
-                    </div>
-                </div>
-            </header>
+            <Header githubHidden={true} />
 
             {/* Main Content */}
             <main className="container mx-auto px-4 py-8">
@@ -105,12 +90,7 @@ export default async function CollaborativeEditorPage() {
                                 Create, collaborate, and publish content in real-time
                             </p>
                         </div>
-                        <Link href="/collaborative-editor/new">
-                            <Button size="lg" className="gap-2">
-                                <Plus className="h-5 w-5" />
-                                New Document
-                            </Button>
-                        </Link>
+                        <NewDocumentButton size="lg" />
                     </div>
                 </div>
 
@@ -150,22 +130,23 @@ export default async function CollaborativeEditorPage() {
                                     {getStatusBadge(doc.status)}
 
                                     {/* Hover Gradient */}
-                                    <div className="absolute inset-0 rounded-xl bg-gradient-to-br from-primary/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none" />
+                                    <div className="absolute inset-0 rounded-xl bg-linear-to-br from-primary/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none" />
                                 </div>
                             </Link>
                         ))}
 
                         {/* Create New Card */}
-                        <Link href="/collaborative-editor/new" className="group">
-                            <div className="h-full min-h-[200px] p-6 rounded-xl border-2 border-dashed border-border hover:border-primary/50 flex flex-col items-center justify-center gap-3 transition-all duration-200">
-                                <div className="w-12 h-12 rounded-full bg-muted flex items-center justify-center group-hover:bg-primary/10 transition-colors">
-                                    <Plus className="h-6 w-6 text-muted-foreground group-hover:text-primary transition-colors" />
-                                </div>
-                                <span className="font-medium text-muted-foreground group-hover:text-primary transition-colors">
-                                    Create New Document
-                                </span>
+                        <NewDocumentButton
+                            variant="ghost"
+                            className="h-full min-h-[200px] p-6 rounded-xl border-2 border-dashed border-border hover:border-primary/50 flex flex-col items-center justify-center gap-3 transition-all duration-200 group"
+                        >
+                            <div className="w-12 h-12 rounded-full bg-muted flex items-center justify-center group-hover:bg-primary/10 transition-colors">
+                                <Plus className="h-6 w-6 text-muted-foreground group-hover:text-primary transition-colors" />
                             </div>
-                        </Link>
+                            <span className="font-medium text-muted-foreground group-hover:text-primary transition-colors">
+                                Create New Document
+                            </span>
+                        </NewDocumentButton>
                     </div>
                 ) : (
                     /* Empty State */
@@ -177,12 +158,9 @@ export default async function CollaborativeEditorPage() {
                         <p className="text-muted-foreground mb-6">
                             Create your first document and start collaborating
                         </p>
-                        <Link href="/collaborative-editor/new">
-                            <Button size="lg" className="gap-2">
-                                <Plus className="h-5 w-5" />
-                                Create Your First Document
-                            </Button>
-                        </Link>
+                        <NewDocumentButton size="lg">
+                            Create Your First Document
+                        </NewDocumentButton>
                     </div>
                 )}
             </main>
