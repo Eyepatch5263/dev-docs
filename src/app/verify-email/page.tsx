@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { Suspense, useEffect, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { motion } from "framer-motion";
@@ -9,7 +9,7 @@ import { Button } from "@/components/ui/button";
 
 type VerificationState = "loading" | "success" | "error" | "already-verified";
 
-export default function VerifyEmailPage() {
+function VerifyEmailContent() {
     const router = useRouter();
     const searchParams = useSearchParams();
     const token = searchParams.get("token");
@@ -157,5 +157,35 @@ export default function VerifyEmailPage() {
                 </div>
             </motion.div>
         </div>
+    );
+}
+
+function VerifyEmailLoading() {
+    return (
+        <div className="min-h-screen bg-background flex items-center justify-center p-4">
+            <div className="w-full max-w-md">
+                <div className="bg-card border border-border rounded-2xl p-8 shadow-lg">
+                    <div className="text-center">
+                        <div className="w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center mx-auto mb-6">
+                            <Loader2 className="h-8 w-8 text-primary animate-spin" />
+                        </div>
+                        <h1 className="text-2xl font-bold mb-2">
+                            Loading...
+                        </h1>
+                        <p className="text-muted-foreground">
+                            Please wait
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    );
+}
+
+export default function VerifyEmailPage() {
+    return (
+        <Suspense fallback={<VerifyEmailLoading />}>
+            <VerifyEmailContent />
+        </Suspense>
     );
 }
