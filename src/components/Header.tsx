@@ -3,6 +3,7 @@ import { Github } from "lucide-react";
 import { ThemeToggle } from "./ThemeToggle";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
+import { UserButton } from "@/components/auth/UserButton";
 import { Inria_Sans } from "next/font/google";
 interface HeaderProps {
     children?: React.ReactNode;
@@ -38,8 +39,11 @@ export function Header({ children }: HeaderProps) {
                             <span className="sr-only">GitHub</span>
                         </a>
                     </Button>
+                    <Separator orientation="vertical" className="mx-2 h-6" />
+                    <UserButton />
                 </div>
             </div>
         </header>
     );
 }
+

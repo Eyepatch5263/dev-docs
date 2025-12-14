@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Inria_Sans, Inria_Serif } from "next/font/google";
 import { ThemeProvider } from "@/components/ThemeProvider";
+import { AuthProvider } from "@/components/auth/AuthProvider";
 import "./globals.css";
 
 const Inria_Serif_Font = Inria_Serif({
@@ -96,14 +97,16 @@ export default function RootLayout({
       <body
         className={`${Inria_Serif_Font.className}`}
       >
-        <ThemeProvider
-          attribute="class"
-          defaultTheme="system"
-          enableSystem
-          disableTransitionOnChange
-        >
-          {children}
-        </ThemeProvider>
+        <AuthProvider>
+          <ThemeProvider
+            attribute="class"
+            defaultTheme="system"
+            enableSystem
+            disableTransitionOnChange
+          >
+            {children}
+          </ThemeProvider>
+        </AuthProvider>
       </body>
     </html>
   );
