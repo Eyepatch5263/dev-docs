@@ -212,7 +212,7 @@ export async function POST(request: NextRequest) {
                 const verificationUrl = `${process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000"}/verify-email?token=${verificationToken}`;
 
                 await resend.emails.send({
-                    from: "ExplainBytes <noreply@news.explainbytes.tech>",
+                    from: "ExplainBytes <verify@news.explainbytes.tech>",
                     to: email.toLowerCase(),
                     subject: "Verify your email - ExplainBytes",
                     html: getVerificationEmailHtml(name.trim(), verificationUrl),
