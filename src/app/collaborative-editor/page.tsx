@@ -86,7 +86,6 @@ export default async function CollaborativeEditorPage() {
                                 Create, collaborate, and publish content in real-time
                             </p>
                         </div>
-                        <NewDocumentButton size="lg" />
                     </div>
                 </div>
 
