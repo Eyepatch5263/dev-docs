@@ -6,7 +6,7 @@ import { Resend } from "resend";
 
 const resend = new Resend(process.env.RESEND_API_KEY);
 
-// Generate beautiful HTML email template
+// Generate beautiful HTML verify email template
 function getVerificationEmailHtml(userName: string, verificationUrl: string): string {
     const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000";
     const logoUrl = `${siteUrl}/explain.png`;
@@ -265,14 +265,14 @@ export async function POST(request: NextRequest) {
         }
 
         // Send verification email
-        const verificationUrl = `${process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000"}/verify-email?token=${verificationToken}`;
+        const verificationUrl = `${process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000"}/verify-email?token=${verificationToken}`;
         console.log("Verification URL:", verificationUrl);
         console.log("Sending email to:", email.toLowerCase());
         console.log("RESEND_API_KEY exists:", !!process.env.RESEND_API_KEY);
 
         try {
             const emailResult = await resend.emails.send({
-                from: "ExplainBytes <noreply@news.explainbytes.tech>",
+                from: "ExplainBytes <verify@news.explainbytes.tech>",
                 to: email.toLowerCase(),
                 subject: "Verify your email - ExplainBytes",
                 html: getVerificationEmailHtml(name.trim(), verificationUrl),
