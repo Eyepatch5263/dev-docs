@@ -297,7 +297,8 @@ export const authOptions: NextAuthOptions = {
                         token.id = newUser.id;
                         // Send welcome email to new OAuth user
                         if (user.email && user.name) {
-                            sendWelcomeEmail(user.email, user.name);
+                            console.log("Sending welcome email to new OAuth user:", user.email);
+                            await sendWelcomeEmail(user.email, user.name);
                         }
                     }
                 } else {
