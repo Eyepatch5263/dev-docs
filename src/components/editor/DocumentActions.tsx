@@ -110,7 +110,7 @@ export function DocumentActions({
                 url.searchParams.set('loadFromDb', 'true'); // Tell editor to load content from database
 
                 showDialog(
-                    "✅ Document Forked!",
+                    "Document Forked!",
                     "Your own copy has been created. You'll be redirected to your forked document in a moment..."
                 );
 

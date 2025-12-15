@@ -95,11 +95,11 @@ export function DocumentCard({ doc, formatDate, getStatusBadge, onDelete }: Docu
                     </div>
                 </Link>
 
-                {/* Delete Button */}
+                {/* Delete Button - Always visible */}
                 <Button
                     variant="ghost"
                     size="icon"
-                    className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity bg-background/80 backdrop-blur-sm hover:bg-destructive hover:text-destructive-foreground"
+                    className="absolute top-2 right-2 h-8 w-8 bg-background/20 backdrop-blur-sm hover:text-black dark:hover:text-white"
                     onClick={(e) => {
                         e.preventDefault();
                         e.stopPropagation();
