@@ -43,20 +43,30 @@ export async function POST(request: NextRequest) {
         // Check if document exists
         const { data: existingDoc } = await supabaseAdmin
             .from("documents")
-            .select("id, owner_id")
+            .select("id, owner_id, document_id")
             .eq("document_id", documentId)
+            .eq("owner_id", session.user.id) // Check for user's own copy
             .single();
 
-        if (existingDoc) {
-            // Document exists - check if user is owner
-            if (existingDoc.owner_id !== session.user.id) {
-                return NextResponse.json(
-                    { error: "Only the document owner can save changes" },
-                    { status: 403 }
-                );
-            }
+        // Also check if there's an original document (for ownership verification)
+        const { data: originalDoc } = await supabaseAdmin
+            .from("documents")
+            .select("owner_id")
+            .eq("document_id", documentId)
+            .order("created_at", { ascending: true })
+            .limit(1)
+            .single();
 
-            // Update existing document
+        // For 'review' status, only the original document owner can submit
+        if (status === "review" && originalDoc && originalDoc.owner_id !== session.user.id) {
+            return NextResponse.json(
+                { error: "Only the original document creator can submit for review" },
+                { status: 403 }
+            );
+        }
+
+        if (existingDoc) {
+            // User's document exists - update it
             const { data: updatedDoc, error: updateError } = await supabaseAdmin
                 .from("documents")
                 .update({
@@ -84,7 +94,7 @@ export async function POST(request: NextRequest) {
                 document: updatedDoc,
             });
         } else {
-            // Create new document
+            // Create new document (user's copy/fork)
             const { data: newDoc, error: createError } = await supabaseAdmin
                 .from("documents")
                 .insert({

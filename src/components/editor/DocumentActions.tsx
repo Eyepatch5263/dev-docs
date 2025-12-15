@@ -62,11 +62,12 @@ export function DocumentActions({
             if (!response.ok) {
                 const data = await response.json();
 
-                // Check for permission/foreign key errors
-                if (data.error?.includes('foreign key constraint') ||
-                    data.error?.includes('owner_id') ||
-                    !isOwner) {
-                    alert("⚠️ Permission Denied\n\nOnly the document creator can save or publish this document.\n\nYou can edit and collaborate, but you cannot save changes to the database.");
+                // Check if this is a permission error for review submission
+                if (status === "review" && (
+                    data.error?.includes('original document creator') ||
+                    data.error?.includes('submit for review')
+                )) {
+                    alert("⚠️ Permission Denied\n\nOnly the original document creator can submit for review.\n\nYou can save your own draft copy, but cannot submit the original document for review.");
                     setSaveStatus("idle");
                     return;
                 }
