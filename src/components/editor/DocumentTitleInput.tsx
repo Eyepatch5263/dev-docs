@@ -2,76 +2,86 @@
 
 import { useEffect, useState, useRef } from "react";
 
+// Topic display labels
+const TOPIC_LABELS: Record<string, string> = {
+    "ai-ml": "AI/ML",
+    "networking": "Networking",
+    "operating-systems": "Operating Systems",
+    "devops": "DevOps",
+    "dbms": "DBMS",
+    "system-design": "System Design",
+    "cybersecurity": "Cybersecurity",
+    "web": "Web",
+};
+
+// Category display labels
+const CATEGORY_LABELS: Record<string, string> = {
+    "introduction": "Introduction",
+    "core-concepts-terminologies": "Core Concepts & Terminologies",
+    "architecture-components": "Architecture & Components",
+    "building-blocks": "Building Blocks",
+    "design-patterns": "Design Patterns",
+    "workflow-execution": "Workflow and Execution",
+    "scalability-performance": "Scalability and Performance",
+    "security-safety": "Security and Safety",
+    "case-studies": "Case Studies",
+    "common-pitfalls": "Common Pitfalls",
+    "summary": "Summary",
+};
+
 interface DocumentTitleInputProps {
     documentId: string;
 }
 
 export function DocumentTitleInput({ documentId }: DocumentTitleInputProps) {
     const hasInitialized = useRef(false);
-    const titleStorageKey = `doc_title_${documentId}`;
+    const topicStorageKey = `doc_title_${documentId}`;
     const subtitleStorageKey = `doc_subtitle_${documentId}`;
+    const categoryStorageKey = `doc_category_${documentId}`;
 
-    // Initialize title
-    const [title, setTitle] = useState(() => {
-        if (typeof window !== "undefined") {
-            const docTitle = localStorage.getItem(titleStorageKey);
-            if (docTitle) return docTitle;
-            const storedTitle = localStorage.getItem("newDocumentTitle");
-            if (storedTitle) return storedTitle;
-        }
-        return documentId
-            .replace(/_/g, " ")
-            .replace(/\b\w/g, (char) => char.toUpperCase());
-    });
-
-    // Initialize subtitle
-    const [subtitle, setSubtitle] = useState(() => {
-        if (typeof window !== "undefined") {
-            const docSubtitle = localStorage.getItem(subtitleStorageKey);
-            if (docSubtitle) return docSubtitle;
-        }
-        return "";
-    });
+    const [topic, setTopic] = useState("system-design");
+    const [subtitle, setSubtitle] = useState("Untitled Document");
+    const [category, setCategory] = useState("introduction");
 
     useEffect(() => {
-        if (!hasInitialized.current) {
+        if (!hasInitialized.current && typeof window !== "undefined") {
             hasInitialized.current = true;
-            localStorage.removeItem("newDocumentTitle");
-            localStorage.setItem(titleStorageKey, title);
-            if (subtitle) {
-                localStorage.setItem(subtitleStorageKey, subtitle);
-            }
+
+            const storedTopic = localStorage.getItem(topicStorageKey);
+            const storedSubtitle = localStorage.getItem(subtitleStorageKey);
+            const storedCategory = localStorage.getItem(categoryStorageKey);
+
+            if (storedTopic) setTopic(storedTopic);
+            if (storedSubtitle) setSubtitle(storedSubtitle);
+            if (storedCategory) setCategory(storedCategory);
+
+            // Clear the new document flag
+            localStorage.removeItem("inNewDocument");
         }
-    }, [titleStorageKey, subtitleStorageKey, title, subtitle]);
+    }, [topicStorageKey, subtitleStorageKey, categoryStorageKey]);
 
-    const handleTitleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        const newTitle = e.target.value;
-        setTitle(newTitle);
-        localStorage.setItem(titleStorageKey, newTitle);
-    };
-
-    const handleSubtitleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        const newSubtitle = e.target.value;
-        setSubtitle(newSubtitle);
-        localStorage.setItem(subtitleStorageKey, newSubtitle);
-    };
+    const topicLabel = TOPIC_LABELS[topic] || topic;
+    const categoryLabel = CATEGORY_LABELS[category] || category;
 
     return (
-        <div className="flex flex-col">
-            <input
-                type="text"
-                value={title}
-                onChange={handleTitleChange}
-                className="bg-transparent border-none outline-none font-semibold text-lg focus:ring-0 w-full max-w-md"
-                placeholder="Topic (e.g., System Design)..."
-            />
-            <input
-                type="text"
-                value={subtitle}
-                onChange={handleSubtitleChange}
-                className="bg-transparent border-none outline-none text-sm text-muted-foreground focus:ring-0 w-full max-w-md"
-                placeholder="Subtopic (e.g., DNS)..."
-            />
+        <div className="flex items-center gap-3">
+            {/* Topic Badge */}
+            <span className="px-2.5 py-1 text-xs font-medium rounded-full bg-primary/10 text-primary">
+                {topicLabel}
+            </span>
+
+            {/* Category */}
+            <span className="text-xs text-muted-foreground">
+                {categoryLabel}
+            </span>
+
+            {/* Separator */}
+            <span className="text-muted-foreground">/</span>
+
+            {/* Document Title */}
+            <h1 className="font-semibold text-lg">
+                {subtitle}
+            </h1>
         </div>
     );
 }

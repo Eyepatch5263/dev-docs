@@ -403,3 +403,60 @@ html {
   color: #d4d4d4 !important;
 }
 
+/* TipTap Table Styles */
+.tiptap table {
+  border-collapse: collapse;
+  width: 100%;
+  margin: 1rem 0;
+  overflow: hidden;
+}
+
+.tiptap th,
+.tiptap td {
+  border: 1px solid #374151;
+  padding: 0.5rem 0.75rem;
+  vertical-align: top;
+  box-sizing: border-box;
+  position: relative;
+}
+
+.tiptap th {
+  font-weight: 600;
+  background: #1f2937;
+}
+
+.dark .tiptap th {
+  background: #1f2937;
+}
+
+.tiptap td {
+  background: transparent;
+}
+
+/* Selected cell highlight */
+.tiptap .selectedCell:after {
+  z-index: 2;
+  position: absolute;
+  content: "";
+  left: 0;
+  right: 0;
+  top: 0;
+  bottom: 0;
+  background: rgba(59, 130, 246, 0.2);
+  pointer-events: none;
+}
+
+/* Resize handle */
+.tiptap .column-resize-handle {
+  position: absolute;
+  right: -2px;
+  top: 0;
+  bottom: -2px;
+  width: 4px;
+  background: #3b82f6;
+  cursor: col-resize;
+}
+
+.tiptap .tableWrapper {
+  overflow-x: auto;
+}

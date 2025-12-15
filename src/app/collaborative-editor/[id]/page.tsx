@@ -44,10 +44,7 @@ export default async function DocumentEditorPage({ params }: DocumentPageProps) 
                             </Button>
                         </Link>
 
-                        {/* Document Title Input */}
-                        <div className="flex flex-col">
-                            <DocumentTitleInput documentId={id} />
-                        </div>
+                        
                     </div>
 
                     {/* Right Section */}
@@ -57,6 +54,7 @@ export default async function DocumentEditorPage({ params }: DocumentPageProps) 
 
                         {/* Collaborators */}
                         <div className="flex items-center gap-1 mr-2">
+                            
                             <div className="flex -space-x-2">
                                 {session.user?.image ? (
                                     <img

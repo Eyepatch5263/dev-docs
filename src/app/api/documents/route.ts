@@ -22,7 +22,7 @@ export async function POST(request: NextRequest) {
             );
         }
 
-        const { documentId, title, subtitle, content, status } = await request.json();
+        const { documentId, title, topic, category, content, status } = await request.json();
 
         if (!documentId) {
             return NextResponse.json(
@@ -61,7 +61,8 @@ export async function POST(request: NextRequest) {
                 .from("documents")
                 .update({
                     title: title || "Untitled Document",
-                    subtitle: subtitle || null,
+                    topic: topic || "system-design",
+                    category: category || "introduction",
                     content,
                     status: status || "draft",
                     updated_at: new Date().toISOString(),
@@ -90,7 +91,8 @@ export async function POST(request: NextRequest) {
                     document_id: documentId,
                     owner_id: session.user.id,
                     title: title || "Untitled Document",
-                    subtitle: subtitle || null,
+                    topic: topic || "system-design",
+                    category: category || "introduction",
                     content,
                     status: status || "draft",
                 })
@@ -143,7 +145,7 @@ export async function GET(request: NextRequest) {
 
         let query = supabaseAdmin
             .from("documents")
-            .select("id, document_id, title, subtitle, status, created_at, updated_at")
+            .select("id, document_id, title, topic, category, status, created_at, updated_at")
             .eq("owner_id", session.user.id)
             .order("updated_at", { ascending: false });
 

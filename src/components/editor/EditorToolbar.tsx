@@ -18,6 +18,7 @@ import {
     Undo,
     Redo,
     Highlighter,
+    Table,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
@@ -194,6 +195,13 @@ export function EditorToolbar({ editor }: EditorToolbarProps) {
                 title="Horizontal Rule"
             >
                 <Minus className="h-4 w-4" />
+            </ToolbarButton>
+
+            <ToolbarButton
+                onClick={() => editor.chain().focus().insertTable({ rows: 3, cols: 3, withHeaderRow: true }).run()}
+                title="Insert Table"
+            >
+                <Table className="h-4 w-4" />
             </ToolbarButton>
 
             <ToolbarDivider />

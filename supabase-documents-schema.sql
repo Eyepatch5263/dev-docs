@@ -8,13 +8,19 @@ CREATE TABLE IF NOT EXISTS documents (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     document_id TEXT UNIQUE NOT NULL,        -- The WebSocket room ID
     owner_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
-    title TEXT DEFAULT 'Untitled Document',
-    subtitle TEXT,                           -- Subtopic (e.g., "DNS" under "System Design")
-    content TEXT,                            -- HTML content from TipTap
+    title TEXT DEFAULT 'Untitled Document',  -- Document title (e.g., "CDN", "DNS")
+    topic TEXT DEFAULT 'system-design',      -- Topic category (ai-ml, networking, etc.)
+    category TEXT DEFAULT 'introduction',    -- Content category (introduction, core-concepts, etc.)
+    content TEXT,                            -- MDX content from TipTap
     status TEXT DEFAULT 'draft' CHECK (status IN ('draft', 'review', 'approved', 'rejected')),
     created_at TIMESTAMPTZ DEFAULT NOW(),
     updated_at TIMESTAMPTZ DEFAULT NOW()
 );
+
+-- Run this to add columns if table already exists:
+-- ALTER TABLE documents ADD COLUMN IF NOT EXISTS topic TEXT DEFAULT 'system-design';
+-- ALTER TABLE documents ADD COLUMN IF NOT EXISTS category TEXT DEFAULT 'introduction';
+-- ALTER TABLE documents DROP COLUMN IF EXISTS subtitle;
 
 -- =============================================
 -- SECTION 2: Create indexes

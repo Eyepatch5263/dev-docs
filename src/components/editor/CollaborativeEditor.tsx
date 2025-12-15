@@ -8,6 +8,10 @@ import Typography from "@tiptap/extension-typography";
 import Collaboration from "@tiptap/extension-collaboration";
 import CollaborationCursor from "@tiptap/extension-collaboration-cursor";
 import CodeBlockLowlight from "@tiptap/extension-code-block-lowlight";
+import { Table } from "@tiptap/extension-table";
+import { TableRow } from "@tiptap/extension-table-row";
+import { TableHeader } from "@tiptap/extension-table-header";
+import { TableCell } from "@tiptap/extension-table-cell";
 import { createLowlight } from "lowlight";
 import javascript from "highlight.js/lib/languages/javascript";
 import typescript from "highlight.js/lib/languages/typescript";
@@ -24,12 +28,17 @@ lowlight.register("js", javascript);
 lowlight.register("typescript", typescript);
 lowlight.register("ts", typescript);
 
+interface EditorContent {
+    getHTML: () => string;
+    getJSON: () => Record<string, unknown>;
+}
+
 interface CollaborativeEditorProps {
     documentId: string;
     userName?: string;
     userColor?: string;
     isNewDocument?: boolean;
-    onEditorReady?: (getContent: () => string) => void;
+    onEditorReady?: (content: EditorContent) => void;
 }
 
 // Generate a random color for cursor
@@ -57,7 +66,7 @@ function TiptapEditorInner({
     provider: WebsocketProvider;
     userName: string;
     color: string;
-    onEditorReady?: (getContent: () => string) => void;
+    onEditorReady?: (content: EditorContent) => void;
 }) {
     const [isSaving, setIsSaving] = useState(false);
     const [lastSaved, setLastSaved] = useState<Date | null>(null);
@@ -122,6 +131,12 @@ function TiptapEditorInner({
             }),
             Highlight.configure({ multicolor: true }),
             Typography,
+            Table.configure({
+                resizable: true,
+            }),
+            TableRow,
+            TableHeader,
+            TableCell,
             Collaboration.configure({
                 document: ydoc,
             }),
@@ -139,10 +154,13 @@ function TiptapEditorInner({
         onUpdate: handleUpdate,
     });
 
-    // Expose getContent method to parent via callback
+    // Expose editor methods to parent via callback
     useEffect(() => {
         if (editor && onEditorReady) {
-            onEditorReady(() => editor.getHTML());
+            onEditorReady({
+                getHTML: () => editor.getHTML(),
+                getJSON: () => editor.getJSON() as Record<string, unknown>,
+            });
         }
     }, [editor, onEditorReady]);
 

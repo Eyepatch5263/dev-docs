@@ -47,11 +47,12 @@ async function getUserDocuments(userId: string) {
 
     const { data: documents, error } = await supabaseAdmin
         .from("documents")
-        .select("id, document_id, title, subtitle, status, created_at, updated_at")
+        .select("id, document_id, title, topic, category, status, created_at, updated_at")
         .eq("owner_id", userId)
         .order("updated_at", { ascending: false });
 
     if (error) {
+        console.log(error)
         console.error("Error fetching documents:", error);
         return [];
     }
@@ -99,19 +100,19 @@ export default async function CollaborativeEditorPage() {
                                 className="group"
                             >
                                 <div className="flex flex-col items-center justify-center md:block md:relative p-6 rounded-xl border border-border bg-card hover:border-primary/50 hover:shadow-lg transition-all duration-200">
-                                    {/* Document Icon */}
-                                    <div className="w-12 h-12 rounded-lg bg-primary/10 flex items-center justify-center mb-4">
-                                        <FileText className="h-6 w-6 text-primary" />
+                                    {/* Topic Badge */}
+                                    <div className="flex items-center gap-2 mb-3">
+                                        <span className="px-2 py-0.5 text-xs font-medium rounded-full bg-primary/10 text-primary capitalize">
+                                            {doc.topic?.replace(/-/g, " ") || "System Design"}
+                                        </span>
+                                        <span className="text-xs text-muted-foreground capitalize">
+                                            {doc.category?.replace(/-/g, " ") || "Introduction"}
+                                        </span>
                                     </div>
 
                                     {/* Title */}
-                                    <h3 className="font-semibold text-xl mb-2 group-hover:text-primary transition-colors line-clamp-2">
-                                        {doc.title || "Untitled Document"}
-                                    </h3>
-
-                                    {/* Subtitle */}
                                     <h3 className="font-semibold text-lg mb-2 group-hover:text-primary transition-colors line-clamp-2">
-                                        {doc.subtitle || "Untitled Document"}
+                                        {doc.title || "Untitled Document"}
                                     </h3>
 
                                     {/* Meta Info */}

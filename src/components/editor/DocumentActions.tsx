@@ -14,8 +14,9 @@ interface DocumentActionsProps {
     documentId: string;
     isOwner: boolean;
     getContent: () => string;
-    getTitle: () => string;
+    getTopic: () => string;
     getSubtitle: () => string;
+    getCategory: () => string;
     onSaveSuccess?: (status: "draft" | "review") => void;
 }
 
@@ -23,8 +24,9 @@ export function DocumentActions({
     documentId,
     isOwner,
     getContent,
-    getTitle,
+    getTopic,
     getSubtitle,
+    getCategory,
     onSaveSuccess,
 }: DocumentActionsProps) {
     const [isSaving, setIsSaving] = useState(false);
@@ -40,8 +42,9 @@ export function DocumentActions({
 
         try {
             const content = getContent();
-            const title = getTitle();
+            const topic = getTopic();
             const subtitle = getSubtitle();
+            const category = getCategory();
 
             const response = await fetch("/api/documents", {
                 method: "POST",
@@ -50,8 +53,9 @@ export function DocumentActions({
                 },
                 body: JSON.stringify({
                     documentId,
-                    title,
-                    subtitle,
+                    title: subtitle, // Use subtitle as the document title
+                    topic,
+                    category,
                     content,
                     status,
                 }),
