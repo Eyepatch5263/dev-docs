@@ -18,7 +18,7 @@ export default function FlashcardsPage() {
     return (
         <div className="min-h-screen bg-background">
             {/* Header */}
-            <Header />
+            <Header githubHidden={true} />
 
             <FlashcardsClient
                 categories={categories}

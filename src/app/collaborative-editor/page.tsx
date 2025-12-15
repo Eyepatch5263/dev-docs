@@ -2,33 +2,15 @@ import { redirect } from "next/navigation";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import Link from "next/link";
-import { Plus, FileText, Clock, Users } from "lucide-react";
+import { FileText, Clock } from "lucide-react";
 import { Header } from "@/components/Header";
 import { NewDocumentButton } from "@/components/editor/NewDocumentButton";
+import { supabaseAdmin } from "@/lib/supabase";
 
 export const metadata = {
     title: "Collaborative Editor - Explainbytes",
     description: "Create and collaborate on documents in real-time",
 };
-
-// Mock data - these are SHARED documents (same room for all users)
-// The ID is the WebSocket room name, so all users opening the same ID collaborate together
-const mockDocuments = [
-    {
-        id: "introduction_to_distributed_systems",
-        title: "Introduction To Distributed Systems",
-        updatedAt: "2024-12-14T10:30:00Z",
-        status: "draft",
-        collaborators: 2,
-    },
-    {
-        id: "introduction_to_dbms",
-        title: "Introduction To DBMS",
-        updatedAt: "2024-12-14T10:30:00Z",
-        status: "draft",
-        collaborators: 3,
-    },
-];
 
 function formatDate(dateString: string) {
     const date = new Date(dateString);
@@ -42,13 +24,13 @@ function formatDate(dateString: string) {
 function getStatusBadge(status: string) {
     const styles: Record<string, string> = {
         draft: "bg-gray-100 text-gray-700 dark:bg-gray-800 dark:text-gray-300",
-        pending_review: "bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400",
+        review: "bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400",
         approved: "bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400",
         rejected: "bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400",
     };
     const labels: Record<string, string> = {
         draft: "Draft",
-        pending_review: "Pending Review",
+        review: "In Review",
         approved: "Approved",
         rejected: "Rejected",
     };
@@ -59,24 +41,32 @@ function getStatusBadge(status: string) {
     );
 }
 
-// Generate a user-specific document ID for predefined docs
-function getUserDocumentId(baseId: string, userEmail: string | null | undefined): string {
-    const randomPart = Math.random().toString(36).substring(2, 20);
-    const userPart = (userEmail || 'anonymous')
-        .toLowerCase()
-        .replace(/[^a-z0-9]/g, '')
-        .substring(0, 12);
-    return `${baseId}_${userPart}_${randomPart}`;
+// Fetch user's documents from Supabase
+async function getUserDocuments(userId: string) {
+    if (!supabaseAdmin) return [];
+
+    const { data: documents, error } = await supabaseAdmin
+        .from("documents")
+        .select("id, document_id, title, subtitle, status, created_at, updated_at")
+        .eq("owner_id", userId)
+        .order("updated_at", { ascending: false });
+
+    if (error) {
+        console.error("Error fetching documents:", error);
+        return [];
+    }
+
+    return documents || [];
 }
 
-// If no session exist redirect to signin
 export default async function CollaborativeEditorPage() {
     const session = await getServerSession(authOptions);
     if (!session) {
         redirect("/signin?callbackUrl=/collaborative-editor");
     }
 
-    const userEmail = session.user?.email;
+    const userId = session.user?.id;
+    const documents = userId ? await getUserDocuments(userId) : [];
 
     return (
         <div className="min-h-screen bg-background">
@@ -101,34 +91,35 @@ export default async function CollaborativeEditorPage() {
                 </div>
 
                 {/* Documents Grid */}
-                {mockDocuments.length > 0 ? (
+                {documents.length > 0 ? (
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                        {mockDocuments.map((doc) => (
+                        {documents.map((doc) => (
                             <Link
                                 key={doc.id}
-                                href={`/collaborative-editor/${getUserDocumentId(doc.id, userEmail)}`}
+                                href={`/collaborative-editor/${doc.document_id}`}
                                 className="group"
                             >
-                                <div className="relative p-6 rounded-xl border border-border bg-card hover:border-primary/50 hover:shadow-lg transition-all duration-200">
+                                <div className="flex flex-col items-center justify-center md:block md:relative p-6 rounded-xl border border-border bg-card hover:border-primary/50 hover:shadow-lg transition-all duration-200">
                                     {/* Document Icon */}
                                     <div className="w-12 h-12 rounded-lg bg-primary/10 flex items-center justify-center mb-4">
                                         <FileText className="h-6 w-6 text-primary" />
                                     </div>
 
                                     {/* Title */}
+                                    <h3 className="font-semibold text-xl mb-2 group-hover:text-primary transition-colors line-clamp-2">
+                                        {doc.title || "Untitled Document"}
+                                    </h3>
+
+                                    {/* Subtitle */}
                                     <h3 className="font-semibold text-lg mb-2 group-hover:text-primary transition-colors line-clamp-2">
-                                        {doc.title}
+                                        {doc.subtitle || "Untitled Document"}
                                     </h3>
 
                                     {/* Meta Info */}
                                     <div className="flex items-center gap-4 text-sm text-muted-foreground mb-4">
                                         <div className="flex items-center gap-1.5">
                                             <Clock className="h-4 w-4" />
-                                            <span>{formatDate(doc.updatedAt)}</span>
-                                        </div>
-                                        <div className="flex items-center gap-1.5">
-                                            <Users className="h-4 w-4" />
-                                            <span>{doc.collaborators}</span>
+                                            <span>{formatDate(doc.updated_at)}</span>
                                         </div>
                                     </div>
 
@@ -147,9 +138,9 @@ export default async function CollaborativeEditorPage() {
                             className="h-full min-h-[200px] p-6 rounded-xl border-2 border-dashed border-border hover:border-primary/50 flex flex-col items-center justify-center gap-3 transition-all duration-200 group"
                         >
                             <div className="w-12 h-12 rounded-full bg-muted flex items-center justify-center group-hover:bg-primary/10 transition-colors">
-                                <Plus className="h-6 w-6 text-muted-foreground group-hover:text-primary transition-colors" />
+                                <FileText className="h-6 w-6 text-muted-foreground group-hover:text-primary transition-colors" />
                             </div>
-                            <span className="font-medium text-muted-foreground group-hover:text-primary transition-colors">
+                            <span className="text-lg text-muted-foreground group-hover:text-primary transition-colors">
                                 Create New Document
                             </span>
                         </NewDocumentButton>

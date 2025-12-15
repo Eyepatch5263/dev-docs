@@ -8,7 +8,7 @@ export default function DocsLandingPage() {
 
     return (
         <div className="min-h-screen bg-background">
-            <Header />
+            <Header githubHidden={true} />
             <div className="min-h-[calc(100vh-3.5rem)] flex flex-col">
                 {/* Hero Section */}
                 <section className="flex-1 flex flex-col items-center justify-center px-6 py-16 mx-auto text-center">

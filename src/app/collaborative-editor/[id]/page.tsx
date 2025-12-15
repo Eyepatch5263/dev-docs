@@ -2,7 +2,7 @@ import { redirect } from "next/navigation";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import Link from "next/link";
-import { ArrowLeft, Users, Send } from "lucide-react";
+import { ArrowLeft, Users } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { EditorWrapper } from "./EditorWrapper";
@@ -75,12 +75,6 @@ export default async function DocumentEditorPage({ params }: DocumentPageProps) 
                             </Button>
                         </div>
 
-                        {/* Submit for Review */}
-                        <Button variant="outline" size="sm" className="gap-2">
-                            <Send className="h-4 w-4" />
-                            Submit for Review
-                        </Button>
-
                         {/* Share Link */}
                         <ShareButton />
                     </div>
@@ -92,6 +86,7 @@ export default async function DocumentEditorPage({ params }: DocumentPageProps) 
                 <EditorWrapper
                     documentId={id}
                     userName={session.user?.name || "Anonymous"}
+                    userId={session.user?.id || ""}
                 />
             </main>
         </div>

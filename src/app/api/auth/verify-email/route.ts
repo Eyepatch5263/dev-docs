@@ -166,7 +166,7 @@ function getWelcomeEmailHtml(userName: string): string {
 async function sendWelcomeEmail(email: string, name: string): Promise<void> {
     try {
         const emailResult = await resend.emails.send({
-            from: "ExplainBytes <noreply@news.explainbytes.tech>",
+            from: "ExplainBytes <welcome@news.explainbytes.tech>",
             to: email,
             subject: "Welcome to ExplainBytes! 🎉",
             html: getWelcomeEmailHtml(name),

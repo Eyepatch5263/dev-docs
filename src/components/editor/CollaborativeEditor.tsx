@@ -7,17 +7,29 @@ import Highlight from "@tiptap/extension-highlight";
 import Typography from "@tiptap/extension-typography";
 import Collaboration from "@tiptap/extension-collaboration";
 import CollaborationCursor from "@tiptap/extension-collaboration-cursor";
+import CodeBlockLowlight from "@tiptap/extension-code-block-lowlight";
+import { createLowlight } from "lowlight";
+import javascript from "highlight.js/lib/languages/javascript";
+import typescript from "highlight.js/lib/languages/typescript";
 import * as Y from "yjs";
 import { WebsocketProvider } from "y-websocket";
 import { useEffect, useState, useCallback } from "react";
 import { EditorToolbar } from "./EditorToolbar";
 import { UserPresence } from "./UserPresence";
 
+// Create lowlight instance with JavaScript and TypeScript only
+const lowlight = createLowlight();
+lowlight.register("javascript", javascript);
+lowlight.register("js", javascript);
+lowlight.register("typescript", typescript);
+lowlight.register("ts", typescript);
+
 interface CollaborativeEditorProps {
     documentId: string;
     userName?: string;
     userColor?: string;
     isNewDocument?: boolean;
+    onEditorReady?: (getContent: () => string) => void;
 }
 
 // Generate a random color for cursor
@@ -39,11 +51,13 @@ function TiptapEditorInner({
     provider,
     userName,
     color,
+    onEditorReady,
 }: {
     ydoc: Y.Doc;
     provider: WebsocketProvider;
     userName: string;
     color: string;
+    onEditorReady?: (getContent: () => string) => void;
 }) {
     const [isSaving, setIsSaving] = useState(false);
     const [lastSaved, setLastSaved] = useState<Date | null>(null);
@@ -95,6 +109,12 @@ function TiptapEditorInner({
         extensions: [
             StarterKit.configure({
                 undoRedo: false,
+                codeBlock: false, // Disable default, use CodeBlockLowlight instead
+            }),
+            CodeBlockLowlight.configure({
+                lowlight,
+                defaultLanguage: 'typescript',
+                enableTabIndentation: true,
             }),
             Placeholder.configure({
                 placeholder: "Start writing your content here...",
@@ -112,11 +132,19 @@ function TiptapEditorInner({
         ],
         editorProps: {
             attributes: {
-                class: "prose prose-lg dark:prose-invert max-w-none focus:outline-none min-h-[500px] px-8 py-6",
+                class: "tiptap prose prose-lg dark:prose-invert max-w-none focus:outline-none min-h-[500px] px-8 py-6",
+                spellcheck: "false",
             },
         },
         onUpdate: handleUpdate,
     });
+
+    // Expose getContent method to parent via callback
+    useEffect(() => {
+        if (editor && onEditorReady) {
+            onEditorReady(() => editor.getHTML());
+        }
+    }, [editor, onEditorReady]);
 
     return (
         <div className="flex flex-col h-full">
@@ -163,7 +191,7 @@ export function CollaborativeEditor({
     documentId,
     userName = "Anonymous",
     userColor,
-    isNewDocument = false,
+    onEditorReady,
 }: CollaborativeEditorProps) {
     const [ydoc, setYdoc] = useState<Y.Doc | null>(null);
     const [provider, setProvider] = useState<WebsocketProvider | null>(null);
@@ -258,6 +286,7 @@ export function CollaborativeEditor({
             provider={provider}
             userName={userName}
             color={color}
+            onEditorReady={onEditorReady}
         />
     );
 }

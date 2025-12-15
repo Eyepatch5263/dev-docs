@@ -7,6 +7,7 @@ import {
     Italic,
     Strikethrough,
     Code,
+    SquareCode,
     Heading1,
     Heading2,
     Heading3,
@@ -124,6 +125,14 @@ export function EditorToolbar({ editor }: EditorToolbarProps) {
                 title="Highlight"
             >
                 <Highlighter className="h-4 w-4" />
+            </ToolbarButton>
+
+            <ToolbarButton
+                onClick={() => editor.chain().focus().toggleCodeBlock().run()}
+                isActive={editor.isActive("codeBlock")}
+                title="Code Block"
+            >
+                <SquareCode className="h-4 w-4" />
             </ToolbarButton>
 
             <ToolbarDivider />

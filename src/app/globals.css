@@ -305,3 +305,101 @@ html {
 .tiptap.prose mark {
   @apply bg-yellow-200 dark:bg-yellow-900/50;
 }
+
+/* TipTap Code Block with Syntax Highlighting */
+.tiptap pre {
+  background: #1e1e1e !important;
+  border-radius: 0.5rem;
+  padding: 1rem;
+  overflow-x: auto;
+  margin: 1rem 0;
+  font-family: ui-monospace, SFMono-Regular, 'SF Mono', Menlo, Consolas, monospace;
+}
+
+.dark .tiptap pre {
+  background: #0d1117 !important;
+}
+
+.tiptap pre code {
+  background: transparent !important;
+  padding: 0;
+  font-size: 0.875rem;
+  line-height: 1.6;
+  color: #d4d4d4 !important;
+}
+
+/* Lowlight Syntax Highlighting - VS Code Dark+ Theme */
+.tiptap .hljs-comment,
+.tiptap .hljs-quote {
+  color: #6a9955 !important;
+  font-style: italic;
+}
+
+.tiptap .hljs-keyword,
+.tiptap .hljs-selector-tag,
+.tiptap .hljs-addition {
+  color: #569cd6 !important;
+}
+
+.tiptap .hljs-number,
+.tiptap .hljs-string,
+.tiptap .hljs-meta .hljs-meta-string,
+.tiptap .hljs-literal,
+.tiptap .hljs-doctag,
+.tiptap .hljs-regexp {
+  color: #ce9178 !important;
+}
+
+.tiptap .hljs-title,
+.tiptap .hljs-section,
+.tiptap .hljs-name,
+.tiptap .hljs-selector-id,
+.tiptap .hljs-selector-class {
+  color: #dcdcaa !important;
+}
+
+.tiptap .hljs-attribute,
+.tiptap .hljs-attr,
+.tiptap .hljs-variable,
+.tiptap .hljs-template-variable,
+.tiptap .hljs-class .hljs-title,
+.tiptap .hljs-type {
+  color: #4ec9b0 !important;
+}
+
+.tiptap .hljs-symbol,
+.tiptap .hljs-bullet,
+.tiptap .hljs-subst,
+.tiptap .hljs-meta,
+.tiptap .hljs-meta .hljs-keyword,
+.tiptap .hljs-selector-attr,
+.tiptap .hljs-selector-pseudo,
+.tiptap .hljs-link {
+  color: #d7ba7d !important;
+}
+
+.tiptap .hljs-built_in,
+.tiptap .hljs-deletion {
+  color: #c586c0 !important;
+}
+
+.tiptap .hljs-function {
+  color: #dcdcaa !important;
+}
+
+.tiptap .hljs-params {
+  color: #9cdcfe !important;
+}
+
+.tiptap .hljs-property {
+  color: #9cdcfe !important;
+}
+
+.tiptap .hljs-punctuation {
+  color: #d4d4d4 !important;
+}
+
+.tiptap .hljs-operator {
+  color: #d4d4d4 !important;
+}
+

@@ -18,7 +18,7 @@ export const metadata: Metadata = {
 export default function EngineeringTermsPage() {
     return (
         <div className="min-h-screen bg-background">
-            <Header />
+            <Header githubHidden={true} />
             <EngineeringTermsClient />
         </div>
     );
