@@ -89,13 +89,13 @@ export function EditorWrapper({ documentId, userName, userId }: EditorWrapperPro
                         setDocumentTitle(data.document.title);
                     }
                 } else {
-                    // Document doesn't exist in DB yet - current user becomes owner
-                    setIsOwner(true);
+                    // Document doesn't exist in DB yet - not owner unless creator
+                    setIsOwner(false);
                 }
             } catch (error) {
                 console.error("Failed to check ownership:", error);
-                // Default to owner if we can't check
-                setIsOwner(true);
+                // Default to non-owner if we can't check
+                setIsOwner(false);
             } finally {
                 setIsLoading(false);
             }
@@ -147,8 +147,8 @@ export function EditorWrapper({ documentId, userName, userId }: EditorWrapperPro
 
     return (
         <div className="flex flex-col h-full">
-            {/* Document Actions Bar - only show when loaded and is owner */}
-            {!isLoading && isOwner && (
+            {/* Document Actions Bar - show when loaded */}
+            {!isLoading && (
                 <div className="flex justify-between items-center px-4 py-2 border-b border-border bg-background/50">
                     {/* Document Title Input */}
                     <DocumentTitleInput documentId={documentId} />
