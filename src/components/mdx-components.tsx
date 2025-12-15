@@ -1,5 +1,6 @@
 import type { ComponentPropsWithoutRef } from "react";
 import { cn } from "@/lib/utils";
+import { Mermaid } from "@/components/Mermaid";
 
 // Language display names
 const languageDisplay: Record<string, string> = {
@@ -223,4 +224,5 @@ export const mdxComponents = {
     tr: Tr,
     th: Th,
     td: Td,
+    Mermaid: Mermaid,
 };

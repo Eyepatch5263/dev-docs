@@ -19,6 +19,7 @@ import {
     Redo,
     Highlighter,
     Table,
+    FileX,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
@@ -221,6 +222,20 @@ export function EditorToolbar({ editor }: EditorToolbarProps) {
                 title="Redo (Ctrl+Y)"
             >
                 <Redo className="h-4 w-4" />
+            </ToolbarButton>
+
+            <ToolbarDivider />
+
+            {/* Clear Document */}
+            <ToolbarButton
+                onClick={() => {
+                    if (confirm("Are you sure you want to clear the entire document? This cannot be undone.")) {
+                        editor.chain().focus().clearContent().run();
+                    }
+                }}
+                title="Clear Document"
+            >
+                <FileX className="h-4 w-4" />
             </ToolbarButton>
         </div>
     );

@@ -20,15 +20,19 @@ When you type a URL in your browser:
 5. **TLD Server**: Directs to Top-Level Domain server (.com, .org, etc.)
 6. **Authoritative Server**: Returns the final IP address
 
-```plaintext
-User → Browser Cache → OS Cache → DNS Resolver → Root Server
-                                       ↓
-                              TLD Server (.com)
-                                       ↓
-                          Authoritative Name Server
-                                       ↓
-                              IP Address Returned
-```
+<Mermaid chart={`
+flowchart TD
+    A[User] --> B[Browser Cache]
+    B --> C[OS Cache]
+    C --> D[DNS Resolver]
+    D --> E[Root Server]
+    E --> F[TLD Server .com]
+    F --> G[Authoritative Name Server]
+    G --> H[IP Address Returned]
+    
+    style A fill:#3b82f6,stroke:#60a5fa,color:#fff
+    style H fill:#22c55e,stroke:#4ade80,color:#fff
+`} />
 
 ## DNS Record Types
 

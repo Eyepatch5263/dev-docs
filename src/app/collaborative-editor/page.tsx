@@ -135,7 +135,7 @@ export default async function CollaborativeEditorPage() {
                         {/* Create New Card */}
                         <NewDocumentButton
                             variant="ghost"
-                            className="h-full min-h-[200px] p-6 rounded-xl border-2 border-dashed border-border hover:border-primary/50 flex flex-col items-center justify-center gap-3 transition-all duration-200 group"
+                            className="h-full min-h-[180px] p-6 rounded-xl border-2 border-dashed border-border hover:border-primary/50 flex flex-col items-center justify-center gap-3 transition-all duration-200 group"
                         >
                             <div className="w-12 h-12 rounded-full bg-muted flex items-center justify-center group-hover:bg-primary/10 transition-colors">
                                 <FileText className="h-6 w-6 text-muted-foreground group-hover:text-primary transition-colors" />

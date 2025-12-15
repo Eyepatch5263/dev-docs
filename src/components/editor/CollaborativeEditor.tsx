@@ -39,6 +39,7 @@ interface CollaborativeEditorProps {
     userColor?: string;
     isNewDocument?: boolean;
     onEditorReady?: (content: EditorContent) => void;
+    onContentChange?: (json: Record<string, unknown>) => void;
 }
 
 // Generate a random color for cursor
@@ -61,12 +62,14 @@ function TiptapEditorInner({
     userName,
     color,
     onEditorReady,
+    onContentChange,
 }: {
     ydoc: Y.Doc;
     provider: WebsocketProvider;
     userName: string;
     color: string;
     onEditorReady?: (content: EditorContent) => void;
+    onContentChange?: (json: Record<string, unknown>) => void;
 }) {
     const [isSaving, setIsSaving] = useState(false);
     const [lastSaved, setLastSaved] = useState<Date | null>(null);
@@ -104,13 +107,18 @@ function TiptapEditorInner({
         };
     }, [provider, userName, color]);
 
-    const handleUpdate = useCallback(() => {
+    const handleUpdate = useCallback(({ editor: ed }: { editor: { getJSON: () => Record<string, unknown> } }) => {
         setIsSaving(true);
         setTimeout(() => {
             setIsSaving(false);
             setLastSaved(new Date());
         }, 1000);
-    }, []);
+
+        // Notify parent of content change for preview
+        if (onContentChange) {
+            onContentChange(ed.getJSON());
+        }
+    }, [onContentChange]);
 
     // Create editor with guaranteed non-null ydoc and provider
     const editor = useEditor({
@@ -210,6 +218,7 @@ export function CollaborativeEditor({
     userName = "Anonymous",
     userColor,
     onEditorReady,
+    onContentChange,
 }: CollaborativeEditorProps) {
     const [ydoc, setYdoc] = useState<Y.Doc | null>(null);
     const [provider, setProvider] = useState<WebsocketProvider | null>(null);
@@ -305,6 +314,7 @@ export function CollaborativeEditor({
             userName={userName}
             color={color}
             onEditorReady={onEditorReady}
+            onContentChange={onContentChange}
         />
     );
 }
