@@ -44,7 +44,7 @@ export default async function DocumentEditorPage({ params }: DocumentPageProps) 
                             </Button>
                         </Link>
 
-                        
+
                     </div>
 
                     {/* Right Section */}
@@ -54,7 +54,7 @@ export default async function DocumentEditorPage({ params }: DocumentPageProps) 
 
                         {/* Collaborators */}
                         <div className="flex items-center gap-1 mr-2">
-                            
+
                             <div className="flex -space-x-2">
                                 {session.user?.image ? (
                                     <img
@@ -74,7 +74,7 @@ export default async function DocumentEditorPage({ params }: DocumentPageProps) 
                         </div>
 
                         {/* Share Link */}
-                        <ShareButton />
+                        <ShareButton documentId={id} />
                     </div>
                 </div>
             </header>

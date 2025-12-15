@@ -48,6 +48,24 @@ export function EditorWrapper({ documentId, userName, userId }: EditorWrapperPro
     const getContentRef = useRef<EditorContent | null>(null);
 
     useEffect(() => {
+        // Read URL params and set in localStorage (for shared links)
+        if (typeof window !== 'undefined') {
+            const params = new URLSearchParams(window.location.search);
+            const urlTopic = params.get('topic');
+            const urlCategory = params.get('category');
+            const urlTitle = params.get('title');
+
+            if (urlTopic) {
+                localStorage.setItem(`doc_title_${documentId}`, urlTopic);
+            }
+            if (urlCategory) {
+                localStorage.setItem(`doc_category_${documentId}`, urlCategory);
+            }
+            if (urlTitle) {
+                localStorage.setItem(`doc_subtitle_${documentId}`, urlTitle);
+            }
+        }
+
         // Check localStorage for new document flag (set by NewDocumentButton)
         const isNew = localStorage.getItem("inNewDocument") === "true";
         if (isNew) {
@@ -174,8 +192,8 @@ export function EditorWrapper({ documentId, userName, userId }: EditorWrapperPro
                 <button
                     onClick={() => setActiveTab("editor")}
                     className={`flex-1 px-4 py-2 text-sm font-medium transition-colors ${activeTab === "editor"
-                            ? "text-foreground border-b-2 border-primary bg-background"
-                            : "text-muted-foreground hover:text-foreground"
+                        ? "text-foreground border-b-2 border-primary bg-background"
+                        : "text-muted-foreground hover:text-foreground"
                         }`}
                 >
                     Editor
@@ -183,8 +201,8 @@ export function EditorWrapper({ documentId, userName, userId }: EditorWrapperPro
                 <button
                     onClick={() => setActiveTab("preview")}
                     className={`flex-1 px-4 py-2 text-sm font-medium transition-colors ${activeTab === "preview"
-                            ? "text-foreground border-b-2 border-primary bg-background"
-                            : "text-muted-foreground hover:text-foreground"
+                        ? "text-foreground border-b-2 border-primary bg-background"
+                        : "text-muted-foreground hover:text-foreground"
                         }`}
                 >
                     Preview

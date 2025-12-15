@@ -34,8 +34,6 @@ export function DocumentActions({
     const [lastAction, setLastAction] = useState<"draft" | "review" | null>(null);
 
     const saveDocument = async (status: "draft" | "review") => {
-        if (!isOwner) return;
-
         setIsSaving(true);
         setSaveStatus("idle");
         setLastAction(status);
@@ -63,6 +61,16 @@ export function DocumentActions({
 
             if (!response.ok) {
                 const data = await response.json();
+
+                // Check for permission/foreign key errors
+                if (data.error?.includes('foreign key constraint') ||
+                    data.error?.includes('owner_id') ||
+                    !isOwner) {
+                    alert("⚠️ Permission Denied\n\nOnly the document creator can save or publish this document.\n\nYou can edit and collaborate, but you cannot save changes to the database.");
+                    setSaveStatus("idle");
+                    return;
+                }
+
                 throw new Error(data.error || "Failed to save document");
             }
 
@@ -83,11 +91,6 @@ export function DocumentActions({
             setIsSaving(false);
         }
     };
-
-    // Don't show actions if not the owner
-    if (!isOwner) {
-        return null;
-    }
 
     return (
         <TooltipProvider>
@@ -117,30 +120,32 @@ export function DocumentActions({
                     </TooltipContent>
                 </Tooltip>
 
-                {/* Submit for Review */}
-                <Tooltip>
-                    <TooltipTrigger asChild>
-                        <Button
-                            variant="default"
-                            size="sm"
-                            className="gap-2"
-                            onClick={() => saveDocument("review")}
-                            disabled={isSaving}
-                        >
-                            {isSaving && lastAction === "review" ? (
-                                <Loader2 className="h-4 w-4 animate-spin" />
-                            ) : saveStatus === "success" && lastAction === "review" ? (
-                                <Check className="h-4 w-4" />
-                            ) : (
-                                <Send className="h-4 w-4" />
-                            )}
-                            <span className="hidden sm:inline">Submit for Review</span>
-                        </Button>
-                    </TooltipTrigger>
-                    <TooltipContent>
-                        <p>Submit document for admin review</p>
-                    </TooltipContent>
-                </Tooltip>
+                {/* Submit for Review - Only show for owners */}
+                {isOwner && (
+                    <Tooltip>
+                        <TooltipTrigger asChild>
+                            <Button
+                                variant="default"
+                                size="sm"
+                                className="gap-2"
+                                onClick={() => saveDocument("review")}
+                                disabled={isSaving}
+                            >
+                                {isSaving && lastAction === "review" ? (
+                                    <Loader2 className="h-4 w-4 animate-spin" />
+                                ) : saveStatus === "success" && lastAction === "review" ? (
+                                    <Check className="h-4 w-4" />
+                                ) : (
+                                    <Send className="h-4 w-4" />
+                                )}
+                                <span className="hidden sm:inline">Submit for Review</span>
+                            </Button>
+                        </TooltipTrigger>
+                        <TooltipContent>
+                            <p>Submit document for admin review</p>
+                        </TooltipContent>
+                    </Tooltip>
+                )}
 
                 {/* Error indicator */}
                 {saveStatus === "error" && (
