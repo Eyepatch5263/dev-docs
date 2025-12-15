@@ -13,11 +13,13 @@ const { WebSocketServer } = require('ws');
 const Y = require('yjs');
 const syncProtocol = require('y-protocols/sync');
 const awarenessProtocol = require('y-protocols/awareness');
+
 const encoding = require('lib0/encoding');
 const decoding = require('lib0/decoding');
 
-const PORT = process.env.WS_PORT || 1234;
-const HOST = process.env.WS_HOST || 'localhost';
+const PORT = 1234;
+const HOST = process.env.WS_HOST || '0.0.0.0';
+const MAX_CONNECTIONS_PER_ROOM = 2; // Maximum concurrent connections per document
 
 // Message types (must match y-websocket client)
 const messageSync = 0;
@@ -44,6 +46,15 @@ function getYDoc(docName) {
         });
     }
     return docs.get(docName);
+}
+
+// Check if a room has reached its connection limit
+function isRoomFull(docName) {
+    if (!docs.has(docName)) {
+        return false; // Room doesn't exist yet, so it's not full
+    }
+    const { conns } = docs.get(docName);
+    return conns.size >= MAX_CONNECTIONS_PER_ROOM;
 }
 
 // Send a message to a client
@@ -75,12 +86,21 @@ const wss = new WebSocketServer({ server });
 
 wss.on('connection', (conn, req) => {
     const docName = req.url?.slice(1).split('?')[0] || 'default';
-    console.log(`[${new Date().toISOString()}] Client connected to: ${docName}`);
+    console.log(`[${new Date().toISOString()}] Client attempting to connect to: ${docName}`);
 
+    // Check if room is full before allowing connection
+    if (isRoomFull(docName)) {
+        console.log(`[${new Date().toISOString()}] Room ${docName} is full (max ${MAX_CONNECTIONS_PER_ROOM}). Rejecting connection.`);
+        conn.close(4000, `Room is full. Maximum ${MAX_CONNECTIONS_PER_ROOM} collaborators allowed.`);
+        return;
+    }
+
+    console.log(`[${new Date().toISOString()}] Client connected to: ${docName}`);
     const { doc, awareness, conns } = getYDoc(docName);
 
     // Track this connection
     conns.set(conn, new Set());
+    console.log(`[${new Date().toISOString()}] Room ${docName} now has ${conns.size}/${MAX_CONNECTIONS_PER_ROOM} connections`);
 
     // Send sync step 1 (document state vector)
     {

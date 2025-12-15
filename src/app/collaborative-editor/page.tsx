@@ -11,25 +11,19 @@ export const metadata = {
     description: "Create and collaborate on documents in real-time",
 };
 
-// Mock data
+// Mock data - these are SHARED documents (same room for all users)
+// The ID is the WebSocket room name, so all users opening the same ID collaborate together
 const mockDocuments = [
     {
-        id: "1",
-        title: "Introduction to Distributed Systems",
+        id: "introduction_to_distributed_systems",
+        title: "Introduction To Distributed Systems",
         updatedAt: "2024-12-14T10:30:00Z",
         status: "draft",
         collaborators: 2,
     },
     {
-        id: "2",
-        title: "Database Indexing Strategies",
-        updatedAt: "2024-12-13T15:45:00Z",
-        status: "pending_review",
-        collaborators: 1,
-    },
-     {
-        id: "3",
-        title: "Introduction to Distributed",
+        id: "introduction_to_dbms",
+        title: "Introduction To DBMS",
         updatedAt: "2024-12-14T10:30:00Z",
         status: "draft",
         collaborators: 3,
@@ -65,12 +59,24 @@ function getStatusBadge(status: string) {
     );
 }
 
+// Generate a user-specific document ID for predefined docs
+function getUserDocumentId(baseId: string, userEmail: string | null | undefined): string {
+    const randomPart = Math.random().toString(36).substring(2, 20);
+    const userPart = (userEmail || 'anonymous')
+        .toLowerCase()
+        .replace(/[^a-z0-9]/g, '')
+        .substring(0, 12);
+    return `${baseId}_${userPart}_${randomPart}`;
+}
+
 // If no session exist redirect to signin
 export default async function CollaborativeEditorPage() {
     const session = await getServerSession(authOptions);
     if (!session) {
         redirect("/signin?callbackUrl=/collaborative-editor");
     }
+
+    const userEmail = session.user?.email;
 
     return (
         <div className="min-h-screen bg-background">
@@ -100,7 +106,7 @@ export default async function CollaborativeEditorPage() {
                         {mockDocuments.map((doc) => (
                             <Link
                                 key={doc.id}
-                                href={`/collaborative-editor/${doc.id}`}
+                                href={`/collaborative-editor/${getUserDocumentId(doc.id, userEmail)}`}
                                 className="group"
                             >
                                 <div className="relative p-6 rounded-xl border border-border bg-card hover:border-primary/50 hover:shadow-lg transition-all duration-200">

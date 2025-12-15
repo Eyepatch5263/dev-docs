@@ -9,7 +9,7 @@ function generateDocumentId(userName: string): string {
     const timestamp = Date.now();
     const randomPart = Math.random().toString(36).substring(2, 8);
     const userPart = userName.toLowerCase().replace(/[^a-z0-9]/g, '').substring(0, 8);
-    return `${userPart}-${timestamp.toString(36)}-${randomPart}`;
+    return `${userPart}_${timestamp.toString(36)}_${randomPart}`;
 }
 
 interface NewDocumentButtonProps {
@@ -33,6 +33,8 @@ export function NewDocumentButton({
     const handleCreateDocument = () => {
         const userName = session?.user?.name || session?.user?.email || "anonymous";
         const documentId = generateDocumentId(userName);
+        localStorage.setItem("inNewDocument", "true");
+        localStorage.setItem("newDocumentTitle", "New Document");
         router.push(`/collaborative-editor/${documentId}`);
     };
 
@@ -41,7 +43,7 @@ export function NewDocumentButton({
             size={size}
             variant={variant}
             className={`gap-2 ${className}`}
-            onClick={handleCreateDocument}
+            onClick={() => handleCreateDocument()}
         >
             {children || "New Document"}
         </Button>

@@ -6,13 +6,14 @@ import { ArrowLeft, Users, MoreVertical, Send } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { EditorWrapper } from "./EditorWrapper";
+import { DocumentTitleInput } from "@/components/editor/DocumentTitleInput";
 
 interface DocumentPageProps {
     params: Promise<{ id: string }>;
 }
 
 export async function generateMetadata({ params }: DocumentPageProps) {
-    const { id } = await params;
+    let { id } = await params;
     return {
         title: `Editing Document - Explainbytes`,
         description: `Collaborative editing document ${id}`,
@@ -27,9 +28,7 @@ export default async function DocumentEditorPage({ params }: DocumentPageProps) 
         redirect("/signin?callbackUrl=/collaborative-editor");
     }
 
-    // If user creates a new document then it will be redirected to /collaborative-editor/new
     const { id } = await params;
-    const isNewDocument = id === "new";
 
     return (
         <div className="min-h-screen bg-background flex flex-col">
@@ -43,13 +42,10 @@ export default async function DocumentEditorPage({ params }: DocumentPageProps) 
                                 <ArrowLeft className="h-4 w-4" />
                             </Button>
                         </Link>
+
+                        {/* Document Title Input */}
                         <div className="flex flex-col">
-                            <input
-                                type="text"
-                                defaultValue={isNewDocument ? "Untitled Document" : "Document Title"}
-                                className="bg-transparent border-none outline-none font-semibold text-lg focus:ring-0 w-full max-w-md"
-                                placeholder="Document title..."
-                            />
+                            <DocumentTitleInput documentId={id} />
                         </div>
                     </div>
 

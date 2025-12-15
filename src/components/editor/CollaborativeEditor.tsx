@@ -17,6 +17,7 @@ interface CollaborativeEditorProps {
     documentId: string;
     userName?: string;
     userColor?: string;
+    isNewDocument?: boolean;
 }
 
 // Generate a random color for cursor
@@ -162,16 +163,25 @@ export function CollaborativeEditor({
     documentId,
     userName = "Anonymous",
     userColor,
+    isNewDocument = false,
 }: CollaborativeEditorProps) {
     const [ydoc, setYdoc] = useState<Y.Doc | null>(null);
     const [provider, setProvider] = useState<WebsocketProvider | null>(null);
     const [color] = useState(() => userColor || getRandomColor());
+    const [roomFullError, setRoomFullError] = useState<string | null>(null);
 
     useEffect(() => {
         if (typeof window === "undefined") return;
 
         const doc = new Y.Doc();
         const prov = new WebsocketProvider(WS_URL, documentId, doc);
+
+        // Listen for WebSocket close events (room full rejection)
+        prov.ws?.addEventListener('close', (event: CloseEvent) => {
+            if (event.code === 4000) {
+                setRoomFullError(event.reason || 'Room is full. Maximum collaborators reached.');
+            }
+        });
 
         setYdoc(doc);
         setProvider(prov);
@@ -185,6 +195,51 @@ export function CollaborativeEditor({
             doc.destroy();
         };
     }, [documentId]);
+
+    // Show error UI if room is full
+    if (roomFullError) {
+        return (
+            <div className="flex flex-col items-center justify-center h-[500px] text-center p-8">
+                <div className="w-16 h-16 rounded-full bg-destructive/10 flex items-center justify-center mb-6">
+                    <svg
+                        className="h-8 w-8 text-destructive"
+                        fill="none"
+                        viewBox="0 0 24 24"
+                        stroke="currentColor"
+                    >
+                        <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth={2}
+                            d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"
+                        />
+                    </svg>
+                </div>
+                <h2 className="text-2xl font-bold text-destructive mb-2">Room Full</h2>
+                <p className="text-muted-foreground mb-6 max-w-md">
+                    {roomFullError}
+                </p>
+                <p className="text-sm text-muted-foreground mb-6">
+                    This document has reached its maximum number of collaborators.
+                    Please try again later or create a new document.
+                </p>
+                <div className="flex gap-4">
+                    <a
+                        href="/collaborative-editor"
+                        className="inline-flex items-center justify-center rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 bg-primary text-primary-foreground hover:bg-primary/90 h-10 px-4 py-2"
+                    >
+                        Create New Document
+                    </a>
+                    <button
+                        onClick={() => window.location.reload()}
+                        className="inline-flex items-center justify-center rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 border border-input bg-background hover:bg-accent hover:text-accent-foreground h-10 px-4 py-2"
+                    >
+                        Try Again
+                    </button>
+                </div>
+            </div>
+        );
+    }
 
     // Loading state - do NOT render editor until ydoc and provider exist
     if (!ydoc || !provider) {

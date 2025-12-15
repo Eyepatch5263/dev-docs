@@ -1,6 +1,7 @@
 "use client";
 
 import dynamic from "next/dynamic";
+import { useEffect, useState } from "react";
 
 // Dynamically import the editor to avoid SSR issues with Yjs
 const CollaborativeEditor = dynamic(
@@ -22,10 +23,23 @@ interface EditorWrapperProps {
 }
 
 export function EditorWrapper({ documentId, userName }: EditorWrapperProps) {
+    const [isNewDocument, setIsNewDocument] = useState(false);
+
+    useEffect(() => {
+        // Check localStorage for new document flag (set by NewDocumentButton)
+        const isNew = localStorage.getItem("inNewDocument") === "true";
+        if (isNew) {
+            setIsNewDocument(true);
+            // Clear the flag after reading
+            localStorage.removeItem("inNewDocument");
+        }
+    }, []);
+
     return (
         <CollaborativeEditor
             documentId={documentId}
             userName={userName}
+            isNewDocument={isNewDocument}
         />
     );
 }

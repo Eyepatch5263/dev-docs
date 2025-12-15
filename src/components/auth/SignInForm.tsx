@@ -16,15 +16,29 @@ export function SignInForm() {
     const callbackUrl = searchParams.get("callbackUrl") || "/";
     const error = searchParams.get("error");
 
+    // Decode error messages from URL
+    const getInitialError = () => {
+        if (!error) return null;
+        if (error === "CredentialsSignin") return "Invalid email or password";
+        // Check if error contains email verification message
+        if (error.toLowerCase().includes("verify") || error.toLowerCase().includes("email")) {
+            return decodeURIComponent(error);
+        }
+        // Handle other custom errors
+        try {
+            return decodeURIComponent(error);
+        } catch {
+            return "An error occurred during sign in";
+        }
+    };
+
     const [formData, setFormData] = useState({
         email: "",
         password: "",
     });
     const [showPassword, setShowPassword] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
-    const [formError, setFormError] = useState<string | null>(
-        error === "CredentialsSignin" ? "Invalid email or password" : null
-    );
+    const [formError, setFormError] = useState<string | null>(getInitialError());
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         setFormData((prev) => ({
@@ -48,7 +62,12 @@ export function SignInForm() {
             });
 
             if (result?.error) {
-                setFormError("Invalid email or password");
+                // Check if the error contains a verification message
+                if (result.error.toLowerCase().includes("verify") || result.error.toLowerCase().includes("email")) {
+                    setFormError(result.error);
+                } else {
+                    setFormError("Invalid email or password");
+                }
             } else if (result?.ok) {
                 router.push(callbackUrl);
                 router.refresh();
