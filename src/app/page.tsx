@@ -69,6 +69,26 @@ export default function Home() {
         }
       />
 
+      {/* Collaborative Editor */}
+      <FeatureSection
+        title="Collaborative Editor"
+        description="Seamlessly collaborate on documents in real-time, publish with a single click, and contribute to a growing ecosystem of shared knowledge."
+        buttonText="Try Now"
+        buttonLink="/collaborative-editor"
+        imagePosition="left"
+        illustration={
+          <div className="relative w-full aspect-square max-w-md mx-auto">
+            <Image
+              src="/collaborative-editor-illustration.jpg"
+              alt="Collaborative Editor - Real-time collaboration"
+              fill
+              className="object-contain"
+              priority
+            />
+          </div>
+        }
+      />
+
       {/* Newsletter Section */}
       <NewsletterForm />
 

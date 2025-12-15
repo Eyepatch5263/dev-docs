@@ -2,11 +2,12 @@ import { redirect } from "next/navigation";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import Link from "next/link";
-import { ArrowLeft, Users, MoreVertical, Send } from "lucide-react";
+import { ArrowLeft, Users, Send } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { EditorWrapper } from "./EditorWrapper";
 import { DocumentTitleInput } from "@/components/editor/DocumentTitleInput";
+import { ShareButton } from "@/components/editor/ShareButton";
 
 interface DocumentPageProps {
     params: Promise<{ id: string }>;
@@ -80,10 +81,8 @@ export default async function DocumentEditorPage({ params }: DocumentPageProps) 
                             Submit for Review
                         </Button>
 
-                        {/* More Options */}
-                        <Button variant="ghost" size="icon-sm">
-                            <MoreVertical className="h-4 w-4" />
-                        </Button>
+                        {/* Share Link */}
+                        <ShareButton />
                     </div>
                 </div>
             </header>
