@@ -45,7 +45,7 @@ export default async function CollaborativeEditorPage() {
 
     return (
         <div className="min-h-screen flex flex-col">
-            <Header />
+            <Header githubHidden={true} />
 
             <main className="flex-1 bg-muted/30">
                 <div className="container mx-auto px-4 py-10 max-w-7xl">
