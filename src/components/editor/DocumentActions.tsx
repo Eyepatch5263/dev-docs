@@ -56,6 +56,7 @@ export function DocumentActions({
                     category,
                     content,
                     status,
+                    isOriginalOwner: isOwner, // Pass ownership flag to API
                 }),
             });
 
@@ -79,8 +80,18 @@ export function DocumentActions({
 
             // If this was a fork, redirect to the new document
             if (responseData.isFork && responseData.newDocumentId) {
+                const topic = getTopic();
+                const category = getCategory();
+                const docTitle = getSubtitle();
+
+                // Build URL with metadata
+                const url = new URL(`/collaborative-editor/${responseData.newDocumentId}`, window.location.origin);
+                if (topic) url.searchParams.set('topic', topic);
+                if (category) url.searchParams.set('category', category);
+                if (docTitle) url.searchParams.set('title', docTitle);
+
                 alert("✅ Document Forked!\n\nYour own copy has been created. You'll be redirected to your forked document.");
-                window.location.href = `/collaborative-editor/${responseData.newDocumentId}`;
+                window.location.href = url.toString();
                 return;
             }
 

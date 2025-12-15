@@ -22,7 +22,7 @@ export async function POST(request: NextRequest) {
             );
         }
 
-        const { documentId, title, topic, category, content, status } = await request.json();
+        const { documentId, title, topic, category, content, status, isOriginalOwner } = await request.json();
 
         if (!documentId) {
             return NextResponse.json(
@@ -48,17 +48,8 @@ export async function POST(request: NextRequest) {
             .eq("owner_id", session.user.id)
             .single();
 
-        // Also check if there's an original document (to determine if this is a fork)
-        const { data: originalDoc } = await supabaseAdmin
-            .from("documents")
-            .select("owner_id")
-            .eq("document_id", documentId)
-            .order("created_at", { ascending: true })
-            .limit(1)
-            .single();
-
-        // Determine if this is a fork (user is not the original owner)
-        const isFork = originalDoc && originalDoc.owner_id !== session.user.id;
+        // Determine if this should be a fork based on client-provided ownership
+        const isFork = !isOriginalOwner;
 
         // For 'review' status, only the original document owner can submit
         if (status === "review" && isFork) {
