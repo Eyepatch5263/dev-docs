@@ -54,6 +54,7 @@ export function EditorWrapper({ documentId, userName, userId }: EditorWrapperPro
             const urlTopic = params.get('topic');
             const urlCategory = params.get('category');
             const urlTitle = params.get('title');
+            const loadFromDb = params.get('loadFromDb');
 
             if (urlTopic) {
                 localStorage.setItem(`doc_title_${documentId}`, urlTopic);
@@ -64,37 +65,68 @@ export function EditorWrapper({ documentId, userName, userId }: EditorWrapperPro
             if (urlTitle) {
                 localStorage.setItem(`doc_subtitle_${documentId}`, urlTitle);
             }
+            // If loadFromDb flag is present, store it for the editor to load content
+            if (loadFromDb === 'true') {
+                localStorage.setItem(`loadFromDb_${documentId}`, 'true');
+            }
         }
 
-        // Check localStorage for new document flag (set by NewDocumentButton)
+        console.log('EditorWrapper useEffect running for documentId:', documentId);
+
+        // Check if this document was just created (set by NewDocumentButton)
         const isNew = localStorage.getItem("inNewDocument") === "true";
+        console.log('inNewDocument flag:', isNew);
+
         if (isNew) {
+            console.log('Setting as new document, isOwner=true');
             setIsNewDocument(true);
-            setIsOwner(true); // Creator is always the owner
+            setIsOwner(true);
             setIsLoading(false);
-            // Clear the flag after reading
+            // Store ownership for this document (persists across double-renders)
+            localStorage.setItem(`doc_owner_${documentId}`, 'true');
+            // Clear the global flag after reading
             localStorage.removeItem("inNewDocument");
             return;
         }
 
-        // Check document ownership
+        // Check if we already know they're the owner (from previous render or page visit)
+        const cachedOwnership = localStorage.getItem(`doc_owner_${documentId}`);
+        if (cachedOwnership === 'true') {
+            console.log('Using cached ownership: true');
+            setIsOwner(true);
+            setIsLoading(false);
+            return;
+        }
+
+        // Check document ownership from API (only for existing documents)
         const checkOwnership = async () => {
+            console.log('Running ownership check...');
             try {
                 const response = await fetch(`/api/documents/${documentId}`);
                 const data = await response.json();
+                console.log('Ownership API response:', data);
 
                 if (data.document) {
+                    console.log('Setting isOwner from API:', data.isOwner);
                     setIsOwner(data.isOwner);
+                    // Cache the ownership result
+                    if (data.isOwner) {
+                        localStorage.setItem(`doc_owner_${documentId}`, 'true');
+                    }
                     if (data.document.title) {
                         setDocumentTitle(data.document.title);
                     }
                 } else {
-                    // Document doesn't exist in DB yet - not owner unless creator
+                    // Document doesn't exist in DB yet
+                    // This could be:
+                    // 1. A brand new document (should be caught by inNewDocument flag above)
+                    // 2. A shared link to un-saved document (not owner)
+                    // Since inNewDocument was already checked, this is case 2
+                    console.log('No document found, setting isOwner=false');
                     setIsOwner(false);
                 }
             } catch (error) {
                 console.error("Failed to check ownership:", error);
-                // Default to non-owner if we can't check
                 setIsOwner(false);
             } finally {
                 setIsLoading(false);

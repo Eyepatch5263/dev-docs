@@ -172,6 +172,41 @@ function TiptapEditorInner({
         }
     }, [editor, onEditorReady]);
 
+    // Load content from database if loadFromDb flag is set (for forked documents)
+    useEffect(() => {
+        if (!editor) return;
+
+        const documentId = provider.roomname;
+        const shouldLoad = localStorage.getItem(`loadFromDb_${documentId}`);
+
+        if (shouldLoad === 'true') {
+            console.log('Loading forked document content from database...');
+
+            // Fetch content from API
+            fetch(`/api/documents/${documentId}`)
+                .then(res => res.json())
+                .then(data => {
+                    if (data.document && data.document.content) {
+                        // Wait for Yjs to be ready, then set content
+                        setTimeout(() => {
+                            try {
+                                editor.commands.setContent(data.document.content);
+                                console.log('Forked document content loaded successfully');
+                            } catch (err) {
+                                console.error('Failed to set content:', err);
+                            }
+                        }, 500);
+                    }
+                    // Clear the flag so we don't load again
+                    localStorage.removeItem(`loadFromDb_${documentId}`);
+                })
+                .catch(error => {
+                    console.error('Failed to load content from database:', error);
+                    localStorage.removeItem(`loadFromDb_${documentId}`);
+                });
+        }
+    }, [editor, provider.roomname]);
+
     return (
         <div className="flex flex-col h-full">
             <EditorToolbar editor={editor} />

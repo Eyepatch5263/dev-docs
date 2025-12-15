@@ -93,6 +93,7 @@ export function DocumentActions({
                 throw new Error(data.error || "Failed to save document");
             }
 
+
             const responseData = await response.json();
 
             // If this was a fork, redirect to the new document
@@ -101,11 +102,12 @@ export function DocumentActions({
                 const category = getCategory();
                 const docTitle = getSubtitle();
 
-                // Build URL with metadata
+                // Build URL with metadata and loadFromDb flag
                 const url = new URL(`/collaborative-editor/${responseData.newDocumentId}`, window.location.origin);
                 if (topic) url.searchParams.set('topic', topic);
                 if (category) url.searchParams.set('category', category);
                 if (docTitle) url.searchParams.set('title', docTitle);
+                url.searchParams.set('loadFromDb', 'true'); // Tell editor to load content from database
 
                 showDialog(
                     "✅ Document Forked!",
