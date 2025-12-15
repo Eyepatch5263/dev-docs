@@ -40,15 +40,15 @@ export async function POST(request: NextRequest) {
             );
         }
 
-        // Check if document exists
+        // Check if document exists with this document_id and user is the owner
         const { data: existingDoc } = await supabaseAdmin
             .from("documents")
             .select("id, owner_id, document_id")
             .eq("document_id", documentId)
-            .eq("owner_id", session.user.id) // Check for user's own copy
+            .eq("owner_id", session.user.id)
             .single();
 
-        // Also check if there's an original document (for ownership verification)
+        // Also check if there's an original document (to determine if this is a fork)
         const { data: originalDoc } = await supabaseAdmin
             .from("documents")
             .select("owner_id")
@@ -57,8 +57,11 @@ export async function POST(request: NextRequest) {
             .limit(1)
             .single();
 
+        // Determine if this is a fork (user is not the original owner)
+        const isFork = originalDoc && originalDoc.owner_id !== session.user.id;
+
         // For 'review' status, only the original document owner can submit
-        if (status === "review" && originalDoc && originalDoc.owner_id !== session.user.id) {
+        if (status === "review" && isFork) {
             return NextResponse.json(
                 { error: "Only the original document creator can submit for review" },
                 { status: 403 }
@@ -92,13 +95,19 @@ export async function POST(request: NextRequest) {
             return NextResponse.json({
                 message: "Document updated successfully",
                 document: updatedDoc,
+                isFork: false,
             });
         } else {
-            // Create new document (user's copy/fork)
+            // Create new document
+            // If this is a fork, generate a new document_id
+            const newDocumentId = isFork
+                ? `${session.user.name?.toLowerCase().replace(/\s+/g, '_') || 'user'}_${Math.random().toString(36).substring(2, 15)}`
+                : documentId;
+
             const { data: newDoc, error: createError } = await supabaseAdmin
                 .from("documents")
                 .insert({
-                    document_id: documentId,
+                    document_id: newDocumentId,
                     owner_id: session.user.id,
                     title: title || "Untitled Document",
                     topic: topic || "system-design",
@@ -118,8 +127,10 @@ export async function POST(request: NextRequest) {
             }
 
             return NextResponse.json({
-                message: "Document created successfully",
+                message: isFork ? "Document forked successfully" : "Document created successfully",
                 document: newDoc,
+                isFork: isFork,
+                newDocumentId: isFork ? newDocumentId : undefined,
             }, { status: 201 });
         }
     } catch (error) {

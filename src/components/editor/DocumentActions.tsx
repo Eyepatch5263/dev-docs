@@ -75,6 +75,15 @@ export function DocumentActions({
                 throw new Error(data.error || "Failed to save document");
             }
 
+            const responseData = await response.json();
+
+            // If this was a fork, redirect to the new document
+            if (responseData.isFork && responseData.newDocumentId) {
+                alert("✅ Document Forked!\n\nYour own copy has been created. You'll be redirected to your forked document.");
+                window.location.href = `/collaborative-editor/${responseData.newDocumentId}`;
+                return;
+            }
+
             setSaveStatus("success");
             onSaveSuccess?.(status);
 
