@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Inria_Sans, Inria_Serif } from "next/font/google";
 import { ThemeProvider } from "@/components/ThemeProvider";
 import { AuthProvider } from "@/components/auth/AuthProvider";
+import { Toaster } from "sonner";
 import "./globals.css";
 
 const Inria_Serif_Font = Inria_Serif({
@@ -105,6 +106,7 @@ export default function RootLayout({
             disableTransitionOnChange
           >
             {children}
+            <Toaster richColors position="top-right" />
           </ThemeProvider>
         </AuthProvider>
       </body>

@@ -8,9 +8,14 @@ export default withAuth(
     {
         callbacks: {
             authorized: ({ token, req }) => {
+                if (req.nextUrl.pathname.startsWith("/admin")) {
+                    return !!token;
+                }
                 // Define which routes require authentication
                 const protectedRoutes = ["/profile", "/settings", "/dashboard","/collaborative-editor/*"];
                 const pathname = req.nextUrl.pathname;
+
+                
 
                 // Check if the current path is a protected route
                 const isProtectedRoute = protectedRoutes.some((route) =>

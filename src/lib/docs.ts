@@ -1,6 +1,7 @@
 import fs from "fs";
 import path from "path";
 import matter from "gray-matter";
+import { cache } from "react";
 import { DocContent, DocMeta, TopicMeta } from "@/app/types/docs.type";
 import { NavCategory, NavItem } from "@/app/types/nav.type";
 
@@ -33,8 +34,11 @@ function folderNameToTitle(folderName: string): string {
         .join(" ");
 }
 
-// Dynamically discover all topics from the content directory
-export function discoverTopics(): string[] {
+/**
+ * Dynamically discover all topics from the content directory
+ * Cached to avoid repeated file system reads within the same request
+ */
+export const discoverTopics = cache((): string[] => {
     if (!fs.existsSync(contentDirectory)) {
         return [];
     }
@@ -44,10 +48,13 @@ export function discoverTopics(): string[] {
         // Only include directories, exclude hidden folders and files
         return fs.statSync(itemPath).isDirectory() && !item.startsWith("_") && !item.startsWith(".");
     });
-}
+});
 
-// Get topic metadata - reads from _meta.json if exists, otherwise generates from folder name
-export function getTopicMeta(topic: string): TopicMeta | null {
+/**
+ * Get topic metadata - reads from _meta.json if exists, otherwise generates from folder name
+ * Cached to avoid repeated file reads and JSON parsing
+ */
+export const getTopicMeta = cache((topic: string): TopicMeta | null => {
     const topicDir = path.join(contentDirectory, topic);
 
     if (!fs.existsSync(topicDir) || !fs.statSync(topicDir).isDirectory()) {
@@ -83,7 +90,7 @@ export function getTopicMeta(topic: string): TopicMeta | null {
         description: `Documentation for ${folderNameToTitle(topic)}`,
         articles: articleCount,
     };
-}
+});
 
 // Returns metadata for all topics (dynamically discovered)
 export function getAllTopics(): TopicMeta[] {
@@ -125,7 +132,11 @@ function getAllMdxFiles(dir: string, baseDir = dir): string[] {
     return files;
 }
 
-export function getAllDocsForTopic(topic: string): DocMeta[] {
+/**
+ * Get all documentation metadata for a topic
+ * Cached to avoid reading and parsing all MDX files repeatedly
+ */
+export const getAllDocsForTopic = cache((topic: string): DocMeta[] => {
     const topicDir = getTopicDirectory(topic);
 
     if (!fs.existsSync(topicDir)) {
@@ -152,10 +163,13 @@ export function getAllDocsForTopic(topic: string): DocMeta[] {
     });
 
     return docs.sort((a, b) => a.order - b.order);
-}
+});
 
-// get the content and metadata for a specific doc by topic and slug
-export function getDocBySlug(topic: string, slug: string): DocContent | null {
+/**
+ * Get the content and metadata for a specific doc by topic and slug
+ * Cached to avoid repeated file reads and gray-matter parsing
+ */
+export const getDocBySlug = cache((topic: string, slug: string): DocContent | null => {
     const filePath = path.join(getTopicDirectory(topic), `${slug}.mdx`);
 
     if (!fs.existsSync(filePath)) {
@@ -174,7 +188,7 @@ export function getDocBySlug(topic: string, slug: string): DocContent | null {
         category: data.category,
         content,
     };
-}
+});
 
 // Category order for sorting
 const categoryOrder: Record<string, number> = {
@@ -184,7 +198,11 @@ const categoryOrder: Record<string, number> = {
     "Epilogue": 4,
 };
 
-export function getNavigationForTopic(topic: string): NavCategory[] {
+/**
+ * Get navigation structure for a topic
+ * Cached since it depends on getAllDocsForTopic which is already cached
+ */
+export const getNavigationForTopic = cache((topic: string): NavCategory[] => {
     const docs = getAllDocsForTopic(topic);
     const categories: Map<string, NavItem[]> = new Map();
 
@@ -219,7 +237,7 @@ export function getNavigationForTopic(topic: string): NavCategory[] {
     });
 
     return nav;
-}
+});
 
 export function getAllSlugsForTopic(topic: string): string[] {
     const docs = getAllDocsForTopic(topic);
