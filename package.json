@@ -47,6 +47,7 @@
     "clsx": "^2.1.1",
     "framer-motion": "^12.23.26",
     "gray-matter": "^4.0.3",
+    "ioredis": "^5.8.2",
     "lib0": "^0.2.114",
     "lowlight": "^3.3.0",
     "lucide-react": "^0.560.0",
