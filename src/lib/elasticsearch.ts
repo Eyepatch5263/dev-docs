@@ -1,11 +1,12 @@
 import { searchTermsLocally, type EngineeringTerm } from '../../data/sample-terms';
 
 import { Client } from '@elastic/elasticsearch';
+import { getFromCache, setInCache, CACHE_KEYS, DEFAULT_TTL } from './redis';
 
 interface SearchResult {
     terms: EngineeringTerm[];
     total: number;
-    source: 'elasticsearch' | 'local';
+    source: 'elasticsearch' | 'local' | 'cache';
 }
 
 // configure elasticsearch client
@@ -19,8 +20,35 @@ const client = new Client({
 // configure index name
 const INDEX_NAME = process.env.ELASTICSEARCH_INDEX || 'engineering-terms';
 
+// Cache TTL values (in seconds)
+const SEARCH_CACHE_TTL = DEFAULT_TTL; // 1 Day for search results
+const TERM_CACHE_TTL = 60*60*24; // 1 Day for individual terms
+const RELATED_CACHE_TTL = 60*60*24; // 1 Day for related terms
+
+/**
+ * Generate a cache key for search queries
+ */
+function getSearchCacheKey(query: string): string {
+    return `${CACHE_KEYS.SEARCH}${query.toLowerCase().trim()}`;
+}
+
+/**
+ * Generate a cache key for term lookups
+ */
+function getTermCacheKey(slug: string): string {
+    return `${CACHE_KEYS.TERM}${slug}`;
+}
+
+/**
+ * Generate a cache key for related terms
+ */
+function getRelatedCacheKey(termSlug: string): string {
+    return `${CACHE_KEYS.RELATED}${termSlug}`;
+}
+
 /**
  * Generate a URL-friendly slug from a term name
+ * like "System Design" -> "system-design"
  */
 function generateSlug(term: string): string {
     return term
@@ -44,9 +72,25 @@ function normalizeTermFromES(source: any, docId: string): EngineeringTerm {
 }
 
 /**
- * Search engineering terms using Elasticsearch (or fallback to local search)
+ * Search engineering terms using Redis cache + Elasticsearch (read-through cache pattern)
+ * 1. Check Redis cache first
+ * 2. If cache miss, query Elasticsearch
+ * 3. Store result in Redis for future requests
  */
 export async function searchTerms(query: string): Promise<SearchResult> {
+    const cacheKey = getSearchCacheKey(query);
+
+    // Step 1: Check Redis cache first (Read-Through Cache)
+    const cachedResult = await getFromCache<SearchResult>(cacheKey);
+    if (cachedResult) {
+        console.log(`Cache HIT for search: "${query}"`);
+        return {
+            ...cachedResult,
+            source: 'cache', // Mark as served from cache
+        };
+    }
+    console.log(`Cache MISS for search: "${query}"`);
+
     // Check if Elasticsearch is configured
     const isElasticsearchConfigured = !!(
         process.env.ELASTICSEARCH_URL &&
@@ -56,14 +100,18 @@ export async function searchTerms(query: string): Promise<SearchResult> {
     if (!isElasticsearchConfigured) {
         // Fallback to local search if elasticsearch is not configured
         const terms = searchTermsLocally(query);
-        return {
+        const result: SearchResult = {
             terms,
             total: terms.length,
             source: 'local',
         };
+        // Cache the local result too
+        await setInCache(cacheKey, result, SEARCH_CACHE_TTL);
+        return result;
     }
 
     try {
+        // Step 2: Query Elasticsearch on cache miss
         const response = await client.search({
             index: INDEX_NAME,
             query: {
@@ -109,7 +157,7 @@ export async function searchTerms(query: string): Promise<SearchResult> {
         const hits = response.hits.hits;
         const terms = hits.map((hit: any) => normalizeTermFromES(hit._source, hit._id));
 
-        return {
+        const result: SearchResult = {
             terms,
             total: typeof response.hits.total === 'number'
                 ? response.hits.total
@@ -117,25 +165,42 @@ export async function searchTerms(query: string): Promise<SearchResult> {
             source: 'elasticsearch',
         };
 
+        // Step 3: Store in Redis cache for future requests
+        await setInCache(cacheKey, result, SEARCH_CACHE_TTL);
+        console.log(`Cached search result for: "${query}"`);
+
+        return result;
+
     } catch (error) {
         console.error('Elasticsearch search failed, using local fallback:', error);
 
         // Graceful fallback to local search
         const terms = searchTermsLocally(query);
-        return {
+        const result: SearchResult = {
             terms,
             total: terms.length,
             source: 'local',
         };
+        // Cache the fallback result with shorter TTL
+        await setInCache(cacheKey, result, 60); // 1 minute for fallback
+        return result;
     }
 }
 
 /**
- * Get a single term by slug from Elasticsearch (or fallback)
- * // this function is triggering when we have to search for the single term 
- * when i got tons of suggestion and when i click on any one of the search this would trigger
+ * Get a single term by slug from Redis cache + Elasticsearch (read-through cache pattern)
+ * This function triggers when clicking on a search suggestion
  */
 export async function getTermBySlug(slug: string): Promise<EngineeringTerm | null> {
+    const cacheKey = getTermCacheKey(slug);
+
+    // Step 1: Check Redis cache first
+    const cachedTerm = await getFromCache<EngineeringTerm>(cacheKey);
+    if (cachedTerm) {
+        console.log(`Cache HIT for term: "${slug}"`);
+        return cachedTerm;
+    }
+    console.log(`Cache MISS for term: "${slug}"`);
 
     // check if elasticsearch is configured
     const isElasticsearchConfigured = !!(
@@ -146,11 +211,17 @@ export async function getTermBySlug(slug: string): Promise<EngineeringTerm | nul
     // if elasticsearch is not configured, use local fallback means get the searches from local file
     if (!isElasticsearchConfigured) {
         const { getTermBySlug: localGetTerm } = await import('../../data/sample-terms');
-        return localGetTerm(slug) || null;
+        const term = localGetTerm(slug) || null;
+
+        // cache the local term
+        if (term) {
+            await setInCache(cacheKey, term, TERM_CACHE_TTL);
+        }
+        return term;
     }
 
     try {
-        // Convert slug to potential term name (e.g., "query-latency" -> "query latency")
+        // Step 2: Convert slug to potential term name (e.g., "query-latency" -> "query latency")
         const termNameFromSlug = slug.replace(/-/g, ' ');
 
         const response = await client.search({
@@ -175,12 +246,22 @@ export async function getTermBySlug(slug: string): Promise<EngineeringTerm | nul
 
         const hit = response.hits.hits[0];
         if (hit) {
-            return normalizeTermFromES(hit._source, hit._id || 'unknown');
+            const term = normalizeTermFromES(hit._source, hit._id || 'unknown');
+            // Step 3: Cache the result
+            await setInCache(cacheKey, term, TERM_CACHE_TTL);
+            console.log(`Cached term: "${slug}"`);
+            return term;
         }
 
         // If not found in Elasticsearch, try local fallback
         const { getTermBySlug: localGetTerm } = await import('../../data/sample-terms');
-        return localGetTerm(slug) || null;
+        const localTerm = localGetTerm(slug) || null;
+
+        // cache the local term
+        if (localTerm) {
+            await setInCache(cacheKey, localTerm, TERM_CACHE_TTL);
+        }
+        return localTerm;
     } catch (error) {
         console.error('Elasticsearch get failed, using local fallback:', error);
         const { getTermBySlug: localGetTerm } = await import('../../data/sample-terms');
@@ -189,13 +270,23 @@ export async function getTermBySlug(slug: string): Promise<EngineeringTerm | nul
 }
 
 /**
- * Get related terms by matching tags from Elasticsearch
+ * Get related terms by matching tags from Redis cache + Elasticsearch (read-through cache pattern)
  * Finds terms that share at least one tag with the given term
  */
 export async function getRelatedTerms(
     term: EngineeringTerm,
     limit: number = 3
 ): Promise<EngineeringTerm[]> {
+    const cacheKey = getRelatedCacheKey(term.slug);
+
+    // Step 1: Check Redis cache first
+    const cachedRelated = await getFromCache<EngineeringTerm[]>(cacheKey);
+    if (cachedRelated) {
+        console.log(`Cache HIT for related terms: "${term.slug}"`);
+        return cachedRelated;
+    }
+    console.log(`Cache MISS for related terms: "${term.slug}"`);
+
     const isElasticsearchConfigured = !!(
         process.env.ELASTICSEARCH_URL &&
         process.env.ELASTICSEARCH_API_KEY
@@ -204,11 +295,15 @@ export async function getRelatedTerms(
     if (!isElasticsearchConfigured) {
         // Fallback to local related terms
         const { getRelatedTerms: localGetRelated } = await import('../../data/sample-terms');
-        return localGetRelated(term, limit);
+        const related = await localGetRelated(term, limit);
+
+        // cache the local related terms
+        await setInCache(cacheKey, related, RELATED_CACHE_TTL);
+        return related;
     }
 
     try {
-        // Search for terms that share tags with the current term
+        // Step 2: Search for terms that share tags with the current term
         const response = await client.search({
             index: INDEX_NAME,
             query: {
@@ -228,10 +323,17 @@ export async function getRelatedTerms(
         });
 
         const hits = response.hits.hits;
-        return hits.map((hit: any) => normalizeTermFromES(hit._source, hit._id));
+        const related = hits.map((hit: any) => normalizeTermFromES(hit._source, hit._id));
+
+        // Step 3: Cache the result
+        await setInCache(cacheKey, related, RELATED_CACHE_TTL);
+        console.log(`Cached related terms for: "${term.slug}"`);
+
+        return related;
     } catch (error) {
         console.error('Elasticsearch related terms failed, using local fallback:', error);
         const { getRelatedTerms: localGetRelated } = await import('../../data/sample-terms');
         return localGetRelated(term, limit);
     }
 }
+

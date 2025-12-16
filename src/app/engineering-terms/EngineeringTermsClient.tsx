@@ -12,7 +12,7 @@ interface SearchResponse {
     success: boolean;
     terms: EngineeringTerm[];
     total: number;
-    source: 'elasticsearch' | 'local';
+    source: 'elasticsearch' | 'local' | 'cache';
     error?: string;
 }
 
@@ -21,7 +21,7 @@ export function EngineeringTermsClient() {
     const [results, setResults] = useState<EngineeringTerm[]>([]);
     const [isLoading, setIsLoading] = useState(false);
     const [hasSearched, setHasSearched] = useState(false);
-    const [source, setSource] = useState<'elasticsearch' | 'local'>('local');
+    const [source, setSource] = useState<'elasticsearch' | 'local' | 'cache'>('local');
     const [error, setError] = useState<string | null>(null);
     const [isMounted, setIsMounted] = useState(false);
 
@@ -131,7 +131,7 @@ export function EngineeringTermsClient() {
                 >
                     <Zap className="w-4 h-4" />
                     <span>
-                        Powered by {source === 'elasticsearch' ? 'Elasticsearch' : 'local search'} for fast and accurate results
+                        Powered by {source === 'elasticsearch' ? 'Elasticsearch' : source === 'cache' ? 'Redis cache' : 'local search'} for fast and accurate results
                     </span>
                 </motion.div>
             </motion.div>
