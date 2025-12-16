@@ -17,9 +17,10 @@ import javascript from "highlight.js/lib/languages/javascript";
 import typescript from "highlight.js/lib/languages/typescript";
 import * as Y from "yjs";
 import { WebsocketProvider } from "y-websocket";
-import { useEffect, useState, useCallback } from "react";
+import { useEffect, useState, useCallback, useRef } from "react";
 import { EditorToolbar } from "./EditorToolbar";
 import { UserPresence } from "./UserPresence";
+import { throttle } from "@/lib/throttle";
 
 // Create lowlight instance with JavaScript and TypeScript only
 const lowlight = createLowlight();
@@ -76,7 +77,64 @@ function TiptapEditorInner({
     const [isConnected, setIsConnected] = useState(provider.wsconnected);
     const [connectedUsers, setConnectedUsers] = useState<Array<{ name: string; color: string }>>([]);
 
+    // Awareness optimization: Track user activity for idle detection
+    const [lastActivityTime, setLastActivityTime] = useState(Date.now());
+    const [isScrolling, setIsScrolling] = useState(false);
+    const scrollTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+    const idleTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+    const activityThrottleRef = useRef<NodeJS.Timeout | null>(null);
+
+    // Throttled minimal awareness updates
+    const updateAwareness = useCallback(
+        throttle(() => {
+            // Only send minimal data - position only
+            // Color and name are stored once in user field
+            provider.awareness.setLocalStateField("lastActive", Date.now());
+        }, 200), // Throttle to 200ms
+        [provider]
+    );
+
+    // Idle user cleanup - Remove awareness after 5s of inactivity
+    const resetIdleTimer = useCallback(() => {
+        setLastActivityTime(Date.now());
+
+        // Clear existing timer
+        if (idleTimeoutRef.current) {
+            clearTimeout(idleTimeoutRef.current);
+        }
+
+        // Set awareness to active
+        if (!isScrolling) {
+            updateAwareness();
+        }
+
+        // Set new timer to mark user as idle after 5s
+        idleTimeoutRef.current = setTimeout(() => {
+            console.log("User idle - removing awareness state");
+            // Remove local cursor/selection state but keep user info
+            provider.awareness.setLocalStateField("cursor", null);
+            provider.awareness.setLocalStateField("lastActive", null);
+        }, 5000);
+    }, [provider, updateAwareness, isScrolling]);
+
+    // Freeze awareness during scroll
+    const handleScroll = useCallback(() => {
+        setIsScrolling(true);
+
+        // Clear existing scroll timeout
+        if (scrollTimeoutRef.current) {
+            clearTimeout(scrollTimeoutRef.current);
+        }
+
+        // Resume awareness 150ms after scroll ends
+        scrollTimeoutRef.current = setTimeout(() => {
+            setIsScrolling(false);
+            resetIdleTimer(); // Resume awareness updates
+        }, 150);
+    }, [resetIdleTimer]);
+
     useEffect(() => {
+        // Set initial user info (sent once, not on every update)
         provider.awareness.setLocalStateField("user", {
             name: userName,
             color: color,
@@ -86,14 +144,27 @@ function TiptapEditorInner({
             setIsConnected(status === "connected");
         };
 
+        // Smart awareness based on user count
         const handleAwarenessChange = () => {
             const states = provider.awareness.getStates();
-            const users: Array<{ name: string; color: string }> = [];
+            const users: Array<{ name: string; color: string; lastActive?: number }> = [];
+            const now = Date.now();
+
             states.forEach((state, clientId) => {
                 if (clientId !== provider.awareness.clientID && state.user) {
-                    users.push(state.user);
+                    // Check if user is recently active (within 2s)
+                    const isActive = state.lastActive && (now - state.lastActive) < 2000;
+
+                    users.push({
+                        ...state.user,
+                        lastActive: state.lastActive,
+                    });
                 }
             });
+
+            // Sort by activity (most recent first)
+            users.sort((a, b) => (b.lastActive || 0) - (a.lastActive || 0));
+
             setConnectedUsers(users);
         };
 
@@ -101,13 +172,24 @@ function TiptapEditorInner({
         provider.awareness.on("change", handleAwarenessChange);
         handleAwarenessChange();
 
+        // Initialize idle timer
+        resetIdleTimer();
+
         return () => {
             provider.off("status", handleStatus);
             provider.awareness.off("change", handleAwarenessChange);
+
+            // Cleanup timers
+            if (idleTimeoutRef.current) clearTimeout(idleTimeoutRef.current);
+            if (scrollTimeoutRef.current) clearTimeout(scrollTimeoutRef.current);
+            if (activityThrottleRef.current) clearTimeout(activityThrottleRef.current);
         };
-    }, [provider, userName, color]);
+    }, [provider, userName, color, resetIdleTimer]);
 
     const handleUpdate = useCallback(({ editor: ed }: { editor: { getJSON: () => Record<string, unknown> } }) => {
+        // Track user activity on every edit
+        resetIdleTimer();
+
         setIsSaving(true);
         setTimeout(() => {
             setIsSaving(false);
@@ -118,7 +200,7 @@ function TiptapEditorInner({
         if (onContentChange) {
             onContentChange(ed.getJSON());
         }
-    }, [onContentChange]);
+    }, [onContentChange, resetIdleTimer]);
 
     // Create editor with guaranteed non-null ydoc and provider
     const editor = useEditor({
@@ -207,6 +289,17 @@ function TiptapEditorInner({
         }
     }, [editor, provider.roomname]);
 
+    // Add scroll event listener for awareness optimization
+    useEffect(() => {
+        const editorElement = document.querySelector('.tiptap');
+        if (!editorElement) return;
+
+        editorElement.addEventListener('scroll', handleScroll);
+        return () => {
+            editorElement.removeEventListener('scroll', handleScroll);
+        };
+    }, [handleScroll]);
+
     return (
         <div className="flex flex-col h-full">
             <EditorToolbar editor={editor} />
@@ -220,8 +313,12 @@ function TiptapEditorInner({
                         </span>
                     </span>
 
+                    {/* ✅ OPTIMIZATION 4: Show cursors based on user count */}
                     {connectedUsers.length > 0 && (
-                        <UserPresence users={connectedUsers} />
+                        <UserPresence
+                            users={connectedUsers}
+                            maxCursorsToShow={connectedUsers.length <= 4 ? connectedUsers.length : (connectedUsers.length <= 8 ? 0 : 0)}
+                        />
                     )}
                 </div>
 

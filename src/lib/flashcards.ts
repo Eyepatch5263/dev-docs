@@ -5,6 +5,7 @@ import networking from "../../data/flashcard/networking.json";
 import systemDesign from "../../data/flashcard/system-design.json";
 import devops from "../../data/flashcard/devops.json";
 import category from "../../data/flashcard_category/category.json";
+import { cache } from "react";
 
 export const flashcards: Flashcard[] = [
     ...(dbms as Flashcard[]),
@@ -19,23 +20,23 @@ export const categories: CategoryInfo[] = [
 ];
 
 // Utility functions
-export function getFlashcardsByCategory(category: FlashcardCategory): Flashcard[] {
+export const getFlashcardsByCategory = cache((category: FlashcardCategory): Flashcard[] => {
     return flashcards.filter(card => card.category === category);
-}
+});
 
-export function getCategoryInfo(category: FlashcardCategory): CategoryInfo | undefined {
+export const getCategoryInfo = cache((category: FlashcardCategory): CategoryInfo | undefined => {
     return categories.find(cat => cat.id === category);
-}
+});
 
-export function shuffleDeck<T>(array: T[]): T[] {
+export const shuffleDeck = cache((array: any[]): any[] => {
     const shuffled = [...array];
     for (let i = shuffled.length - 1; i > 0; i--) {
         const j = Math.floor(Math.random() * (i + 1));
         [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
     }
     return shuffled;
-}
+});
 
-export function getAllCategories(): CategoryInfo[] {
+export const getAllCategories = cache(() => {
     return categories;
-}
+});
