@@ -123,7 +123,7 @@ export default function ProfilePage() {
                                 <TabsTrigger className="capitalize" key={tabKey} value={tabKey}>
                                     {tabKey}
                                     {documents[tabKey].length > 0 && (
-                                        <span className={`ml-2 px-2 py-0.5 text-white text-xs rounded-full ${value}`}>
+                                        <span className={`ml-2 hidden md:block px-2 py-0.5 text-white text-xs rounded-full ${value}`}>
                                             {documents[tabKey].length}
                                         </span>
                                     )}

@@ -189,7 +189,7 @@ export default function AdminDashboard() {
                                 <TabsTrigger className="capitalize" key={tab} value={tab}>
                                     {tab}
                                     {documents[tab].length > 0 && (
-                                        <span className={`ml-2 px-2 py-0.5  text-white text-xs rounded-full ${adminBgColor[tab]}`}>
+                                        <span className={`md:ml-2 px-2 py-0.5 hidden md:block  text-white text-xs rounded-full ${adminBgColor[tab]}`}>
                                             {documents[tab].length}
                                         </span>
                                     )}
