@@ -108,7 +108,7 @@ export default function RootLayout({
               disableTransitionOnChange
             >
               {children}
-              <Toaster richColors position="top-right" />
+              <Toaster style={{fontFamily:"ui-serif"}} richColors position="top-right" />
             </ThemeProvider>
           </AuthProvider>
         </QueryProvider>

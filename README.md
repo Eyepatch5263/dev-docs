@@ -51,6 +51,18 @@ A modern, full-stack documentation and learning platform built with Next.js 15, 
 - **Category Badges**: Color-coded badges for easy visual identification
 - **Detail Pages**: Full term definitions with related concepts
 
+### ✍️ **Collaborative Editor**
+- **Real-Time Collaboration**: Multiple users can edit documents simultaneously with live updates
+- **Yjs & WebSocket**: Powered by Yjs CRDT for conflict-free synchronization via WebSocket
+- **User Presence**: See who's online with color-coded avatars and smart awareness (adaptive display based on user count)
+- **Rich Text Editing**: TipTap editor with markdown support, code blocks, syntax highlighting, and formatting tools
+- **Document Management**: Create, fork, save drafts, and submit documents for review
+- **Status Workflow**: Draft → Review → Approved/Rejected workflow with admin controls
+- **Auto-Save**: Automatic saving with localStorage backup and Supabase persistence
+- **MDX Preview**: Live preview of markdown content with syntax highlighting
+- **Authentication**: Secure access with NextAuth integration
+- **Rate Limiting**: API rate limiting for read/write operations
+
 ---
 
 ## 🚀 Quick Start
@@ -77,6 +89,14 @@ cp .env.example .env
 # - ELASTICSEARCH_URL (for engineering terms search)
 # - ELASTICSEARCH_API_KEY (for engineering terms search)
 # - ELASTICSEARCH_INDEX (optional, defaults to 'engineering-terms')
+# - NEXT_PUBLIC_SUPABASE_URL (for collaborative editor database)
+# - NEXT_PUBLIC_SUPABASE_ANON_KEY (for collaborative editor)
+# - SUPABASE_SERVICE_ROLE_KEY (for server-side operations)
+# - NEXTAUTH_SECRET (for authentication)
+# - NEXTAUTH_URL (your app URL, e.g., http://localhost:3000)
+# - NEXT_PUBLIC_WS_URL (WebSocket server URL for real-time collaboration)
+# - GOOGLE_CLIENT_ID (for Google OAuth)
+# - GOOGLE_CLIENT_SECRET (for Google OAuth)
 
 # Run development server
 npm run dev
@@ -94,17 +114,37 @@ explain-bytes/
 │   ├── app/                      # Next.js App Router
 │   │   ├── api/                  # API routes
 │   │   │   ├── docs/             # Dynamic docs API
+│   │   │   ├── documents/        # Document CRUD operations
+│   │   │   ├── admin/            # Admin document management
+│   │   │   ├── auth/             # Authentication routes
+│   │   │   ├── engineering-terms/ # Engineering terms search
 │   │   │   └── subscribe/        # Newsletter subscription
+│   │   ├── collaborative-editor/ # Collaborative editor pages
+│   │   │   ├── [id]/             # Document editor route
+│   │   │   └── page.tsx          # Editor landing page
 │   │   ├── docs/                 # Documentation pages
 │   │   │   ├── [topic]/          # Dynamic topic routes
 │   │   │   └── page.tsx          # Docs landing page
 │   │   ├── flashcards/           # Flashcard pages
 │   │   │   ├── [category]/       # Dynamic category routes
 │   │   │   └── page.tsx          # Flashcards landing
+│   │   ├── admin/                # Admin dashboard
+│   │   ├── profile/              # User profile
 │   │   ├── types/                # TypeScript types
 │   │   ├── layout.tsx            # Root layout
 │   │   └── page.tsx              # Home page
 │   ├── components/               # React components
+│   │   ├── editor/               # Collaborative editor components
+│   │   │   ├── CollaborativeEditor.tsx  # Main editor with Yjs
+│   │   │   ├── EditorToolbar.tsx        # Formatting toolbar
+│   │   │   ├── UserPresence.tsx         # User avatars & presence
+│   │   │   ├── DocumentActions.tsx      # Save, fork, submit actions
+│   │   │   ├── DocumentCard.tsx         # Document grid card
+│   │   │   ├── DocumentsGrid.tsx        # Documents listing
+│   │   │   ├── DocumentTitleInput.tsx   # Title input field
+│   │   │   ├── MDXPreview.tsx           # Markdown preview
+│   │   │   ├── NewDocumentButton.tsx    # Create new document
+│   │   │   └── ShareButton.tsx          # Share document link
 │   │   ├── CategorySelector.tsx  # Flashcard category grid
 │   │   ├── Flashcard.tsx         # Flip card component
 │   │   ├── TopicCard.tsx         # Reusable topic card
@@ -117,7 +157,10 @@ explain-bytes/
 │   │   ├── docs.ts               # Documentation utilities
 │   │   ├── elasticsearch.ts      # Elasticsearch client & queries
 │   │   ├── icon-map.ts           # Icon mapping
-│   │   └── resend.ts             # Email client
+│   │   ├── resend.ts             # Email client
+│   │   ├── auth.ts               # NextAuth configuration
+│   │   ├── supabase.ts           # Supabase client
+│   │   └── rate-limit-config.ts  # Rate limiting config
 │   └── hooks/                    # Custom React hooks
 ├── content/                      # Documentation content
 │   ├── dbms/                     # Database docs
@@ -139,6 +182,7 @@ explain-bytes/
 └── public/                       # Static assets
 ```
 
+
 ---
 
 ## 🛠️ Tech Stack
@@ -157,6 +201,16 @@ explain-bytes/
 - **[MDX](https://mdxjs.com/)** - Markdown with JSX support
 - **[Gray Matter](https://github.com/jonschlinkert/gray-matter)** - Frontmatter parser
 - **[Next MDX Remote](https://github.com/hashicorp/next-mdx-remote)** - MDX rendering
+
+### Collaborative Editor
+- **[Yjs](https://github.com/yjs/yjs)** - CRDT framework for real-time collaboration
+- **[TipTap](https://tiptap.dev/)** - Headless rich text editor
+- **[y-websocket](https://github.com/yjs/y-websocket)** - WebSocket provider for Yjs
+- **[y-prosemirror](https://github.com/yjs/y-prosemirror)** - ProseMirror binding for Yjs
+
+### Database & Authentication
+- **[Supabase](https://supabase.com/)** - PostgreSQL database and authentication
+- **[NextAuth.js](https://next-auth.js.org/)** - Authentication for Next.js
 
 ### Search
 - **[Elasticsearch](https://www.elastic.co/)** - Full-text search engine for engineering terms
@@ -192,13 +246,29 @@ explain-bytes/
 4. **Related Terms**: Tag-based matching finds related concepts
 5. **Graceful Fallback**: Uses local `sample-terms.ts` when Elasticsearch is unavailable
 
+### Collaborative Editor
+
+1. **Authentication**: NextAuth with Google OAuth for secure user access
+2. **Document Creation**: Users create new documents or fork existing ones
+3. **Real-Time Sync**: Yjs CRDT ensures conflict-free collaborative editing via WebSocket
+4. **User Presence**: Smart awareness system shows active collaborators:
+   - ≤4 users: Show all avatars with color-coded cursors
+   - 5-8 users: Show names only
+   - \>8 users: Show count only
+5. **Auto-Save**: Documents auto-save to localStorage and Supabase
+6. **Workflow**: Draft → Submit for Review → Admin Approval/Rejection
+7. **Document Forking**: Collaborators can fork documents to create their own versions
+8. **MDX Support**: Rich text editing with markdown preview and syntax highlighting
+
 ---
 
 ## 🎯 Available Scripts
 
 ```bash
 # Development
-npm run dev          # Start dev server
+npm run dev          # Start Next.js dev server only
+npm run dev:ws       # Start WebSocket server only
+npm run dev:all      # Start both Next.js and WebSocket server
 npm run build        # Build for production
 npm run start        # Start production server
 
@@ -207,20 +277,6 @@ npm run lint         # Run ESLint
 npm run type-check   # Run TypeScript compiler
 ```
 
----
-
-## 🌈 Color System
-
-The app uses **OKLCH color space** for consistent, perceptually uniform colors:
-
-- **DBMS**: `oklch(0.6 0.2 240)` - Blue
-- **Operating Systems**: `oklch(0.6 0.2 140)` - Green
-- **Networking**: `oklch(0.6 0.2 40)` - Orange
-- **System Design**: `oklch(0.6 0.2 280)` - Purple
-- **DevOps**: `oklch(0.6 0.2 280)` - Purple
-
----
-
 ## 📧 Newsletter Setup
 
 1. Sign up at [Resend](https://resend.com/)
@@ -228,7 +284,6 @@ The app uses **OKLCH color space** for consistent, perceptually uniform colors:
 3. Add `RESEND_API_KEY` to `.env`
 4. Update sender email in `src/app/api/subscribe/route.ts`
 
----
 
 ## 🤝 Contributing
 
