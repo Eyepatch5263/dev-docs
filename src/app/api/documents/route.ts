@@ -157,7 +157,7 @@ export async function GET(request: NextRequest) {
 
         let query = supabaseAdmin
             .from("documents")
-            .select("id, document_id, title, topic, category, status, created_at, updated_at")
+            .select("id, document_id, title, topic, content, category, status, created_at, updated_at")
             .eq("owner_id", session.user.id)
             .order("updated_at", { ascending: false });
 

@@ -10,3 +10,30 @@ export const labels: Record<string, string> = {
     approved: "Approved",
     rejected: "Rejected",
 };
+
+// Topic display labels
+export const TOPIC_LABELS: Record<string, string> = {
+    "ai-ml": "AI/ML",
+    "networking": "Networking",
+    "operating-systems": "Operating Systems",
+    "devops": "DevOps",
+    "dbms": "DBMS",
+    "system-design": "System Design",
+    "cybersecurity": "Cybersecurity",
+    "web": "Web",
+};
+
+// Category display labels
+export const CATEGORY_LABELS: Record<string, string> = {
+    "introduction": "Introduction",
+    "core-concepts-terminologies": "Core Concepts & Terminologies",
+    "architecture-components": "Architecture & Components",
+    "building-blocks": "Building Blocks",
+    "design-patterns": "Design Patterns",
+    "workflow-execution": "Workflow and Execution",
+    "scalability-performance": "Scalability and Performance",
+    "security-safety": "Security and Safety",
+    "case-studies": "Case Studies",
+    "common-pitfalls": "Common Pitfalls",
+    "summary": "Summary",
+};

@@ -7,15 +7,9 @@ interface User {
 
 interface UserPresenceProps {
     users: User[];
-    maxCursorsToShow?: number; // Optional: Limit cursors shown for performance
+    maxCursorsToShow?: number;
 }
 
-/**
- * ✅ OPTIMIZATION 4: Hide cursors based on user count
- * - ≤4 users: Show all cursors/avatars
- * - 5-8 users: Show names only
- * - >8 users: Show presence count only
- */
 export function UserPresence({ users, maxCursorsToShow }: UserPresenceProps) {
     if (users.length === 0) return null;
 

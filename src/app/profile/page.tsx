@@ -8,22 +8,28 @@ import UserDocumentCard from "@/components/profile/UserDocumentCard";
 import UserStats from "@/components/profile/UserStats";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Loader2, User, FileText } from "lucide-react";
-import { toast } from "sonner";
 import { Header } from "@/components/Header";
+import { useQuery } from "@tanstack/react-query";
+import { profileBgColor } from "@/constants/admin";
 
 type TabType = "draft" | "review" | "approved" | "rejected";
+
+// Fetch function for user documents
+async function fetchUserDocuments(tab: TabType) {
+    const response = await fetch(`/api/documents?status=${tab}`);
+    const data = await response.json();
+
+    if (!response.ok) {
+        throw new Error(data.error || "Failed to fetch documents");
+    }
+
+    return data.documents || [];
+}
 
 export default function ProfilePage() {
     const { data: session, status } = useSession();
     const router = useRouter();
     const [activeTab, setActiveTab] = useState<TabType>("draft");
-    const [documents, setDocuments] = useState<Record<TabType, Document[]>>({
-        draft: [],
-        review: [],
-        approved: [],
-        rejected: [],
-    });
-    const [loading, setLoading] = useState(true);
 
     // Redirect if not authenticated
     useEffect(() => {
@@ -32,45 +38,47 @@ export default function ProfilePage() {
         }
     }, [status, router]);
 
-    // Fetch documents for a specific tab
-    const fetchDocuments = async (tab: TabType) => {
-        try {
-            const response = await fetch(`/api/documents?status=${tab}`);
-            const data = await response.json();
+    // Fetch documents for all tabs using TanStack Query
+    const draftQuery = useQuery({
+        queryKey: ["user-documents", "draft"],
+        queryFn: () => fetchUserDocuments("draft"),
+        enabled: status === "authenticated",
+        staleTime: 30 * 1000,
+    });
 
-            if (!response.ok) {
-                throw new Error(data.error || "Failed to fetch documents");
-            }
+    const reviewQuery = useQuery({
+        queryKey: ["user-documents", "review"],
+        queryFn: () => fetchUserDocuments("review"),
+        enabled: status === "authenticated",
+        staleTime: 30 * 1000,
+    });
 
-            setDocuments((prev) => ({
-                ...prev,
-                [tab]: data.documents || [],
-            }));
-        } catch (error) {
-            console.error(`Error fetching ${tab} documents:`, error);
-            toast.error(`Failed to load ${tab} documents`);
-        }
+    const approvedQuery = useQuery({
+        queryKey: ["user-documents", "approved"],
+        queryFn: () => fetchUserDocuments("approved"),
+        enabled: status === "authenticated",
+        staleTime: 30 * 1000,
+    });
+
+    const rejectedQuery = useQuery({
+        queryKey: ["user-documents", "rejected"],
+        queryFn: () => fetchUserDocuments("rejected"),
+        enabled: status === "authenticated",
+        staleTime: 30 * 1000,
+    });
+
+    // Get documents for each tab
+    const documents = {
+        draft: draftQuery.data || [],
+        review: reviewQuery.data || [],
+        approved: approvedQuery.data || [],
+        rejected: rejectedQuery.data || [],
     };
 
-    // Load initial data
-    useEffect(() => {
-        if (status === "authenticated") {
-            const loadAllTabs = async () => {
-                setLoading(true);
-                await Promise.all([
-                    fetchDocuments("draft"),
-                    fetchDocuments("review"),
-                    fetchDocuments("approved"),
-                    fetchDocuments("rejected"),
-                ]);
-                setLoading(false);
-            };
-            loadAllTabs();
-        }
-    }, [status]);
+    const loading = status === "loading" || (draftQuery.isLoading && reviewQuery.isLoading && approvedQuery.isLoading && rejectedQuery.isLoading);
 
     // Loading state
-    if (status === "loading" || loading) {
+    if (loading) {
         return (
             <div className="min-h-screen flex items-center justify-center">
                 <div className="text-center space-y-4">
@@ -109,40 +117,21 @@ export default function ProfilePage() {
                 {/* Tabs */}
                 <Tabs value={activeTab} onValueChange={(value) => setActiveTab(value as TabType)}>
                     <TabsList className="flex justify-between w-full mb-6">
-                        <TabsTrigger value="draft">
-                            Draft
-                            {documents.draft.length > 0 && (
-                                <span className="ml-2 px-2 py-0.5 bg-gray-500 text-white text-xs rounded-full">
-                                    {documents.draft.length}
-                                </span>
-                            )}
-                        </TabsTrigger>
-                        <TabsTrigger value="review">
-                            Pending
-                            {documents.review.length > 0 && (
-                                <span className="ml-2 px-2 py-0.5 bg-yellow-500 text-white text-xs rounded-full">
-                                    {documents.review.length}
-                                </span>
-                            )}
-                        </TabsTrigger>
-                        <TabsTrigger value="approved">
-                            Approved
-                            {documents.approved.length > 0 && (
-                                <span className="ml-2 px-2 py-0.5 bg-green-500 text-white text-xs rounded-full">
-                                    {documents.approved.length}
-                                </span>
-                            )}
-                        </TabsTrigger>
-                        <TabsTrigger value="rejected">
-                            Rejected
-                            {documents.rejected.length > 0 && (
-                                <span className="ml-2 px-2 py-0.5 bg-red-500 text-white text-xs rounded-full">
-                                    {documents.rejected.length}
-                                </span>
-                            )}
-                        </TabsTrigger>
+                        {Object.entries(profileBgColor).map(([key, value]) => {
+                            const tabKey = key as TabType;
+                            return (
+                                <TabsTrigger className="capitalize" key={tabKey} value={tabKey}>
+                                    {tabKey}
+                                    {documents[tabKey].length > 0 && (
+                                        <span className={`ml-2 px-2 py-0.5 text-white text-xs rounded-full ${value}`}>
+                                            {documents[tabKey].length}
+                                        </span>
+                                    )}
+                                </TabsTrigger>
+                            );
+                        })}
                     </TabsList>
-
+                    
                     {/* Tab Content */}
                     {(["draft", "review", "approved", "rejected"] as TabType[]).map((tab) => (
                         <TabsContent key={tab} value={tab} className="space-y-6">
@@ -162,7 +151,7 @@ export default function ProfilePage() {
                                 </div>
                             ) : (
                                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                                    {documents[tab].map((doc) => (
+                                    {documents[tab].map((doc: Document) => (
                                         <UserDocumentCard key={doc.id} document={doc} />
                                     ))}
                                 </div>

@@ -28,7 +28,7 @@ export default async function TopicLayout({ children, params }: TopicLayoutProps
 
     return (
         <div className="min-h-screen bg-background">
-            <Header>
+            <Header githubHidden={true}>
                 <MobileSidebar navigation={navigation} basePath={`/docs/${topic}`} topicTitle={topicMeta.title} />
             </Header>
             <div className="flex">
