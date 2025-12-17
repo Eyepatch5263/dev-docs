@@ -1,50 +1,122 @@
 [
     {
         "id": "os-1",
-        "category": "operating-systems",
-        "question": "What is a process?",
-        "answer": "An executing instance of a program with its own memory space, including code, data, and system resources. Each process runs independently and is isolated from other processes."
+        "question": "What is the difference between a process and a thread?",
+        "answer": "Process: independent program with own memory space, heavyweight, isolated, IPC needed for communication. Thread: lightweight unit within process, shares memory/resources, faster creation/switching, less overhead. Multiple threads in one process. Process = house, thread = room.",
+        "category": "operating-systems"
     },
     {
         "id": "os-2",
-        "category": "operating-systems",
-        "question": "What is a thread?",
-        "answer": "A lightweight unit of execution within a process that shares memory and resources with other threads in the same process. Threads enable concurrent execution and are more efficient than creating separate processes."
+        "question": "Explain the different CPU scheduling algorithms.",
+        "answer": "FCFS: first-come-first-served, simple, convoy effect. SJF: shortest job first, optimal average wait, starvation possible. Round Robin: time quantum, fair, context switching overhead. Priority: based on priority, aging prevents starvation. Multilevel Queue: separate queues by priority.",
+        "category": "operating-systems"
     },
     {
         "id": "os-3",
-        "category": "operating-systems",
-        "question": "What is virtual memory?",
-        "answer": "A memory management technique that creates an illusion of a large, contiguous memory space by using both RAM and disk storage. It allows programs to use more memory than physically available."
+        "question": "What is a deadlock and what are its necessary conditions?",
+        "answer": "Deadlock: processes wait indefinitely for resources. Four necessary conditions: 1) Mutual Exclusion (exclusive resource access), 2) Hold and Wait (hold while waiting), 3) No Preemption (can't force release), 4) Circular Wait (circular dependency). All four must exist for deadlock.",
+        "category": "operating-systems"
     },
     {
         "id": "os-4",
-        "category": "operating-systems",
-        "question": "What is a deadlock?",
-        "answer": "A situation where two or more processes are unable to proceed because each is waiting for the other to release a resource. It occurs when four conditions are met: mutual exclusion, hold and wait, no preemption, and circular wait."
+        "question": "Explain virtual memory and paging.",
+        "answer": "Virtual memory extends RAM using disk storage, allows larger programs than physical RAM. Paging divides memory into fixed-size pages, maps virtual to physical addresses via page table. Benefits: isolation, larger address space. Page fault occurs when page not in RAM, OS loads from disk.",
+        "category": "operating-systems"
     },
     {
         "id": "os-5",
-        "category": "operating-systems",
-        "question": "What is context switching?",
-        "answer": "The process of storing and restoring the state of a process or thread so that execution can be resumed later. It allows multiple processes to share a single CPU and is essential for multitasking."
+        "question": "What is the difference between kernel mode and user mode?",
+        "answer": "Kernel mode: full hardware access, privileged instructions, OS core runs here, crashes can freeze system. User mode: restricted access, applications run here, system calls to access hardware, crashes isolated. Mode switching via interrupts/system calls. Protects system stability and security.",
+        "category": "operating-systems"
     },
     {
         "id": "os-6",
-        "category": "operating-systems",
-        "question": "What is paging?",
-        "answer": "A memory management scheme that eliminates the need for contiguous allocation of physical memory. It divides memory into fixed-size blocks called pages and maps them to physical frames."
+        "question": "Explain the difference between internal and external fragmentation.",
+        "answer": "Internal fragmentation: wasted space within allocated memory blocks (allocated > needed). External fragmentation: free memory scattered in small blocks, can't satisfy large requests. Paging has internal fragmentation. Segmentation has external fragmentation. Compaction and paging reduce fragmentation.",
+        "category": "operating-systems"
     },
     {
         "id": "os-7",
-        "category": "operating-systems",
-        "question": "What is the difference between kernel mode and user mode?",
-        "answer": "Kernel mode has unrestricted access to all hardware and system resources, while user mode has limited access. Programs run in user mode and switch to kernel mode via system calls to access protected resources."
+        "question": "What is a semaphore and how does it work?",
+        "answer": "Semaphore: synchronization primitive with integer counter. Binary semaphore (mutex): 0 or 1, mutual exclusion. Counting semaphore: multiple resources. Operations: wait/P (decrement, block if 0), signal/V (increment, wake waiting). Prevents race conditions, coordinates access to shared resources.",
+        "category": "operating-systems"
     },
     {
         "id": "os-8",
-        "category": "operating-systems",
-        "question": "What is a semaphore?",
-        "answer": "A synchronization primitive used to control access to shared resources in concurrent programming. It maintains a counter that gets incremented or decremented to signal resource availability."
+        "question": "Explain the producer-consumer problem and its solution.",
+        "answer": "Producer creates items, consumer uses them, share bounded buffer. Problems: buffer overflow, underflow, race conditions. Solution: semaphores (empty, full, mutex) or monitors. Empty counts free slots, full counts filled slots, mutex ensures mutual exclusion. Classic synchronization problem.",
+        "category": "operating-systems"
+    },
+    {
+        "id": "os-9",
+        "question": "What is thrashing and how can you prevent it?",
+        "answer": "Thrashing: excessive paging, system spends more time swapping than executing. Causes: too many processes, insufficient RAM, poor page replacement. Prevention: reduce multiprogramming degree, increase RAM, working set model, page fault frequency algorithm, better page replacement (LRU).",
+        "category": "operating-systems"
+    },
+    {
+        "id": "os-10",
+        "question": "Explain different page replacement algorithms.",
+        "answer": "FIFO: replace oldest page, simple, Belady's anomaly. Optimal: replace page used farthest in future, theoretical. LRU: replace least recently used, good performance, expensive. Clock/Second Chance: FIFO with reference bit, approximates LRU. LFU: replace least frequently used.",
+        "category": "operating-systems"
+    },
+    {
+        "id": "os-11",
+        "question": "What is a context switch and why is it expensive?",
+        "answer": "Context switch: saving current process state and loading another's state. Includes: registers, program counter, stack pointer, page tables. Expensive because: CPU does no useful work, cache invalidation, TLB flush, pipeline stall. Threads cheaper to switch than processes.",
+        "category": "operating-systems"
+    },
+    {
+        "id": "os-12",
+        "question": "Explain the difference between preemptive and non-preemptive scheduling.",
+        "answer": "Preemptive: OS can interrupt running process, better responsiveness, prevents monopolization, more overhead (Round Robin, Priority). Non-preemptive: process runs until completion or blocks, simpler, less overhead, poor responsiveness (FCFS, SJF). Modern OS use preemptive for better user experience.",
+        "category": "operating-systems"
+    },
+    {
+        "id": "os-13",
+        "question": "What is the difference between a mutex and a semaphore?",
+        "answer": "Mutex: binary lock (0/1), ownership (only owner can unlock), mutual exclusion only. Semaphore: counter (0 to N), no ownership, signaling and mutual exclusion. Mutex for protecting critical sections. Semaphore for resource counting and signaling. Mutex is special case of binary semaphore.",
+        "category": "operating-systems"
+    },
+    {
+        "id": "os-14",
+        "question": "Explain the concept of a critical section.",
+        "answer": "Critical section: code segment accessing shared resources, must execute atomically. Requirements: Mutual Exclusion (one at a time), Progress (decision can't postpone indefinitely), Bounded Waiting (limit on wait time). Solutions: locks, semaphores, monitors, Peterson's algorithm.",
+        "category": "operating-systems"
+    },
+    {
+        "id": "os-15",
+        "question": "What is the difference between hard and soft real-time systems?",
+        "answer": "Hard real-time: deadlines must be met, failure catastrophic (airbags, pacemakers, nuclear reactors). Soft real-time: deadlines preferred but not critical, degraded performance acceptable (video streaming, gaming). Hard requires guaranteed response times, soft allows best-effort.",
+        "category": "operating-systems"
+    },
+    {
+        "id": "os-16",
+        "question": "Explain memory management techniques: segmentation vs paging.",
+        "answer": "Paging: fixed-size blocks (pages), no external fragmentation, simple, internal fragmentation. Segmentation: variable-size logical units (code, data, stack), matches program structure, external fragmentation, complex. Segmented paging combines both: segments divided into pages.",
+        "category": "operating-systems"
+    },
+    {
+        "id": "os-17",
+        "question": "What is an interrupt and how does it work?",
+        "answer": "Interrupt: signal to CPU from hardware/software requiring immediate attention. Types: hardware (I/O, timer), software (system calls, exceptions). Process: 1) Save state, 2) Identify interrupt, 3) Execute handler (ISR), 4) Restore state. Enables asynchronous I/O, multitasking.",
+        "category": "operating-systems"
+    },
+    {
+        "id": "os-18",
+        "question": "Explain the concept of a race condition.",
+        "answer": "Race condition: outcome depends on timing/order of events, non-deterministic behavior. Occurs when multiple processes/threads access shared data concurrently without synchronization. Example: two threads incrementing counter simultaneously. Prevention: locks, semaphores, atomic operations, proper synchronization.",
+        "category": "operating-systems"
+    },
+    {
+        "id": "os-19",
+        "question": "What is the difference between monolithic and microkernel architectures?",
+        "answer": "Monolithic: all OS services in kernel space, faster (direct calls), less modular, larger kernel, one crash affects all (Linux). Microkernel: minimal kernel, services in user space, slower (message passing), modular, more stable, easier to extend (Minix, QNX).",
+        "category": "operating-systems"
+    },
+    {
+        "id": "os-20",
+        "question": "Explain the working set model in memory management.",
+        "answer": "Working set: set of pages process actively uses in time window. Principle of locality: programs access small portion of address space at any time. OS allocates enough frames for working set to prevent thrashing. Working set size varies over time. Used for page replacement decisions.",
+        "category": "operating-systems"
     }
 ]

@@ -1,50 +1,122 @@
 [
     {
         "id": "web-1",
-        "question": "What is the difference between HTTP and HTTPS?",
-        "answer": "HTTP is a protocol for transferring data over the internet, while HTTPS is a secure version of HTTP that encrypts data in transit.",
+        "question": "What is the difference between GET and POST HTTP methods?",
+        "answer": "GET: retrieve data, parameters in URL, cacheable, bookmarkable, length limited, idempotent. POST: submit data, parameters in body, not cached, not bookmarkable, no length limit, not idempotent. GET for reading, POST for creating/updating.",
         "category": "web"
     },
     {
         "id": "web-2",
-        "question": "What is the difference between HTTP and HTTPS?",
-        "answer": "HTTP is a protocol for transferring data over the internet, while HTTPS is a secure version of HTTP that encrypts data in transit.",
+        "question": "Explain the concept of RESTful APIs.",
+        "answer": "REST (Representational State Transfer): architectural style for web services. Principles: stateless, client-server, cacheable, uniform interface, layered. Uses HTTP methods (GET, POST, PUT, DELETE), resources (nouns), status codes. Example: GET /users/123, POST /users.",
         "category": "web"
     },
     {
         "id": "web-3",
-        "question": "What is the difference between HTTP and HTTPS?",
-        "answer": "HTTP is a protocol for transferring data over the internet, while HTTPS is a secure version of HTTP that encrypts data in transit.",
+        "question": "What is CORS and why is it needed?",
+        "answer": "CORS (Cross-Origin Resource Sharing): allows controlled access to resources from different origins. Browser blocks cross-origin requests by default (Same-Origin Policy). Server sets Access-Control-Allow-Origin header. Preflight request (OPTIONS) for complex requests. Prevents unauthorized cross-site data access.",
         "category": "web"
     },
     {
         "id": "web-4",
-        "question": "What is the difference between HTTP and HTTPS?",
-        "answer": "HTTP is a protocol for transferring data over the internet, while HTTPS is a secure version of HTTP that encrypts data in transit.",
+        "question": "Explain the difference between cookies, localStorage, and sessionStorage.",
+        "answer": "Cookies: 4KB, sent with requests, expiration, domain/path scope, HTTP-only option. localStorage: 5-10MB, client-side only, persists forever, same origin. sessionStorage: 5-10MB, client-side only, cleared on tab close, same origin. Use cookies for auth, localStorage for preferences, sessionStorage for temporary data.",
         "category": "web"
     },
     {
         "id": "web-5",
-        "question": "What is the difference between HTTP and HTTPS?",
-        "answer": "HTTP is a protocol for transferring data over the internet, while HTTPS is a secure version of HTTP that encrypts data in transit.",
+        "question": "What is the difference between synchronous and asynchronous JavaScript?",
+        "answer": "Synchronous: blocking, executes line by line, waits for completion. Asynchronous: non-blocking, callbacks/promises/async-await, continues execution. JavaScript is single-threaded but uses event loop for async. Async for: API calls, timers, file operations. Prevents UI freezing.",
         "category": "web"
     },
     {
         "id": "web-6",
-        "question": "What is the difference between HTTP and HTTPS?",
-        "answer": "HTTP is a protocol for transferring data over the internet, while HTTPS is a secure version of HTTP that encrypts data in transit.",
+        "question": "Explain the concept of the event loop in JavaScript.",
+        "answer": "Event loop enables async in single-threaded JavaScript. Components: Call Stack (execution), Web APIs (async operations), Callback Queue (completed callbacks), Event Loop (moves callbacks to stack when empty). Microtasks (promises) have priority over macrotasks (setTimeout).",
         "category": "web"
     },
     {
         "id": "web-7",
-        "question": "What is the difference between HTTP and HTTPS?",
-        "answer": "HTTP is a protocol for transferring data over the internet, while HTTPS is a secure version of HTTP that encrypts data in transit.",
+        "question": "What is the difference between == and === in JavaScript?",
+        "answer": "== (loose equality): type coercion, compares values after conversion. === (strict equality): no coercion, compares type and value. Examples: '5' == 5 (true), '5' === 5 (false). Always use === to avoid unexpected behavior. Same for != vs !==.",
         "category": "web"
     },
     {
         "id": "web-8",
-        "question": "What is the difference between HTTP and HTTPS?",
-        "answer": "HTTP is a protocol for transferring data over the internet, while HTTPS is a secure version of HTTP that encrypts data in transit.",
+        "question": "Explain the concept of closures in JavaScript.",
+        "answer": "Closure: function that remembers variables from outer scope even after outer function returns. Creates private variables, data encapsulation. Example: function outer() { let count = 0; return function() { count++; } }. Used in: modules, callbacks, event handlers.",
+        "category": "web"
+    },
+    {
+        "id": "web-9",
+        "question": "What is the difference between null and undefined?",
+        "answer": "undefined: variable declared but not assigned, default return value, missing properties. null: intentional absence of value, must be assigned. typeof undefined = 'undefined', typeof null = 'object' (historical bug). Use null for intentional empty, undefined for uninitialized.",
+        "category": "web"
+    },
+    {
+        "id": "web-10",
+        "question": "Explain the concept of promises in JavaScript.",
+        "answer": "Promise: object representing eventual completion/failure of async operation. States: pending, fulfilled, rejected. Methods: then() (success), catch() (error), finally() (always). Chaining avoids callback hell. async/await is syntactic sugar over promises. Example: fetch() returns promise.",
+        "category": "web"
+    },
+    {
+        "id": "web-11",
+        "question": "What is the Virtual DOM and how does it work?",
+        "answer": "Virtual DOM: lightweight copy of actual DOM in memory. React creates virtual DOM, compares with previous (diffing), updates only changed parts (reconciliation). Benefits: performance (batch updates), cross-platform (React Native). Real DOM manipulation expensive, virtual DOM optimizes updates.",
+        "category": "web"
+    },
+    {
+        "id": "web-12",
+        "question": "Explain the difference between var, let, and const.",
+        "answer": "var: function-scoped, hoisted, can redeclare, no block scope. let: block-scoped, hoisted but not initialized (TDZ), can't redeclare. const: block-scoped, must initialize, can't reassign (but objects mutable). Use const by default, let when reassignment needed, avoid var.",
+        "category": "web"
+    },
+    {
+        "id": "web-13",
+        "question": "What is the difference between client-side and server-side rendering?",
+        "answer": "CSR: JavaScript renders in browser, initial HTML minimal, slower first load, better interactivity, SEO challenges. SSR: HTML rendered on server, faster first load, better SEO, more server load. Hybrid: Next.js, Nuxt.js. Choose based on: SEO needs, performance, interactivity.",
+        "category": "web"
+    },
+    {
+        "id": "web-14",
+        "question": "Explain the concept of debouncing and throttling.",
+        "answer": "Debouncing: delay execution until after wait period of inactivity (search input). Throttling: execute at most once per time period (scroll events). Debounce waits for pause, throttle limits frequency. Both optimize performance by reducing function calls.",
+        "category": "web"
+    },
+    {
+        "id": "web-15",
+        "question": "What is the difference between HTTP/1.1 and HTTP/2?",
+        "answer": "HTTP/1.1: text-based, one request per connection, head-of-line blocking. HTTP/2: binary, multiplexing (multiple requests), server push, header compression, stream prioritization. HTTP/2 faster, more efficient. HTTP/3 uses QUIC (UDP) instead of TCP.",
+        "category": "web"
+    },
+    {
+        "id": "web-16",
+        "question": "Explain the concept of Web Components.",
+        "answer": "Web Components: reusable custom elements with encapsulated functionality. Technologies: Custom Elements (define new tags), Shadow DOM (encapsulation), HTML Templates (reusable markup). Framework-agnostic, native browser support. Example: <my-button>. Used in design systems.",
+        "category": "web"
+    },
+    {
+        "id": "web-17",
+        "question": "What is the difference between progressive enhancement and graceful degradation?",
+        "answer": "Progressive enhancement: start with basic functionality, add features for capable browsers, mobile-first. Graceful degradation: build full-featured, ensure fallbacks for older browsers, desktop-first. Progressive enhancement preferred: accessible baseline, better mobile experience, future-proof.",
+        "category": "web"
+    },
+    {
+        "id": "web-18",
+        "question": "Explain the concept of lazy loading.",
+        "answer": "Lazy loading: defer loading resources until needed. Types: images (Intersection Observer), routes (code splitting), components (dynamic imports). Benefits: faster initial load, reduced bandwidth, better performance. Implementation: loading='lazy' attribute, React.lazy(), webpack code splitting.",
+        "category": "web"
+    },
+    {
+        "id": "web-19",
+        "question": "What is the difference between responsive and adaptive design?",
+        "answer": "Responsive: fluid layouts, flexible grids, CSS media queries, one design adapts to all screens. Adaptive: multiple fixed layouts for specific breakpoints, server detects device. Responsive more common, flexible. Adaptive more control, complex. Mobile-first approach recommended.",
+        "category": "web"
+    },
+    {
+        "id": "web-20",
+        "question": "Explain the concept of Service Workers.",
+        "answer": "Service Workers: JavaScript running in background, separate from web page. Capabilities: offline functionality, push notifications, background sync, caching. Enables Progressive Web Apps (PWAs). Lifecycle: install, activate, fetch. Intercepts network requests, serves cached content.",
         "category": "web"
     }
 ]

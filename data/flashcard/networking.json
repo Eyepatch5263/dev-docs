@@ -1,50 +1,122 @@
 [
     {
-        "id": "net-1",
-        "category": "networking",
-        "question": "What is TCP?",
-        "answer": "Transmission Control Protocol - a reliable, connection-oriented transport layer protocol that ensures data is delivered in order and without errors. It uses acknowledgments and retransmission to guarantee delivery."
+        "id": "networking-1",
+        "question": "Explain the OSI model and its 7 layers.",
+        "answer": "Physical (cables, signals), Data Link (MAC, switches), Network (IP, routing), Transport (TCP/UDP, ports), Session (connections), Presentation (encryption, formatting), Application (HTTP, FTP). Mnemonic: Please Do Not Throw Sausage Pizza Away. Each layer adds headers/trailers for encapsulation.",
+        "category": "networking"
     },
     {
-        "id": "net-2",
-        "category": "networking",
-        "question": "What is DNS?",
-        "answer": "Domain Name System - a hierarchical naming system that translates human-readable domain names (like google.com) into IP addresses that computers use to identify each other on the network."
-    },
-    {
-        "id": "net-3",
-        "category": "networking",
+        "id": "networking-2",
         "question": "What is the difference between TCP and UDP?",
-        "answer": "TCP is connection-oriented, reliable, and ensures ordered delivery but has higher overhead. UDP is connectionless, faster, but doesn't guarantee delivery or order. UDP is used for real-time applications like video streaming."
+        "answer": "TCP: connection-oriented, reliable, ordered delivery, flow control, slower (HTTP, FTP, SSH). UDP: connectionless, unreliable, no ordering, faster, lower overhead (DNS, streaming, gaming). TCP = phone call, UDP = text message. Choose based on reliability vs speed needs.",
+        "category": "networking"
     },
     {
-        "id": "net-4",
-        "category": "networking",
-        "question": "What is HTTP/HTTPS?",
-        "answer": "HTTP (Hypertext Transfer Protocol) is an application layer protocol for transmitting web pages. HTTPS is the secure version that encrypts data using TLS/SSL to protect against eavesdropping and tampering."
+        "id": "networking-3",
+        "question": "How does the TCP three-way handshake work?",
+        "answer": "1) Client sends SYN (synchronize) with sequence number. 2) Server responds SYN-ACK (acknowledge). 3) Client sends ACK. Establishes connection, agrees on sequence numbers, ensures both sides ready. Termination uses four-way handshake (FIN, ACK, FIN, ACK).",
+        "category": "networking"
     },
     {
-        "id": "net-5",
-        "category": "networking",
-        "question": "What is a subnet mask?",
-        "answer": "A 32-bit number that divides an IP address into network and host portions. It determines which part of the IP address identifies the network and which part identifies the specific device on that network."
+        "id": "networking-4",
+        "question": "What is DNS and how does it work?",
+        "answer": "DNS (Domain Name System) translates domain names to IP addresses. Process: 1) Check local cache, 2) Query recursive resolver, 3) Query root server, 4) Query TLD server (.com), 5) Query authoritative nameserver, 6) Return IP. Uses UDP port 53, hierarchical structure.",
+        "category": "networking"
     },
     {
-        "id": "net-6",
-        "category": "networking",
-        "question": "What is NAT?",
-        "answer": "Network Address Translation - a method of mapping private IP addresses to public IP addresses. It allows multiple devices on a local network to share a single public IP address for internet access."
+        "id": "networking-5",
+        "question": "Explain the difference between HTTP and HTTPS.",
+        "answer": "HTTP transmits data in plaintext over port 80, vulnerable to eavesdropping. HTTPS encrypts data using TLS/SSL over port 443, provides authentication, integrity, and confidentiality. HTTPS requires SSL certificate, slightly slower but essential for security, SEO ranking factor.",
+        "category": "networking"
     },
     {
-        "id": "net-7",
-        "category": "networking",
-        "question": "What is the OSI model?",
-        "answer": "A conceptual framework with 7 layers (Physical, Data Link, Network, Transport, Session, Presentation, Application) that standardizes network communication functions. It helps understand how data flows through a network."
+        "id": "networking-6",
+        "question": "What is a subnet mask and how does it work?",
+        "answer": "Subnet mask divides IP address into network and host portions. Example: 255.255.255.0 (/24) means first 24 bits are network, last 8 bits are hosts (254 usable). CIDR notation: 192.168.1.0/24. Enables network segmentation, efficient IP allocation, routing.",
+        "category": "networking"
     },
     {
-        "id": "net-8",
-        "category": "networking",
-        "question": "What is a CDN?",
-        "answer": "Content Delivery Network - a geographically distributed network of servers that cache and deliver content to users from the nearest location, reducing latency and improving load times for websites and applications."
+        "id": "networking-7",
+        "question": "What is NAT (Network Address Translation)?",
+        "answer": "NAT translates private IP addresses to public IP addresses, allowing multiple devices to share one public IP. Types: Static (1:1 mapping), Dynamic (pool), PAT/NAPT (port-based, most common). Benefits: IP conservation, security (hides internal network), enables IPv4 continuation.",
+        "category": "networking"
+    },
+    {
+        "id": "networking-8",
+        "question": "Explain how a CDN (Content Delivery Network) works.",
+        "answer": "CDN distributes content across geographically dispersed servers (edge locations). When user requests content, CDN serves from nearest server. Benefits: reduced latency, lower bandwidth costs, improved availability, DDoS protection. Examples: Cloudflare, Akamai, AWS CloudFront.",
+        "category": "networking"
+    },
+    {
+        "id": "networking-9",
+        "question": "What is the difference between IPv4 and IPv6?",
+        "answer": "IPv4: 32-bit addresses (4.3B), dotted decimal (192.168.1.1), NAT required, broadcast. IPv6: 128-bit addresses (340 undecillion), hexadecimal (2001:0db8::1), no NAT needed, multicast, built-in security (IPsec), simplified header, auto-configuration.",
+        "category": "networking"
+    },
+    {
+        "id": "networking-10",
+        "question": "What is a firewall and what are its types?",
+        "answer": "Firewall filters network traffic based on rules. Types: Packet filtering (layer 3/4, stateless), Stateful (tracks connections), Application (layer 7, deep inspection), Next-gen (IPS, DPI, malware detection). Can be hardware or software. Protects against unauthorized access.",
+        "category": "networking"
+    },
+    {
+        "id": "networking-11",
+        "question": "Explain the difference between a hub, switch, and router.",
+        "answer": "Hub: layer 1, broadcasts to all ports, half-duplex, collision domain. Switch: layer 2, forwards to specific MAC address, full-duplex, separate collision domains. Router: layer 3, routes between networks using IP, NAT, firewall capabilities. Hub < Switch < Router in intelligence.",
+        "category": "networking"
+    },
+    {
+        "id": "networking-12",
+        "question": "What is ARP (Address Resolution Protocol)?",
+        "answer": "ARP maps IP addresses to MAC addresses in local network. Process: 1) Broadcast ARP request 'Who has IP X?', 2) Device with IP X responds with MAC address, 3) Requester caches mapping. ARP table stores mappings. Reverse ARP (RARP) maps MAC to IP.",
+        "category": "networking"
+    },
+    {
+        "id": "networking-13",
+        "question": "What is the difference between latency and bandwidth?",
+        "answer": "Latency: time for data to travel from source to destination (milliseconds), affected by distance, routing, processing. Bandwidth: maximum data transfer rate (Mbps/Gbps), like pipe width. Low latency + high bandwidth = ideal. Latency = speed, bandwidth = capacity.",
+        "category": "networking"
+    },
+    {
+        "id": "networking-14",
+        "question": "Explain how load balancing works.",
+        "answer": "Load balancer distributes traffic across multiple servers. Algorithms: Round Robin (sequential), Least Connections (least busy), IP Hash (consistent routing), Weighted (capacity-based). Types: Layer 4 (TCP/UDP), Layer 7 (HTTP). Benefits: scalability, high availability, fault tolerance.",
+        "category": "networking"
+    },
+    {
+        "id": "networking-15",
+        "question": "What is SSL/TLS and how does the handshake work?",
+        "answer": "SSL/TLS encrypts data in transit. Handshake: 1) Client Hello (supported ciphers), 2) Server Hello (chosen cipher, certificate), 3) Client verifies certificate, generates session key, 4) Both use session key for symmetric encryption. Provides authentication, encryption, integrity.",
+        "category": "networking"
+    },
+    {
+        "id": "networking-16",
+        "question": "What is a VPN and how does it work?",
+        "answer": "VPN (Virtual Private Network) creates encrypted tunnel over public network. Types: Site-to-Site (connects networks), Remote Access (connects users). Protocols: IPsec, OpenVPN, WireGuard. Benefits: privacy, security, bypass geo-restrictions, secure remote access. Encrypts all traffic.",
+        "category": "networking"
+    },
+    {
+        "id": "networking-17",
+        "question": "Explain the difference between unicast, multicast, and broadcast.",
+        "answer": "Unicast: one-to-one communication (specific destination). Multicast: one-to-many (specific group, e.g., video streaming). Broadcast: one-to-all (all devices in network). IPv4 supports all three. IPv6 uses anycast instead of broadcast. Multicast reduces bandwidth for group communication.",
+        "category": "networking"
+    },
+    {
+        "id": "networking-18",
+        "question": "What is DHCP and how does it work?",
+        "answer": "DHCP (Dynamic Host Configuration Protocol) automatically assigns IP addresses. DORA process: Discover (client broadcasts), Offer (server offers IP), Request (client requests IP), Acknowledge (server confirms). Also provides subnet mask, gateway, DNS. Lease-based, reduces manual configuration.",
+        "category": "networking"
+    },
+    {
+        "id": "networking-19",
+        "question": "What is the difference between connection-oriented and connectionless protocols?",
+        "answer": "Connection-oriented (TCP): establishes connection before data transfer, reliable, ordered, error checking, overhead. Connectionless (UDP): no connection setup, unreliable, unordered, minimal overhead, faster. Connection-oriented = guaranteed delivery, connectionless = best effort.",
+        "category": "networking"
+    },
+    {
+        "id": "networking-20",
+        "question": "Explain what a proxy server is and its types.",
+        "answer": "Proxy server acts as intermediary between client and server. Forward proxy: client-side, caching, filtering, anonymity. Reverse proxy: server-side, load balancing, SSL termination, caching (Nginx). Transparent proxy: no client configuration. Benefits: security, performance, access control.",
+        "category": "networking"
     }
 ]

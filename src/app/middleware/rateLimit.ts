@@ -1,5 +1,5 @@
 import { SlidingWindowRateLimiter } from "@/lib/rate-limiter";
-import { NextRequest, NextResponse } from "next/server";
+import { NextRequest } from "next/server";
 
 export async function rateLimitMiddleware(req: NextRequest, limits: { request: number, window: number }) {
     // get the IP

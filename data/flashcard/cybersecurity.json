@@ -1,50 +1,122 @@
 [
     {
         "id": "cybersecurity-1",
-        "question": "What is the difference between HTTP and HTTPS?",
-        "answer": "HTTP is a protocol for transferring data over the internet, while HTTPS is a secure version of HTTP that encrypts data in transit.",
+        "question": "What is the difference between symmetric and asymmetric encryption?",
+        "answer": "Symmetric: same key for encryption/decryption, faster, key distribution problem (AES, DES). Asymmetric: public/private key pair, slower, solves key distribution (RSA, ECC). Hybrid approach: asymmetric for key exchange, symmetric for data. HTTPS uses both.",
         "category": "cybersecurity"
     },
     {
         "id": "cybersecurity-2",
-        "question": "What is the difference between HTTP and HTTPS?",
-        "answer": "HTTP is a protocol for transferring data over the internet, while HTTPS is a secure version of HTTP that encrypts data in transit.",
+        "question": "Explain the OWASP Top 10 vulnerabilities.",
+        "answer": "1) Broken Access Control, 2) Cryptographic Failures, 3) Injection (SQL, XSS), 4) Insecure Design, 5) Security Misconfiguration, 6) Vulnerable Components, 7) Authentication Failures, 8) Data Integrity Failures, 9) Logging Failures, 10) SSRF. Updated regularly, essential security checklist.",
         "category": "cybersecurity"
     },
     {
         "id": "cybersecurity-3",
-        "question": "What is the difference between HTTP and HTTPS?",
-        "answer": "HTTP is a protocol for transferring data over the internet, while HTTPS is a secure version of HTTP that encrypts data in transit.",
+        "question": "What is SQL injection and how do you prevent it?",
+        "answer": "SQL injection: attacker inserts malicious SQL via input fields. Example: ' OR '1'='1. Prevention: parameterized queries/prepared statements, input validation, least privilege, WAF, ORM frameworks. Never concatenate user input into SQL queries.",
         "category": "cybersecurity"
     },
     {
         "id": "cybersecurity-4",
-        "question": "What is the difference between HTTP and HTTPS?",
-        "answer": "HTTP is a protocol for transferring data over the internet, while HTTPS is a secure version of HTTP that encrypts data in transit.",
+        "question": "Explain Cross-Site Scripting (XSS) and its types.",
+        "answer": "XSS: inject malicious scripts into web pages. Types: Stored (saved in DB), Reflected (URL parameter), DOM-based (client-side). Prevention: output encoding, Content Security Policy, input validation, HTTPOnly cookies, sanitize HTML. Can steal cookies, session tokens.",
         "category": "cybersecurity"
     },
     {
         "id": "cybersecurity-5",
-        "question": "What is the difference between HTTP and HTTPS?",
-        "answer": "HTTP is a protocol for transferring data over the internet, while HTTPS is a secure version of HTTP that encrypts data in transit.",
+        "question": "What is Cross-Site Request Forgery (CSRF)?",
+        "answer": "CSRF: trick authenticated user into executing unwanted actions. Attacker crafts malicious request, user's browser sends with cookies. Prevention: CSRF tokens (unique per session/request), SameSite cookies, verify origin/referer headers, re-authentication for sensitive actions.",
         "category": "cybersecurity"
     },
     {
         "id": "cybersecurity-6",
-        "question": "What is the difference between HTTP and HTTPS?",
-        "answer": "HTTP is a protocol for transferring data over the internet, while HTTPS is a secure version of HTTP that encrypts data in transit.",
+        "question": "Explain the concept of zero trust security.",
+        "answer": "Zero trust: never trust, always verify. Principles: verify explicitly, least privilege access, assume breach. No implicit trust based on network location. Implementation: MFA, micro-segmentation, continuous verification, identity-based access. Contrast: perimeter-based security (castle-and-moat).",
         "category": "cybersecurity"
     },
     {
         "id": "cybersecurity-7",
-        "question": "What is the difference between HTTP and HTTPS?",
-        "answer": "HTTP is a protocol for transferring data over the internet, while HTTPS is a secure version of HTTP that encrypts data in transit.",
+        "question": "What is the difference between hashing and encryption?",
+        "answer": "Hashing: one-way function, fixed output size, irreversible, verify integrity (SHA-256, bcrypt). Encryption: two-way, reversible with key, confidentiality (AES, RSA). Hash for passwords, encryption for data. Salting prevents rainbow table attacks on hashes.",
         "category": "cybersecurity"
     },
     {
         "id": "cybersecurity-8",
-        "question": "What is the difference between HTTP and HTTPS?",
-        "answer": "HTTP is a protocol for transferring data over the internet, while HTTPS is a secure version of HTTP that encrypts data in transit.",
+        "question": "Explain the concept of defense in depth.",
+        "answer": "Defense in depth: multiple layers of security controls. Layers: physical, network, host, application, data. If one fails, others protect. Examples: firewall + IDS + encryption + access control + monitoring. No single point of failure. Redundancy increases security.",
+        "category": "cybersecurity"
+    },
+    {
+        "id": "cybersecurity-9",
+        "question": "What is a DDoS attack and how do you mitigate it?",
+        "answer": "DDoS: overwhelm service with traffic from multiple sources. Types: volumetric (bandwidth), protocol (SYN flood), application (HTTP flood). Mitigation: rate limiting, CDN, auto-scaling, traffic filtering, Anycast, DDoS protection services (Cloudflare, AWS Shield).",
+        "category": "cybersecurity"
+    },
+    {
+        "id": "cybersecurity-10",
+        "question": "Explain the principle of least privilege.",
+        "answer": "Least privilege: users/processes get minimum permissions needed. Benefits: limits damage from compromised accounts, reduces attack surface, compliance. Implementation: RBAC, temporary elevated access, regular audits, just-in-time access. Applies to: users, services, applications.",
+        "category": "cybersecurity"
+    },
+    {
+        "id": "cybersecurity-11",
+        "question": "What is Multi-Factor Authentication (MFA)?",
+        "answer": "MFA requires 2+ verification factors. Factors: something you know (password), have (phone, token), are (biometric). Types: SMS (weak), authenticator app (TOTP), hardware token (YubiKey), biometric. Significantly reduces account compromise risk.",
+        "category": "cybersecurity"
+    },
+    {
+        "id": "cybersecurity-12",
+        "question": "Explain the concept of security by obscurity and why it's insufficient.",
+        "answer": "Security by obscurity: hiding implementation details as security measure. Examples: custom encryption, hidden URLs. Problems: not real security, fails when discovered, false confidence. Should complement, not replace proper security. Kerckhoffs's principle: security should rely on key secrecy, not algorithm secrecy.",
+        "category": "cybersecurity"
+    },
+    {
+        "id": "cybersecurity-13",
+        "question": "What is a Man-in-the-Middle (MITM) attack?",
+        "answer": "MITM: attacker intercepts communication between two parties. Can read, modify messages. Examples: ARP spoofing, DNS spoofing, rogue WiFi. Prevention: HTTPS/TLS, certificate pinning, VPN, avoid public WiFi, verify certificates, HSTS.",
+        "category": "cybersecurity"
+    },
+    {
+        "id": "cybersecurity-14",
+        "question": "Explain the difference between IDS and IPS.",
+        "answer": "IDS (Intrusion Detection System): monitors and alerts on suspicious activity, passive. IPS (Intrusion Prevention System): monitors and blocks threats, active. IDS = alarm, IPS = alarm + lock. IPS can cause false positives blocking legitimate traffic. Often used together.",
+        "category": "cybersecurity"
+    },
+    {
+        "id": "cybersecurity-15",
+        "question": "What is OAuth 2.0 and how does it work?",
+        "answer": "OAuth 2.0: authorization framework for delegated access. Roles: Resource Owner (user), Client (app), Authorization Server, Resource Server. Flow: 1) Request authorization, 2) Get authorization code, 3) Exchange for access token, 4) Access resource. Doesn't handle authentication (use OpenID Connect).",
+        "category": "cybersecurity"
+    },
+    {
+        "id": "cybersecurity-16",
+        "question": "Explain the concept of security headers.",
+        "answer": "Security headers protect against attacks. Important ones: Content-Security-Policy (XSS), X-Frame-Options (clickjacking), Strict-Transport-Security (HTTPS), X-Content-Type-Options (MIME sniffing), Referrer-Policy. Configure in web server or application. Test with securityheaders.com.",
+        "category": "cybersecurity"
+    },
+    {
+        "id": "cybersecurity-17",
+        "question": "What is a rainbow table attack?",
+        "answer": "Rainbow table: precomputed hash values for common passwords. Attacker looks up hash to find password. Prevention: salting (add random data before hashing), slow hash functions (bcrypt, Argon2), long passwords. Salt makes rainbow tables impractical.",
+        "category": "cybersecurity"
+    },
+    {
+        "id": "cybersecurity-18",
+        "question": "Explain the concept of penetration testing.",
+        "answer": "Penetration testing: authorized simulated attack to find vulnerabilities. Types: Black box (no knowledge), White box (full knowledge), Gray box (partial). Phases: reconnaissance, scanning, exploitation, post-exploitation, reporting. Helps identify weaknesses before attackers do.",
+        "category": "cybersecurity"
+    },
+    {
+        "id": "cybersecurity-19",
+        "question": "What is the difference between vulnerability, threat, and risk?",
+        "answer": "Vulnerability: weakness in system (unpatched software). Threat: potential danger (hacker, malware). Risk: likelihood and impact of threat exploiting vulnerability. Risk = Threat × Vulnerability × Impact. Security aims to reduce vulnerabilities and mitigate risks.",
+        "category": "cybersecurity"
+    },
+    {
+        "id": "cybersecurity-20",
+        "question": "Explain the concept of secure software development lifecycle (SSDLC).",
+        "answer": "SSDLC integrates security throughout development. Phases: requirements (threat modeling), design (security architecture), implementation (secure coding), testing (security testing), deployment (hardening), maintenance (patching). Shift-left security: address earlier, cheaper to fix. Tools: SAST, DAST, dependency scanning.",
         "category": "cybersecurity"
     }
 ]

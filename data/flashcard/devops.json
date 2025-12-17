@@ -1,50 +1,122 @@
 [
     {
         "id": "devops-1",
-        "category": "devops",
-        "question": "What is CI/CD?",
-        "answer": "Continuous Integration/Continuous Deployment is a practice where code changes are automatically built, tested, and deployed. CI merges code frequently to detect issues early, while CD automates the release process to production."
+        "question": "What is CI/CD and why is it important?",
+        "answer": "CI (Continuous Integration): automatically build and test code on every commit. CD (Continuous Delivery/Deployment): automatically deploy to production. Benefits: faster releases, fewer bugs, quick feedback, reduced manual work. Tools: Jenkins, GitLab CI, GitHub Actions, CircleCI.",
+        "category": "devops"
     },
     {
         "id": "devops-2",
-        "category": "devops",
-        "question": "What is Docker?",
-        "answer": "A containerization platform that packages applications and their dependencies into isolated containers. It ensures consistency across different environments and enables efficient resource utilization."
+        "question": "Explain the difference between Docker containers and virtual machines.",
+        "answer": "Containers: share host OS kernel, lightweight (MBs), fast startup (seconds), less isolation. VMs: separate OS per VM, heavyweight (GBs), slow startup (minutes), strong isolation. Containers for microservices, VMs for different OS requirements. Docker uses containers.",
+        "category": "devops"
     },
     {
         "id": "devops-3",
-        "category": "devops",
-        "question": "What is Kubernetes?",
-        "answer": "An open-source container orchestration platform that automates deployment, scaling, and management of containerized applications. It handles load balancing, self-healing, and rolling updates."
+        "question": "What is Infrastructure as Code (IaC)?",
+        "answer": "IaC manages infrastructure through code instead of manual processes. Benefits: version control, reproducibility, automation, documentation. Tools: Terraform (multi-cloud), CloudFormation (AWS), Ansible (configuration), Pulumi (programming languages). Declarative (desired state) vs Imperative (steps).",
+        "category": "devops"
     },
     {
         "id": "devops-4",
-        "category": "devops",
-        "question": "What is Infrastructure as Code (IaC)?",
-        "answer": "The practice of managing and provisioning infrastructure through code instead of manual processes. Tools like Terraform and CloudFormation enable version control, automation, and reproducibility of infrastructure."
+        "question": "Explain the concept of blue-green deployment.",
+        "answer": "Two identical environments: Blue (production), Green (new version). Deploy to green, test, switch traffic via load balancer. Benefits: zero downtime, instant rollback, reduced risk. Drawbacks: 2x infrastructure cost, database migrations complex. Alternative: canary deployment.",
+        "category": "devops"
     },
     {
         "id": "devops-5",
-        "category": "devops",
-        "question": "What is a microservices architecture?",
-        "answer": "An architectural style where an application is built as a collection of small, independent services that communicate via APIs. Each service is independently deployable, scalable, and maintainable."
+        "question": "What is Kubernetes and what problems does it solve?",
+        "answer": "Kubernetes orchestrates containerized applications across clusters. Features: auto-scaling, self-healing, load balancing, rolling updates, service discovery. Components: Pods (containers), Services (networking), Deployments (replicas), ConfigMaps/Secrets (configuration). Solves: container orchestration, scaling, high availability.",
+        "category": "devops"
     },
     {
         "id": "devops-6",
-        "category": "devops",
-        "question": "What is monitoring and observability?",
-        "answer": "Monitoring tracks system metrics and logs, while observability provides deeper insights into system behavior. Tools like Prometheus, Grafana, and ELK stack help detect issues, analyze performance, and troubleshoot problems."
+        "question": "Explain the difference between monitoring and observability.",
+        "answer": "Monitoring: collecting predefined metrics (CPU, memory, errors), known unknowns, dashboards, alerts. Observability: understanding system state from outputs (logs, metrics, traces), unknown unknowns, debugging. Observability enables monitoring. Tools: Prometheus (monitoring), Datadog, New Relic (observability).",
+        "category": "devops"
     },
     {
         "id": "devops-7",
-        "category": "devops",
-        "question": "What is blue-green deployment?",
-        "answer": "A deployment strategy where two identical production environments (blue and green) exist. Traffic is switched from the current version (blue) to the new version (green) instantly, enabling zero-downtime deployments and easy rollbacks."
+        "question": "What is GitOps and how does it work?",
+        "answer": "GitOps uses Git as single source of truth for infrastructure and applications. Changes via pull requests, automated deployment on merge. Benefits: version control, audit trail, rollback, declarative. Tools: ArgoCD, Flux. Principles: declarative, versioned, pulled automatically, continuously reconciled.",
+        "category": "devops"
     },
     {
         "id": "devops-8",
-        "category": "devops",
-        "question": "What is GitOps?",
-        "answer": "A DevOps practice where Git is the single source of truth for declarative infrastructure and applications. Changes are made through Git commits, and automated processes sync the desired state to production."
+        "question": "Explain the concept of immutable infrastructure.",
+        "answer": "Immutable infrastructure: servers never modified after deployment, replaced instead of updated. Benefits: consistency, no configuration drift, easy rollback, reproducibility. Implementation: containers, AMIs, blue-green deployments. Contrast: mutable (traditional, patch in place).",
+        "category": "devops"
+    },
+    {
+        "id": "devops-9",
+        "question": "What is the difference between horizontal and vertical pod autoscaling in Kubernetes?",
+        "answer": "Horizontal Pod Autoscaler (HPA): adds/removes pod replicas based on CPU/memory/custom metrics. Vertical Pod Autoscaler (VPA): adjusts CPU/memory requests/limits for existing pods. HPA for stateless apps, VPA for resource optimization. Can use both together with caution.",
+        "category": "devops"
+    },
+    {
+        "id": "devops-10",
+        "question": "Explain the concept of service mesh.",
+        "answer": "Service mesh manages service-to-service communication in microservices. Features: load balancing, service discovery, encryption, observability, circuit breaking, retries. Sidecar proxy pattern (Envoy). Examples: Istio, Linkerd, Consul Connect. Adds complexity but simplifies networking logic.",
+        "category": "devops"
+    },
+    {
+        "id": "devops-11",
+        "question": "What is the difference between ConfigMaps and Secrets in Kubernetes?",
+        "answer": "ConfigMaps: store non-sensitive configuration (URLs, flags), plain text. Secrets: store sensitive data (passwords, tokens), base64 encoded, encrypted at rest (if configured). Both: mounted as volumes or environment variables. Secrets have additional security features.",
+        "category": "devops"
+    },
+    {
+        "id": "devops-12",
+        "question": "Explain the concept of canary deployment.",
+        "answer": "Canary deployment gradually rolls out changes to subset of users. Start with small percentage (5%), monitor metrics, increase if healthy, rollback if issues. Benefits: reduced risk, real-world testing, gradual rollout. Requires: traffic splitting, monitoring, automated rollback.",
+        "category": "devops"
+    },
+    {
+        "id": "devops-13",
+        "question": "What is the difference between Docker Compose and Kubernetes?",
+        "answer": "Docker Compose: single-host, development/testing, simple YAML, no orchestration, manual scaling. Kubernetes: multi-host clusters, production, complex, auto-scaling, self-healing, load balancing. Compose for local dev, Kubernetes for production orchestration.",
+        "category": "devops"
+    },
+    {
+        "id": "devops-14",
+        "question": "Explain the concept of chaos engineering.",
+        "answer": "Chaos engineering: intentionally inject failures to test system resilience. Examples: kill pods, network latency, resource exhaustion. Tools: Chaos Monkey, Gremlin, Litmus. Benefits: find weaknesses, improve reliability, build confidence. Start small, have rollback plan, monitor closely.",
+        "category": "devops"
+    },
+    {
+        "id": "devops-15",
+        "question": "What is the difference between StatefulSet and Deployment in Kubernetes?",
+        "answer": "Deployment: stateless apps, pods interchangeable, random names, any order scaling. StatefulSet: stateful apps (databases), stable network identity, ordered deployment/scaling, persistent storage. Use StatefulSet for: databases, message queues, distributed systems requiring stable identity.",
+        "category": "devops"
+    },
+    {
+        "id": "devops-16",
+        "question": "Explain the concept of log aggregation.",
+        "answer": "Log aggregation collects logs from multiple sources into centralized system. Benefits: unified view, search, analysis, alerts, compliance. Stack: collection (Fluentd, Logstash), storage (Elasticsearch), visualization (Kibana). Structured logging (JSON) improves searchability.",
+        "category": "devops"
+    },
+    {
+        "id": "devops-17",
+        "question": "What is the difference between push and pull-based deployment?",
+        "answer": "Push: CI/CD pushes changes to environment (Jenkins, GitLab CI), requires credentials in CI, less secure. Pull: agents pull changes from source (ArgoCD, Flux), credentials in cluster, more secure, GitOps pattern. Pull better for: security, multi-cluster, GitOps.",
+        "category": "devops"
+    },
+    {
+        "id": "devops-18",
+        "question": "Explain the concept of distributed tracing.",
+        "answer": "Distributed tracing tracks requests across microservices. Trace = end-to-end request, Span = single operation. Benefits: identify bottlenecks, debug failures, understand dependencies. Tools: Jaeger, Zipkin, AWS X-Ray. Requires: instrumentation, trace context propagation, sampling.",
+        "category": "devops"
+    },
+    {
+        "id": "devops-19",
+        "question": "What is the difference between rolling update and recreate deployment?",
+        "answer": "Rolling update: gradually replace old pods with new, zero downtime, slower, both versions run simultaneously. Recreate: delete all old pods then create new, downtime, faster, single version. Rolling for production, recreate for development or incompatible versions.",
+        "category": "devops"
+    },
+    {
+        "id": "devops-20",
+        "question": "Explain the concept of feature flags/toggles.",
+        "answer": "Feature flags control feature availability without deployment. Types: release (gradual rollout), experiment (A/B testing), ops (kill switch), permission (user-based). Benefits: decouple deployment from release, safe rollout, quick rollback, testing in production. Tools: LaunchDarkly, Unleash.",
+        "category": "devops"
     }
 ]
