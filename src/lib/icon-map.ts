@@ -1,4 +1,4 @@
-import { CloudUploadIcon, Database, FileText, HardDrive, LucideIcon, Network, Server } from "lucide-react";
+import { CloudUploadIcon, Database, FileText, HardDrive, LucideIcon, Network, Server, BrainCircuit, ShieldPlus, Globe } from "lucide-react";
 
 export const iconMap: Record<string, LucideIcon> = {
     Server,
@@ -7,4 +7,7 @@ export const iconMap: Record<string, LucideIcon> = {
     Database,
     CloudUploadIcon,
     FileText,
+    BrainCircuit,
+    ShieldPlus,
+    Globe
 };

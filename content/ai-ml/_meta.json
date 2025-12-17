@@ -1,0 +1,9 @@
+{
+    "id": "ai-ml",
+        "title": "Artificial Intelligence & Machine Learning",
+        "description":
+            "Master AI & ML concepts, algorithms, models, and applications.",
+        "icon": "BrainCircuit",
+        "color": "oklch(0.6 0.2 120)",
+        "articles": 0
+}

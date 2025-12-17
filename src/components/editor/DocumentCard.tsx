@@ -18,6 +18,7 @@ interface DocumentCardProps {
         id: string;
         document_id: string;
         title: string | null;
+        description: string | null;
         topic: string | null;
         category: string | null;
         status: string;
@@ -116,7 +117,7 @@ export function DocumentCard({ doc, formatDate, getStatusBadge, onDelete }: Docu
                     <DialogHeader>
                         <DialogTitle>Delete Document?</DialogTitle>
                         <DialogDescription>
-                            Are you sure you want to delete "{doc.title || "Untitled Document"}"? This action cannot be undone.
+                            Are you sure you want to delete "{doc.description || "Untitled Document"}"? This action cannot be undone.
                         </DialogDescription>
                     </DialogHeader>
                     <DialogFooter>

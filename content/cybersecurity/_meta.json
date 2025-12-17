@@ -1,0 +1,9 @@
+{
+    "id": "cybersecurity",
+        "title": "Cybersecurity",
+        "description":
+            "Master cybersecurity concepts, tools, and techniques.",
+        "icon": "ShieldPlus",
+        "color": "oklch(0.3 0.4 200)",
+        "articles": 0
+}

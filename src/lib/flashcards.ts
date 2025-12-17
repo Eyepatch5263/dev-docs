@@ -4,6 +4,9 @@ import os from "../../data/flashcard/operating-systems.json";
 import networking from "../../data/flashcard/networking.json";
 import systemDesign from "../../data/flashcard/system-design.json";
 import devops from "../../data/flashcard/devops.json";
+import aiMl from "../../data/flashcard/ai-ml.json";
+import cybersecurity from "../../data/flashcard/cybersecurity.json";
+import web from "../../data/flashcard/web.json";
 import category from "../../data/flashcard_category/category.json";
 import { cache } from "react";
 
@@ -12,7 +15,10 @@ export const flashcards: Flashcard[] = [
     ...(os as Flashcard[]),
     ...(networking as Flashcard[]),
     ...(systemDesign as Flashcard[]),
-    ...(devops as Flashcard[])
+    ...(devops as Flashcard[]),
+    ...(aiMl as Flashcard[]),
+    ...(cybersecurity as Flashcard[]),
+    ...(web as Flashcard[])
 ];
 
 export const categories: CategoryInfo[] = [

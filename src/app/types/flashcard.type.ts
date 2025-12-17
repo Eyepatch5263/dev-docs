@@ -1,4 +1,4 @@
-export type FlashcardCategory = 'dbms' | 'operating-systems' | 'networking' | 'system-design' | 'devops';
+export type FlashcardCategory = 'dbms' | 'operating-systems' | 'networking' | 'system-design' | 'devops' | 'ai-ml' | 'cybersecurity' | 'web';
 
 export interface Flashcard {
     id: string;

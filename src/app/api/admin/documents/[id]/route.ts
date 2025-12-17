@@ -40,6 +40,7 @@ export async function PATCH(
             );
         }
 
+
         const { status } = await request.json();
 
         // Validate status
@@ -64,9 +65,11 @@ export async function PATCH(
                 id,
                 document_id,
                 title,
+                description,
                 topic,
                 category,
                 status,
+                content,
                 updated_at,
                 reviewed_by,
                 reviewed_at,
@@ -85,6 +88,39 @@ export async function PATCH(
                 { error: "Failed to update document" },
                 { status: 500 }
             );
+        }
+
+        // If approved, commit MDX file to GitHub
+        if (status === "approved" && updatedDoc) {
+            try {
+                const { generateMDXFile, generateFilePath } = await import("@/lib/mdx-generator");
+                const { commitFileToGitHub, generateSlugFromTitle } = await import("@/lib/github");
+
+                // Prepare metadata for MDX generation
+                const metadata = {
+                    description: updatedDoc.description || "Untitled Document",
+                    topic: updatedDoc.topic || "system-design",
+                    category: updatedDoc.category || "introduction",
+                    content: updatedDoc.content || "",
+                };
+
+                // Generate MDX file content
+                const mdxContent = generateMDXFile(metadata);
+
+                // Generate slug and file path
+                const slug = generateSlugFromTitle(metadata.description);
+                const filePath = generateFilePath(metadata.topic, slug);
+
+                // Commit to GitHub
+                const commitMessage = `Add: ${metadata.description}`;
+                await commitFileToGitHub(filePath, mdxContent, commitMessage);
+
+                console.log(`Successfully committed MDX file to GitHub: ${filePath}`);
+            } catch (githubError) {
+                // Log error but don't fail the approval
+                console.error("GitHub commit error (approval still successful):", githubError);
+                // Optionally: Store error in database or notify admin
+            }
         }
 
         return NextResponse.json({

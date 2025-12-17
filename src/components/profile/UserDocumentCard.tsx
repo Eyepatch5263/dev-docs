@@ -1,10 +1,10 @@
 "use client";
 
-import { Document } from "@/app/types/editor.type";
-import { formatRelativeTime } from "@/lib/admin";
+import { DocumentWithUser } from "@/app/types/editor.type";
+import { generateAvatarColor, generateAvatarInitials } from "@/lib/admin";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Calendar, Tag, Layers, Eye } from "lucide-react";
+import { Tag, Layers, Eye, FileText } from "lucide-react";
 import { useState, useEffect } from "react";
 import { MDXRemote, MDXRemoteSerializeResult } from "next-mdx-remote";
 import { serialize } from "next-mdx-remote/serialize";
@@ -19,9 +19,11 @@ import {
 
 // Import highlight.js styles
 import "highlight.js/styles/github-dark.css";
+import { useSession } from "next-auth/react";
+import ReusableAdminProfileCard from "../ReusableAdminProfileCard";
 
 interface UserDocumentCardProps {
-    document: Document;
+    document: DocumentWithUser;
 }
 
 export default function UserDocumentCard({ document }: UserDocumentCardProps) {
@@ -29,6 +31,8 @@ export default function UserDocumentCard({ document }: UserDocumentCardProps) {
     const [mdxSource, setMdxSource] = useState<MDXRemoteSerializeResult | null>(null);
     const [mdxError, setMdxError] = useState<string>("");
     const [isCompiling, setIsCompiling] = useState(false);
+
+    const session = useSession();
 
     // Compile MDX when dialog opens
     useEffect(() => {
@@ -70,60 +74,25 @@ export default function UserDocumentCard({ document }: UserDocumentCardProps) {
         return <Badge variant="outline" className={`${config.className} font-medium`}>{config.label}</Badge>;
     };
 
+    const initials = generateAvatarInitials(session?.data?.user?.name || "", session?.data?.user?.email || "");
+    const avatarColor = generateAvatarColor(session?.data?.user?.email || "");
+    const profileImage = session?.data?.user?.image ? session?.data?.user?.image : null;
+    const altText = session?.data?.user?.name || "User Avatar";
+    const name = session?.data?.user?.name || "User";
+    const email = session?.data?.user?.email || "User Email";
+
     return (
         <>
             <div className="group relative bg-card border border-border rounded-xl overflow-hidden transition-all duration-300 hover:shadow-lg hover:border-primary/50">
-                {/* Card Header with Status */}
-                <div className="p-6 border-b border-border bg-muted/30">
-                    <div className="flex items-start justify-between gap-4">
-                        <div className="flex-1 min-w-0">
-                            <h2 className="text-xl font-bold text-foreground truncate group-hover:text-primary transition-colors">
-                                {document.title || "Untitled Document"}
-                            </h2>
-                        </div>
-                        {/* Status Badge */}
-                        {getStatusBadge()}
-                    </div>
-                </div>
-
-                {/* Document Details */}
+                <ReusableAdminProfileCard document={document} userDetails={{
+                    name,
+                    email,
+                    initials,
+                    avatarColor,
+                    profileImage,
+                    altText
+                }} />
                 <div className="p-6 space-y-4">
-                    {/* Metadata Grid */}
-                    <div className="grid grid-cols-2 gap-4">
-                        {/* Topic */}
-                        <div className="space-y-1">
-                            <div className="flex items-center gap-1.5 text-muted-foreground">
-                                <Layers className="h-3.5 w-3.5" />
-                                <span className="text-xs font-medium">Topic</span>
-                            </div>
-                            <p className="text-sm font-medium text-foreground capitalize">
-                                {document.topic?.replace(/-/g, " ") || "N/A"}
-                            </p>
-                        </div>
-
-                        {/* Category */}
-                        <div className="space-y-1">
-                            <div className="flex items-center gap-1.5 text-muted-foreground">
-                                <Tag className="h-3.5 w-3.5" />
-                                <span className="text-xs font-medium">Category</span>
-                            </div>
-                            <p className="text-sm font-medium text-foreground capitalize">
-                                {document.category?.replace(/-/g, " ") || "N/A"}
-                            </p>
-                        </div>
-
-                        {/* Last Updated */}
-                        <div className="space-y-1 col-span-2">
-                            <div className="flex items-center gap-1.5 text-muted-foreground">
-                                <Calendar className="h-3.5 w-3.5" />
-                                <span className="text-xs font-medium">Last Updated</span>
-                            </div>
-                            <p className="text-sm font-medium text-foreground">
-                                {formatRelativeTime(document.updated_at)}
-                            </p>
-                        </div>
-                    </div>
-
                     {/* View Content Button */}
                     {document.content && (
                         <div className="pt-4 border-t border-border">
@@ -133,7 +102,7 @@ export default function UserDocumentCard({ document }: UserDocumentCardProps) {
                                 className="w-full"
                             >
                                 <Eye className="h-4 w-4 mr-2" />
-                                View Content
+                                View Full Content
                             </Button>
                         </div>
                     )}
@@ -142,12 +111,16 @@ export default function UserDocumentCard({ document }: UserDocumentCardProps) {
 
             {/* Content Preview Dialog */}
             <Dialog open={showContentDialog} onOpenChange={setShowContentDialog}>
-                <DialogContent className="max-w-4xl max-h-[80vh] overflow-hidden flex flex-col">
+                <DialogContent className="md:min-w-max max-w-[95vw] max-h-[80vh] flex flex-col">
                     <DialogHeader>
                         <DialogTitle className="text-xl font-bold">
                             {document.title || "Untitled Document"}
                         </DialogTitle>
                         <div className="flex items-center gap-4 text-sm text-muted-foreground pt-2">
+                            <div className="flex items-center gap-1.5">
+                                <FileText className="h-3.5 w-3.5" />
+                                <span className="capitalize">{document.description}</span>
+                            </div>
                             <div className="flex items-center gap-1.5">
                                 <Layers className="h-3.5 w-3.5" />
                                 <span className="capitalize">{document.topic?.replace(/-/g, " ")}</span>

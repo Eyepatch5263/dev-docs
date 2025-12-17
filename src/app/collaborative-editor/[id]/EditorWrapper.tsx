@@ -54,16 +54,20 @@ export function EditorWrapper({ documentId, userName, userId }: EditorWrapperPro
             const urlTopic = params.get('topic');
             const urlCategory = params.get('category');
             const urlTitle = params.get('title');
+            const urlDescription = params.get('description');
             const loadFromDb = params.get('loadFromDb');
 
             if (urlTopic) {
-                localStorage.setItem(`doc_title_${documentId}`, urlTopic);
+                localStorage.setItem(`doc_topic_${documentId}`, urlTopic);
             }
             if (urlCategory) {
                 localStorage.setItem(`doc_category_${documentId}`, urlCategory);
             }
             if (urlTitle) {
-                localStorage.setItem(`doc_subtitle_${documentId}`, urlTitle);
+                localStorage.setItem(`doc_title_${documentId}`, urlTitle);
+            }
+            if (urlDescription) {
+                localStorage.setItem(`doc_description_${documentId}`, urlDescription);
             }
             // If loadFromDb flag is present, store it for the editor to load content
             if (loadFromDb === 'true') {
@@ -153,14 +157,19 @@ export function EditorWrapper({ documentId, userName, userId }: EditorWrapperPro
         return convertToMDX(json as unknown as Parameters<typeof convertToMDX>[0]);
     }, []);
 
-    // Get topic from localStorage (stored as title for backward compatibility)
+    // Get topic from localStorage
     const getTopic = useCallback(() => {
+        return localStorage.getItem(`doc_topic_${documentId}`) || "system-design";
+    }, [documentId]);
+
+    // Get title from localStorage
+    const getTitle = useCallback(() => {
         return localStorage.getItem(`doc_title_${documentId}`) || documentTitle;
     }, [documentId, documentTitle]);
 
-    // Get subtitle (document title) from localStorage
-    const getSubtitle = useCallback(() => {
-        return localStorage.getItem(`doc_subtitle_${documentId}`) || "";
+    // Get description from localStorage
+    const getDescription = useCallback(() => {
+        return localStorage.getItem(`doc_description_${documentId}`) || "";
     }, [documentId]);
 
     // Get category from localStorage
@@ -206,7 +215,8 @@ export function EditorWrapper({ documentId, userName, userId }: EditorWrapperPro
                             isOwner={isOwner}
                             getContent={getContent}
                             getTopic={getTopic}
-                            getSubtitle={getSubtitle}
+                            getTitle={getTitle}
+                            getDescription={getDescription}
                             getCategory={getCategory}
                             onSaveSuccess={handleSaveSuccess}
                         />

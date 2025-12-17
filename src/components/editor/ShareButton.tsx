@@ -12,15 +12,15 @@ interface ShareButtonProps {
 export function ShareButton({ documentId }: ShareButtonProps) {
     const pathname = usePathname();
     const [copied, setCopied] = useState(false);
-    const [metadata, setMetadata] = useState({ topic: "", category: "", title: "" });
+    const [metadata, setMetadata] = useState({ topic: "", category: "", description: "" });
 
     useEffect(() => {
         // Read metadata from localStorage
         const topic = localStorage.getItem(`doc_title_${documentId}`) || "";
         const category = localStorage.getItem(`doc_category_${documentId}`) || "";
-        const title = localStorage.getItem(`doc_subtitle_${documentId}`) || "";
+        const description = localStorage.getItem(`doc_subtitle_${documentId}`) || "";
 
-        setMetadata({ topic, category, title });
+        setMetadata({ topic, category, description });
     }, [documentId]);
 
     const handleShare = async () => {
@@ -29,7 +29,7 @@ export function ShareButton({ documentId }: ShareButtonProps) {
 
         if (metadata.topic) url.searchParams.set('topic', metadata.topic);
         if (metadata.category) url.searchParams.set('category', metadata.category);
-        if (metadata.title) url.searchParams.set('title', metadata.title);
+        if (metadata.description) url.searchParams.set('title', metadata.description);
 
         const shareUrl = url.toString();
 

@@ -33,5 +33,26 @@
         "icon": "CloudUploadIcon",
         "color": "oklch(0.6 0.2 280)",
         "description": "Design scalable systems with load balancing and caching"
+    },
+    {
+        "id": "ai-ml",
+        "name": "Artificial Intelligence & Machine Learning",
+        "icon": "BrainCircuit",
+        "color": "oklch(0.6 0.2 120)",
+        "description": "Master AI & ML concepts, algorithms, models, and applications"
+    },
+    {
+        "id": "cybersecurity",
+        "name": "Cybersecurity",
+        "icon": "ShieldPlus",
+        "color": "oklch(0.3 0.4 200)",
+        "description": "Master cybersecurity concepts, tools, and techniques"
+    },
+    {
+        "id": "web",
+        "name": "Web Development",
+        "icon": "Globe",
+        "color": "oklch(0.6 0.2 240)",
+        "description": "Master web development concepts, tools, and techniques"
     }
 ]

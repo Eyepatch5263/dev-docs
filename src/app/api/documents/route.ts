@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { supabaseAdmin } from "@/lib/supabase";
+import { formatTopicName, formatCategoryName } from "@/constants/editor";
 
 // POST - Create or update a document
 export async function POST(request: NextRequest) {
@@ -22,7 +23,7 @@ export async function POST(request: NextRequest) {
             );
         }
 
-        const { documentId, title, topic, category, content, status, isOriginalOwner } = await request.json();
+        const { documentId, title, description, topic, category, content, status, isOriginalOwner } = await request.json();
 
         if (!documentId) {
             return NextResponse.json(
@@ -65,8 +66,9 @@ export async function POST(request: NextRequest) {
                 .from("documents")
                 .update({
                     title: title || "Untitled Document",
-                    topic: topic || "system-design",
-                    category: category || "introduction",
+                    description: description || "",
+                    topic: formatTopicName(topic || "system-design"),
+                    category: formatCategoryName(category || "introduction"),
                     content,
                     status: status || "draft",
                     updated_at: new Date().toISOString(),
@@ -101,8 +103,9 @@ export async function POST(request: NextRequest) {
                     document_id: newDocumentId,
                     owner_id: session.user.id,
                     title: title || "Untitled Document",
-                    topic: topic || "system-design",
-                    category: category || "introduction",
+                    description: description || "",
+                    topic: formatTopicName(topic || "system-design"),
+                    category: formatCategoryName(category || "introduction"),
                     content,
                     status: status || "draft",
                 })
@@ -157,7 +160,7 @@ export async function GET(request: NextRequest) {
 
         let query = supabaseAdmin
             .from("documents")
-            .select("id, document_id, title, topic, content, category, status, created_at, updated_at")
+            .select("id, document_id, title, description, topic, content, category, status, created_at, updated_at")
             .eq("owner_id", session.user.id)
             .order("updated_at", { ascending: false });
 

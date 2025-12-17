@@ -4,11 +4,13 @@ import { MDXRemote, MDXRemoteSerializeResult } from "next-mdx-remote";
 import { serialize } from "next-mdx-remote/serialize";
 import { useEffect, useState, useCallback } from "react";
 import remarkGfm from "remark-gfm";
-import rehypeHighlight from "rehype-highlight";
 import { Eye, Code2 } from "lucide-react";
 
 // Import highlight.js styles
 import "highlight.js/styles/github-dark.css";
+import { mdxComponents } from "../mdx-components";
+import rehypeSlug from "rehype-slug";
+import rehypePrettyCode from "rehype-pretty-code";
 
 interface MDXPreviewProps {
     content: string;
@@ -31,7 +33,7 @@ export function MDXPreview({ content, className = "" }: MDXPreviewProps) {
             const result = await serialize(content, {
                 mdxOptions: {
                     remarkPlugins: [remarkGfm],
-                    rehypePlugins: [rehypeHighlight],
+                    rehypePlugins: [rehypeSlug],
                     development: false,
                 },
             });
@@ -85,7 +87,10 @@ export function MDXPreview({ content, className = "" }: MDXPreviewProps) {
                     </div>
                 ) : mdxSource ? (
                     <div className="prose prose-sm dark:prose-invert max-w-none [&_pre]:rounded-lg [&_pre]:p-4 [&_pre]:bg-[#0d1117] [&_code]:text-sm">
-                        <MDXRemote {...mdxSource} />
+                        <MDXRemote
+                            {...mdxSource}
+                            components={mdxComponents}
+                        />
                     </div>
                 ) : (
                     <div className="flex items-center justify-center h-full">

@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { ArrowRight } from "lucide-react";
+import { ArrowRight} from "lucide-react";
 import { getAllDocsForTopic, getTopicMeta, discoverTopics } from "@/lib/docs";
 import { notFound } from "next/navigation";
 import {
@@ -9,19 +9,11 @@ import {
     CardTitle,
 } from "@/components/ui/card";
 import { DocMeta } from "@/app/types/docs.type";
+import { CATEGORY_ORDER } from "@/constants/docs";
 
 interface TopicPageProps {
     params: Promise<{ topic: string }>;
 }
-
-// Category display order
-const categoryOrder: Record<string, number> = {
-    "Introduction": 1,
-    "Building Blocks": 2,
-    "Design Problems": 3,
-    "Advanced": 4,
-    "Epilogue": 5,
-};
 
 function groupByCategory(docs: DocMeta[]): Record<string, DocMeta[]> {
     const groups: Record<string, DocMeta[]> = {};
@@ -39,8 +31,8 @@ function groupByCategory(docs: DocMeta[]): Record<string, DocMeta[]> {
 
 function getSortedCategories(groups: Record<string, DocMeta[]>): string[] {
     return Object.keys(groups).sort((a, b) => {
-        const orderA = categoryOrder[a] ?? 999;
-        const orderB = categoryOrder[b] ?? 999;
+        const orderA = CATEGORY_ORDER[a] ?? 999;
+        const orderB = CATEGORY_ORDER[b] ?? 999;
         return orderA - orderB;
     });
 }

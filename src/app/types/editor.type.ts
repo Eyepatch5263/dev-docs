@@ -2,6 +2,7 @@ export interface Document {
     id: string;
     document_id: string;
     title: string | null;
+    description: string | null;
     topic: string | null;
     category: string | null;
     status: string;

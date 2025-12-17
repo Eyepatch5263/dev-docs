@@ -1,0 +1,50 @@
+[
+    {
+        "id": "cybersecurity-1",
+        "question": "What is the difference between HTTP and HTTPS?",
+        "answer": "HTTP is a protocol for transferring data over the internet, while HTTPS is a secure version of HTTP that encrypts data in transit.",
+        "category": "cybersecurity"
+    },
+    {
+        "id": "cybersecurity-2",
+        "question": "What is the difference between HTTP and HTTPS?",
+        "answer": "HTTP is a protocol for transferring data over the internet, while HTTPS is a secure version of HTTP that encrypts data in transit.",
+        "category": "cybersecurity"
+    },
+    {
+        "id": "cybersecurity-3",
+        "question": "What is the difference between HTTP and HTTPS?",
+        "answer": "HTTP is a protocol for transferring data over the internet, while HTTPS is a secure version of HTTP that encrypts data in transit.",
+        "category": "cybersecurity"
+    },
+    {
+        "id": "cybersecurity-4",
+        "question": "What is the difference between HTTP and HTTPS?",
+        "answer": "HTTP is a protocol for transferring data over the internet, while HTTPS is a secure version of HTTP that encrypts data in transit.",
+        "category": "cybersecurity"
+    },
+    {
+        "id": "cybersecurity-5",
+        "question": "What is the difference between HTTP and HTTPS?",
+        "answer": "HTTP is a protocol for transferring data over the internet, while HTTPS is a secure version of HTTP that encrypts data in transit.",
+        "category": "cybersecurity"
+    },
+    {
+        "id": "cybersecurity-6",
+        "question": "What is the difference between HTTP and HTTPS?",
+        "answer": "HTTP is a protocol for transferring data over the internet, while HTTPS is a secure version of HTTP that encrypts data in transit.",
+        "category": "cybersecurity"
+    },
+    {
+        "id": "cybersecurity-7",
+        "question": "What is the difference between HTTP and HTTPS?",
+        "answer": "HTTP is a protocol for transferring data over the internet, while HTTPS is a secure version of HTTP that encrypts data in transit.",
+        "category": "cybersecurity"
+    },
+    {
+        "id": "cybersecurity-8",
+        "question": "What is the difference between HTTP and HTTPS?",
+        "answer": "HTTP is a protocol for transferring data over the internet, while HTTPS is a secure version of HTTP that encrypts data in transit.",
+        "category": "cybersecurity"
+    }
+]

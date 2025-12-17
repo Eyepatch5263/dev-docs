@@ -1,0 +1,467 @@
+---
+title: Introduction To Cybersecurity
+description: Getting started with cybersecurity fundamentals
+order: 1
+category: Introduction
+---
+
+## What is Cybersecurity?
+
+**Cybersecurity** is the practice of protecting systems, networks, programs, and data from digital attacks, unauthorized access, damage, or theft. It encompasses technologies, processes, and practices designed to defend against cyber threats in an increasingly connected world.
+
+At its core, cybersecurity answers questions like:
+
+- How do we protect sensitive data from unauthorized access?
+- How do we prevent, detect, and respond to cyber attacks?
+- How do we maintain trust in digital systems?
+- How do we ensure business continuity in the face of threats?
+
+```
+┌─────────────────────────────────────────────────────────────────┐
+│                   Cybersecurity Spectrum                        │
+├─────────────────────────────────────────────────────────────────┤
+│                                                                 │
+│   Prevention ──► Detection ──► Response ──► Recovery            │
+│        │             │              │              │            │
+│        ▼             ▼              ▼              ▼            │
+│   Firewalls     Monitoring    Incident      Business            │
+│   Encryption    SIEM          Response       Continuity         │
+│   Access        IDS/IPS       Forensics      Disaster           │
+│   Control       Logging       Containment    Recovery           │
+│                                                                 │
+└─────────────────────────────────────────────────────────────────┘
+```
+
+## Why Cybersecurity Matters
+
+### 1. **Digital Transformation**
+Organizations are increasingly digital, making them vulnerable to cyber threats. Every device, application, and network connection is a potential entry point for attackers.
+
+### 2. **Rising Threat Landscape**
+Cyber attacks are growing in frequency, sophistication, and impact:
+
+| Year | Average Cost of Data Breach | Number of Attacks |
+|------|----------------------------|-------------------|
+| 2020 | $3.86M | 1,001+ incidents |
+| 2021 | $4.24M | 1,862+ incidents |
+| 2022 | $4.35M | 2,200+ incidents |
+| 2023 | $4.45M | 2,800+ incidents |
+
+### 3. **Regulatory Compliance**
+Organizations must comply with regulations like GDPR, HIPAA, PCI-DSS, and SOC 2, which mandate security controls to protect sensitive data.
+
+### 4. **Business Continuity**
+Cyber attacks can disrupt operations, damage reputation, and cause financial losses. Strong cybersecurity ensures business resilience.
+
+## The CIA Triad: Core Principles
+
+Cybersecurity is built on three fundamental principles:
+
+```
+                    ┌─────────────────┐
+                    │ CONFIDENTIALITY │
+                    │                 │
+                    │  Keep data      │
+                    │  private and    │
+                    │  accessible     │
+                    │  only to        │
+                    │  authorized     │
+                    │  users          │
+                    └────────┬────────┘
+                             │
+            ┌────────────────┼────────────────┐
+            │                │                │
+            ▼                ▼                ▼
+    ┌───────────────┐               ┌────────────────┐
+    │  INTEGRITY    │               │  AVAILABILITY  │
+    │               │               │                │
+    │  Keep data    │               │  Keep systems  │
+    │  accurate     │               │  accessible    │
+    │  and          │               │  and           │
+    │  unaltered    │               │  operational   │
+    │               │               │                │
+    └───────────────┘               └────────────────┘
+```
+
+### Confidentiality
+Ensuring information is accessible only to those authorized to access it.
+
+**Mechanisms:**
+- Encryption (AES, RSA)
+- Access control lists (ACLs)
+- Authentication (MFA, SSO)
+- Data classification
+
+### Integrity
+Ensuring information is accurate, complete, and hasn't been tampered with.
+
+**Mechanisms:**
+- Hashing (SHA-256, MD5)
+- Digital signatures
+- Checksums
+- Version control
+
+### Availability
+Ensuring systems and data are accessible when needed by authorized users.
+
+**Mechanisms:**
+- Redundancy (RAID, clustering)
+- Load balancing
+- DDoS protection
+- Disaster recovery plans
+
+## Common Cyber Threats
+
+### Malware Landscape
+
+| Type | Description | Example |
+|------|-------------|---------|
+| **Virus** | Self-replicating code that attaches to files | ILOVEYOU, Melissa |
+| **Worm** | Self-propagating malware across networks | WannaCry, Conficker |
+| **Trojan** | Malicious software disguised as legitimate | Zeus, Emotet |
+| **Ransomware** | Encrypts data and demands payment | CryptoLocker, Ryuk |
+| **Spyware** | Secretly monitors and collects information | Pegasus, FinFisher |
+| **Rootkit** | Hides malware presence on systems | Sony BMG, Stuxnet |
+
+### Attack Vectors
+
+```
+Common Attack Entry Points:
+
+┌─────────────────────────────────────────────────────────────┐
+│                                                             │
+│  Phishing (90%)    ──►  Malicious Email Links              │
+│  Weak Passwords    ──►  Brute Force / Credential Stuffing  │
+│  Unpatched Systems ──►  Exploiting Known Vulnerabilities   │
+│  Social Engineering──►  Manipulating Human Behavior        │
+│  Insider Threats   ──►  Malicious or Negligent Employees   │
+│  Supply Chain      ──►  Compromising Third-Party Vendors   │
+│                                                             │
+└─────────────────────────────────────────────────────────────┘
+```
+
+### Social Engineering
+
+**Phishing**: Fraudulent emails/messages to steal credentials
+- **Spear Phishing**: Targeted attacks on specific individuals
+- **Whaling**: Targeting high-profile executives
+- **Smishing**: SMS-based phishing
+- **Vishing**: Voice/phone-based phishing
+
+**Pretexting**: Creating false scenarios to extract information
+
+**Baiting**: Offering something enticing to lure victims
+
+## Defense in Depth
+
+Layered security approach to protect against threats:
+
+```
+┌─────────────────────────────────────────────────────────────┐
+│                    Defense Layers                           │
+├─────────────────────────────────────────────────────────────┤
+│                                                             │
+│  Layer 1: Physical Security                                 │
+│           ▼                                                 │
+│  Layer 2: Perimeter Security (Firewalls, IDS/IPS)          │
+│           ▼                                                 │
+│  Layer 3: Network Security (Segmentation, VLANs)           │
+│           ▼                                                 │
+│  Layer 4: Endpoint Security (Antivirus, EDR)               │
+│           ▼                                                 │
+│  Layer 5: Application Security (WAF, Code Review)          │
+│           ▼                                                 │
+│  Layer 6: Data Security (Encryption, DLP)                  │
+│           ▼                                                 │
+│  Layer 7: User Education & Awareness                        │
+│                                                             │
+└─────────────────────────────────────────────────────────────┘
+```
+
+## Essential Security Concepts
+
+### Zero Trust Architecture
+
+**"Never trust, always verify"**
+
+Traditional security: Trust internal network, distrust external
+- Problem: Attackers inside the perimeter have free access
+
+Zero Trust: Verify every access request, regardless of location
+- Assume breach
+- Verify explicitly (identity, device, location)
+- Least privilege access
+- Micro-segmentation
+
+### Least Privilege Principle
+
+Grant minimum permissions necessary to perform tasks.
+
+```
+❌ Bad: Admin access for everyone
+✓ Good: Role-based access control (RBAC)
+
+Example:
+  Developer   → Read/Write to dev environment only
+  QA Tester   → Read access to staging
+  DevOps      → Deploy to production (with approval)
+  Admin       → Full access (audited, time-limited)
+```
+
+### Security by Design
+
+Build security into systems from the start, not as an afterthought.
+
+**Principles:**
+- Fail securely (fail closed, not open)
+- Default deny (whitelist > blacklist)
+- Separation of duties
+- Complete mediation (check every access)
+- Open design (security through obscurity fails)
+
+## Key Security Domains
+
+### Network Security
+Protecting data in transit and network infrastructure.
+
+**Tools & Technologies:**
+- Firewalls (stateful, next-gen)
+- VPNs (IPsec, SSL/TLS)
+- IDS/IPS (Snort, Suricata)
+- NAC (Network Access Control)
+- DDoS mitigation
+
+### Application Security
+Securing software throughout its lifecycle.
+
+**Focus Areas:**
+- Secure coding practices (OWASP Top 10)
+- Input validation & sanitization
+- Authentication & authorization
+- Session management
+- Code review & static analysis (SAST)
+- Dynamic testing (DAST)
+
+### Cloud Security
+Protecting data and applications in cloud environments.
+
+**Challenges:**
+- Shared responsibility model
+- Misconfiguration (S3 buckets, IAM)
+- Identity and access management
+- Data residency & compliance
+- Multi-tenancy risks
+
+**Best Practices:**
+- Encryption at rest and in transit
+- CSPM (Cloud Security Posture Management)
+- CWPP (Cloud Workload Protection Platform)
+- Zero trust network access
+
+### Identity & Access Management (IAM)
+Controlling who can access what resources.
+
+**Components:**
+- Authentication (Who are you?)
+  - Passwords, MFA, biometrics
+- Authorization (What can you do?)
+  - RBAC, ABAC, PBAC
+- Accounting (What did you do?)
+  - Audit logs, SIEM
+
+### Incident Response
+Detecting, responding to, and recovering from security incidents.
+
+**IR Lifecycle:**
+```
+1. Preparation    → Plan, train, equip
+2. Detection      → Identify incidents
+3. Containment    → Limit damage
+4. Eradication    → Remove threat
+5. Recovery       → Restore operations
+6. Lessons Learned→ Improve defenses
+```
+
+## Cybersecurity Frameworks & Standards
+
+| Framework | Purpose | Use Case |
+|-----------|---------|----------|
+| **NIST CSF** | Comprehensive cybersecurity framework | Risk management |
+| **ISO 27001** | Information security management | Certification |
+| **CIS Controls** | Prioritized security best practices | Hardening |
+| **MITRE ATT&CK** | Adversary tactics and techniques | Threat modeling |
+| **OWASP** | Web application security | Secure development |
+| **SOC 2** | Service organization controls | SaaS compliance |
+
+## Career Paths in Cybersecurity
+
+### Common Roles
+
+**Security Analyst** (Entry-level)
+- Monitor security alerts
+- Investigate incidents
+- Document findings
+
+**Penetration Tester** (Offensive)
+- Ethical hacking
+- Vulnerability assessment
+- Exploit development
+
+**Security Engineer** (Technical)
+- Design security architectures
+- Implement security controls
+- Automate security processes
+
+**Security Architect** (Strategic)
+- Define security strategy
+- Risk assessment
+- Compliance management
+
+**Incident Responder** (Crisis)
+- Investigate breaches
+- Forensic analysis
+- Threat hunting
+
+**CISO** (Leadership)
+- Executive security leadership
+- Budget and resource allocation
+- Board-level communication
+
+### Skills to Develop
+
+**Technical:**
+- Networking (TCP/IP, DNS, HTTP)
+- Operating systems (Linux, Windows)
+- Programming (Python, Bash, PowerShell)
+- Encryption & cryptography
+- Cloud platforms (AWS, Azure, GCP)
+
+**Soft Skills:**
+- Communication (translate technical to business)
+- Problem-solving
+- Curiosity & continuous learning
+- Attention to detail
+- Stress management
+
+## What You'll Learn in This Documentation
+
+This cybersecurity documentation is structured to take you from fundamentals to advanced topics:
+
+### Foundations
+| Topic | Description |
+|-------|-------------|
+| **Networking Fundamentals** | Protocols, subnetting, routing |
+| **Cryptography** | Encryption, hashing, PKI, certificates |
+| **Operating System Security** | Hardening, patching, access control |
+| **Authentication** | Passwords, MFA, biometrics, SSO |
+
+### Core Security Controls
+| Topic | Description |
+|-------|-------------|
+| **Firewalls & Network Defense** | Perimeter security, IDS/IPS |
+| **Endpoint Protection** | Antivirus, EDR, DLP |
+| **Web Application Security** | OWASP Top 10, XSS, CSRF, SQLi |
+| **Cloud Security** | AWS/Azure security, IAM, CSPM |
+
+### Advanced Topics
+| Topic | Description |
+|-------|-------------|
+| **Threat Intelligence** | IOCs, TTP analysis, threat hunting |
+| **Security Operations** | SIEM, SOC, playbooks |
+| **Penetration Testing** | Methodology, tools, reporting |
+| **Digital Forensics** | Evidence collection, analysis |
+| **Malware Analysis** | Reverse engineering, sandboxing |
+
+### Specialized Domains
+| Topic | Description |
+|-------|-------------|
+| **DevSecOps** | Security in CI/CD pipelines |
+| **IoT Security** | Embedded device security |
+| **Mobile Security** | Android/iOS hardening |
+| **AI/ML Security** | Adversarial ML, model security |
+
+## Prerequisites
+
+You don't need to be an expert, but familiarity with these topics will help:
+
+```
+┌─────────────────────────────────────────────────────────────┐
+│                Recommended Background                       │
+├─────────────────────────────────────────────────────────────┤
+│                                                             │
+│  ✓ Basic networking (IP, ports, protocols)                 │
+│  ✓ Command line / terminal basics                          │
+│  ✓ Understanding of how the internet works                 │
+│  ✓ Operating system fundamentals                           │
+│  ✓ Basic programming (any language)                        │
+│                                                             │
+│  Nice to have:                                              │
+│  ○ Experience with Linux/Unix                              │
+│  ○ Understanding of web technologies                       │
+│  ○ Virtualization basics (VMs, Docker)                     │
+│                                                             │
+└─────────────────────────────────────────────────────────────┘
+```
+
+## The Cybersecurity Mindset
+
+### Think Like an Attacker
+
+To defend effectively, understand how attackers think:
+
+**Attack Lifecycle:**
+```
+1. Reconnaissance → Gather information (OSINT, scanning)
+2. Weaponization  → Prepare exploit
+3. Delivery       → Send payload (email, web, USB)
+4. Exploitation   → Execute code
+5. Installation   → Establish persistence
+6. C2             → Command & Control
+7. Actions        → Achieve objectives (exfiltration, destruction)
+```
+
+### Embrace Continuous Learning
+
+Cybersecurity evolves rapidly. Stay current:
+- Follow security researchers and blogs
+- Participate in CTFs (Capture The Flag)
+- Get hands-on practice (HackTheBox, TryHackMe)
+- Attend conferences (DEF CON, Black Hat)
+- Read vulnerability disclosures (CVE database)
+
+### Understand the Bigger Picture
+
+Security isn't just technical—it's about:
+- **Risk**: Balancing security with usability
+- **Business**: Protecting what matters most
+- **People**: The weakest link and strongest defense
+- **Ethics**: Using power responsibly
+
+## Key Takeaways
+
+```
+┌─────────────────────────────────────────────────────────────┐
+│              Cybersecurity Core Principles                  │
+├─────────────────────────────────────────────────────────────┤
+│                                                             │
+│  1. Security is a journey, not a destination                │
+│  2. Perfect security doesn't exist—manage risk              │
+│  3. Defense in depth: Multiple layers of protection         │
+│  4. People are both the vulnerability and the solution      │
+│  5. Assume breach—focus on detection and response           │
+│  6. Keep learning—threats evolve constantly                 │
+│                                                             │
+└─────────────────────────────────────────────────────────────┘
+```
+
+## Next Steps
+
+Ready to dive deeper? Here's the recommended learning path:
+
+1. **[Cryptography Fundamentals](/docs/cybersecurity/cryptography)** — Encryption, hashing, and PKI
+2. **[Network Security](/docs/cybersecurity/network-security)** — Firewalls, IDS/IPS, and protocols
+3. **[Web Application Security](/docs/cybersecurity/web-security)** — OWASP Top 10 vulnerabilities
+4. **[Authentication & Authorization](/docs/cybersecurity/authentication)** — Secure access control
+
+Let's build secure systems! 🔐
+```

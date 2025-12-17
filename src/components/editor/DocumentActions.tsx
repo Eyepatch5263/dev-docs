@@ -22,7 +22,8 @@ interface DocumentActionsProps {
     isOwner: boolean;
     getContent: () => string;
     getTopic: () => string;
-    getSubtitle: () => string;
+    getTitle: () => string;
+    getDescription: () => string;
     getCategory: () => string;
     onSaveSuccess?: (status: "draft" | "review") => void;
 }
@@ -32,7 +33,8 @@ export function DocumentActions({
     isOwner,
     getContent,
     getTopic,
-    getSubtitle,
+    getTitle,
+    getDescription,
     getCategory,
     onSaveSuccess,
 }: DocumentActionsProps) {
@@ -55,7 +57,8 @@ export function DocumentActions({
         try {
             const content = getContent();
             const topic = getTopic();
-            const subtitle = getSubtitle();
+            const title = getTitle();
+            const description = getDescription();
             const category = getCategory();
 
             const response = await fetch("/api/documents", {
@@ -65,7 +68,8 @@ export function DocumentActions({
                 },
                 body: JSON.stringify({
                     documentId,
-                    title: subtitle, // Use subtitle as the document title
+                    title,
+                    description,
                     topic,
                     category,
                     content,
@@ -83,7 +87,7 @@ export function DocumentActions({
                     data.error?.includes('submit for review')
                 )) {
                     showDialog(
-                        "⚠️ Permission Denied",
+                        "Permission Denied",
                         "Only the original document creator can submit for review.\n\nYou can save your own draft copy, but cannot submit the original document for review."
                     );
                     setSaveStatus("idle");
@@ -100,13 +104,15 @@ export function DocumentActions({
             if (responseData.isFork && responseData.newDocumentId) {
                 const topic = getTopic();
                 const category = getCategory();
-                const docTitle = getSubtitle();
+                const docTitle = getTitle();
+                const docDescription = getDescription();
 
                 // Build URL with metadata and loadFromDb flag
                 const url = new URL(`/collaborative-editor/${responseData.newDocumentId}`, window.location.origin);
                 if (topic) url.searchParams.set('topic', topic);
                 if (category) url.searchParams.set('category', category);
                 if (docTitle) url.searchParams.set('title', docTitle);
+                if (docDescription) url.searchParams.set('description', docDescription);
                 url.searchParams.set('loadFromDb', 'true'); // Tell editor to load content from database
 
                 showDialog(

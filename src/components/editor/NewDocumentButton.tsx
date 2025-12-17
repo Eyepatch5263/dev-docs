@@ -14,32 +14,7 @@ import {
     DialogTrigger,
 } from "@/components/ui/dialog";
 
-// Topic options
-const TOPICS = [
-    { value: "ai-ml", label: "AI/ML" },
-    { value: "networking", label: "Networking" },
-    { value: "operating-systems", label: "Operating Systems" },
-    { value: "devops", label: "DevOps" },
-    { value: "dbms", label: "DBMS" },
-    { value: "system-design", label: "System Design" },
-    { value: "cybersecurity", label: "Cybersecurity" },
-    { value: "web", label: "Web" },
-];
-
-// Category options
-const CATEGORIES = [
-    { value: "introduction", label: "Introduction" },
-    { value: "core-concepts-terminologies", label: "Core Concepts & Terminologies" },
-    { value: "architecture-components", label: "Architecture & Components" },
-    { value: "building-blocks", label: "Building Blocks" },
-    { value: "design-patterns", label: "Design Patterns" },
-    { value: "workflow-execution", label: "Workflow and Execution" },
-    { value: "scalability-performance", label: "Scalability and Performance" },
-    { value: "security-safety", label: "Security and Safety" },
-    { value: "case-studies", label: "Case Studies" },
-    { value: "common-pitfalls", label: "Common Pitfalls" },
-    { value: "summary", label: "Summary" },
-];
+import { TOPICS, CATEGORIES } from "@/constants/editor";
 
 // Generate a unique document ID from username and timestamp
 function generateDocumentId(userName: string): string {
@@ -61,15 +36,15 @@ export function NewDocumentButton({
     size = "lg",
     variant = "default",
     className = "",
-    showIcon = true,
     children
 }: NewDocumentButtonProps) {
     const router = useRouter();
     const { data: session } = useSession();
     const [open, setOpen] = useState(false);
     const [topic, setTopic] = useState("system-design");
-    const [category, setCategory] = useState("introduction");
     const [title, setTitle] = useState("");
+    const [category, setCategory] = useState("introduction");
+    const [description, setDescription] = useState("");
 
     const handleCreateDocument = () => {
         const userName = session?.user?.name || session?.user?.email || "anonymous";
@@ -77,8 +52,9 @@ export function NewDocumentButton({
 
         // Store metadata in localStorage for the editor to pick up
         localStorage.setItem("inNewDocument", "true");
-        localStorage.setItem(`doc_title_${documentId}`, topic);
-        localStorage.setItem(`doc_subtitle_${documentId}`, title || "Untitled Document");
+        localStorage.setItem(`doc_topic_${documentId}`, topic);
+        localStorage.setItem(`doc_title_${documentId}`, title || "Untitled Document");
+        localStorage.setItem(`doc_description_${documentId}`, description || "");
         localStorage.setItem(`doc_category_${documentId}`, category);
 
         setOpen(false);
@@ -145,17 +121,32 @@ export function NewDocumentButton({
                         </select>
                     </div>
 
-                    {/* Document Title */}
+                    {/* Title */}
                     <div className="grid gap-2">
                         <label htmlFor="title" className="text-sm font-medium">
-                            Document Title
+                            Title
                         </label>
                         <input
                             id="title"
                             type="text"
                             value={title}
                             onChange={(e) => setTitle(e.target.value)}
-                            placeholder="e.g., CDN, DNS, Load Balancer..."
+                            placeholder="e.g. Database Design"
+                            className={`${selectBaseClass} placeholder:text-muted-foreground`}
+                        />
+                    </div>
+
+                    {/* Description */}
+                    <div className="grid gap-2">
+                        <label htmlFor="title" className="text-sm font-medium">
+                            Description
+                        </label>
+                        <input
+                            id="title"
+                            type="text"
+                            value={description}
+                            onChange={(e) => setDescription(e.target.value)}
+                            placeholder="e.g. Getting started with Database Design.."
                             className={`${selectBaseClass} placeholder:text-muted-foreground`}
                         />
                     </div>

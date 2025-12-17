@@ -42,6 +42,7 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
                 id: document.id,
                 documentId: document.document_id,
                 title: document.title,
+                description: document.description,
                 content: document.content,
                 status: document.status,
                 createdAt: document.created_at,

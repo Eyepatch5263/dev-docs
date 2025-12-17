@@ -16,7 +16,7 @@ async function getUserDocuments(userId: string) {
 
     const { data: documents, error } = await supabaseAdmin
         .from("documents")
-        .select("id, document_id, title, topic, category, status, created_at, updated_at")
+        .select("id, document_id, title, description, topic, category, status, created_at, updated_at")
         .eq("owner_id", userId)
         .order("updated_at", { ascending: false });
 
