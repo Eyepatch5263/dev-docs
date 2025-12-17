@@ -117,11 +117,6 @@ export function EditorWrapper({ documentId, userName, userId }: EditorWrapperPro
                         setDocumentTitle(data.document.title);
                     }
                 } else {
-                    // Document doesn't exist in DB yet
-                    // This could be:
-                    // 1. A brand new document (should be caught by inNewDocument flag above)
-                    // 2. A shared link to un-saved document (not owner)
-                    // Since inNewDocument was already checked, this is case 2
                     console.log('No document found, setting isOwner=false');
                     setIsOwner(false);
                 }

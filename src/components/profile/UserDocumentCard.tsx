@@ -1,10 +1,10 @@
 "use client";
 
 import { Document } from "@/app/types/editor.type";
-import { generateAvatarInitials, generateAvatarColor, formatRelativeTime } from "@/lib/admin";
+import { formatRelativeTime } from "@/lib/admin";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { FileText, Calendar, Tag, Layers, Eye } from "lucide-react";
+import { Calendar, Tag, Layers, Eye } from "lucide-react";
 import { useState, useEffect } from "react";
 import { MDXRemote, MDXRemoteSerializeResult } from "next-mdx-remote";
 import { serialize } from "next-mdx-remote/serialize";
