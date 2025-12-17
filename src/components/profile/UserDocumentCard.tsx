@@ -4,7 +4,7 @@ import { Document } from "@/app/types/editor.type";
 import { formatRelativeTime } from "@/lib/admin";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Calendar, Tag, Layers, Eye } from "lucide-react";
+import { Calendar, Tag, Layers, Eye, FileText } from "lucide-react";
 import { useState, useEffect } from "react";
 import { MDXRemote, MDXRemoteSerializeResult } from "next-mdx-remote";
 import { serialize } from "next-mdx-remote/serialize";
@@ -142,21 +142,25 @@ export default function UserDocumentCard({ document }: UserDocumentCardProps) {
 
             {/* Content Preview Dialog */}
             <Dialog open={showContentDialog} onOpenChange={setShowContentDialog}>
-                <DialogContent className="max-w-4xl max-h-[80vh] overflow-hidden flex flex-col">
+                <DialogContent className=" min-w-[85vw] max-h-[80vh] flex flex-col">
                     <DialogHeader>
-                        <DialogTitle className="text-xl font-bold">
+                        <DialogTitle className="md:text-xl flex text-md font-bold">
                             {document.title || "Untitled Document"}
                         </DialogTitle>
-                        <div className="flex items-center gap-4 text-sm text-muted-foreground pt-2">
+                        <div className="grid grid-cols-1 sm:grid-cols-2 md:flex md:flex-row gap-4 text-sm text-muted-foreground pt-2">
                             <div className="flex items-center gap-1.5">
-                                <Layers className="h-3.5 w-3.5" />
+                                <FileText className="h-3.5 w-3.5 shrink-0" />
+                                <span className="capitalize truncate">{document.description}</span>
+                            </div>
+                            <div className="flex items-center gap-1.5">
+                                <Layers className="h-3.5 w-3.5 shrink-0" />
                                 <span className="capitalize">{document.topic?.replace(/-/g, " ")}</span>
                             </div>
                             <div className="flex items-center gap-1.5">
-                                <Tag className="h-3.5 w-3.5" />
+                                <Tag className="h-3.5 w-3.5 shrink-0" />
                                 <span className="capitalize">{document.category?.replace(/-/g, " ")}</span>
                             </div>
-                            <div className="ml-auto">
+                            <div className="sm:col-span-2 md:col-span-1 md:ml-auto">
                                 {getStatusBadge()}
                             </div>
                         </div>

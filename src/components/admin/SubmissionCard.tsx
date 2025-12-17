@@ -207,25 +207,25 @@ export default function SubmissionCard({ document, onStatusUpdate }: SubmissionC
 
             {/* Content Preview Dialog */}
             <Dialog open={showContentDialog} onOpenChange={setShowContentDialog}>
-                <DialogContent className="md:min-w-max max-w-[95vw] max-h-[80vh] flex flex-col">
+                <DialogContent className=" min-w-[85vw] max-h-[80vh] flex flex-col">
                     <DialogHeader>
-                        <DialogTitle className="text-xl font-bold">
+                        <DialogTitle className="md:text-xl flex text-md font-bold">
                             {document.title || "Untitled Document"}
                         </DialogTitle>
-                        <div className="flex items-center gap-4 text-sm text-muted-foreground pt-2">
+                        <div className="grid grid-cols-1 sm:grid-cols-2 md:flex md:flex-row gap-4 text-sm text-muted-foreground pt-2">
                             <div className="flex items-center gap-1.5">
-                                <FileText className="h-3.5 w-3.5" />
-                                <span className="capitalize">{document.description}</span>
+                                <FileText className="h-3.5 w-3.5 shrink-0" />
+                                <span className="capitalize truncate">{document.description}</span>
                             </div>
                             <div className="flex items-center gap-1.5">
-                                <Layers className="h-3.5 w-3.5" />
+                                <Layers className="h-3.5 w-3.5 shrink-0" />
                                 <span className="capitalize">{document.topic?.replace(/-/g, " ")}</span>
                             </div>
                             <div className="flex items-center gap-1.5">
-                                <Tag className="h-3.5 w-3.5" />
+                                <Tag className="h-3.5 w-3.5 shrink-0" />
                                 <span className="capitalize">{document.category?.replace(/-/g, " ")}</span>
                             </div>
-                            <div className="ml-auto">
+                            <div className="sm:col-span-2 md:col-span-1 md:ml-auto">
                                 {getStatusBadge()}
                             </div>
                         </div>
