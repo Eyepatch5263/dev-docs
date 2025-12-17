@@ -75,14 +75,11 @@ export function EditorWrapper({ documentId, userName, userId }: EditorWrapperPro
             }
         }
 
-        console.log('EditorWrapper useEffect running for documentId:', documentId);
 
         // Check if this document was just created (set by NewDocumentButton)
         const isNew = localStorage.getItem("inNewDocument") === "true";
-        console.log('inNewDocument flag:', isNew);
 
         if (isNew) {
-            console.log('Setting as new document, isOwner=true');
             setIsNewDocument(true);
             setIsOwner(true);
             setIsLoading(false);
@@ -96,7 +93,6 @@ export function EditorWrapper({ documentId, userName, userId }: EditorWrapperPro
         // Check if we already know they're the owner (from previous render or page visit)
         const cachedOwnership = localStorage.getItem(`doc_owner_${documentId}`);
         if (cachedOwnership === 'true') {
-            console.log('Using cached ownership: true');
             setIsOwner(true);
             setIsLoading(false);
             return;
@@ -104,14 +100,11 @@ export function EditorWrapper({ documentId, userName, userId }: EditorWrapperPro
 
         // Check document ownership from API (only for existing documents)
         const checkOwnership = async () => {
-            console.log('Running ownership check...');
             try {
                 const response = await fetch(`/api/documents/${documentId}`);
                 const data = await response.json();
-                console.log('Ownership API response:', data);
 
                 if (data.document) {
-                    console.log('Setting isOwner from API:', data.isOwner);
                     setIsOwner(data.isOwner);
                     // Cache the ownership result
                     if (data.isOwner) {
@@ -121,11 +114,9 @@ export function EditorWrapper({ documentId, userName, userId }: EditorWrapperPro
                         setDocumentTitle(data.document.title);
                     }
                 } else {
-                    console.log('No document found, setting isOwner=false');
                     setIsOwner(false);
                 }
             } catch (error) {
-                console.error("Failed to check ownership:", error);
                 setIsOwner(false);
             } finally {
                 setIsLoading(false);
@@ -177,10 +168,6 @@ export function EditorWrapper({ documentId, userName, userId }: EditorWrapperPro
         return localStorage.getItem(`doc_category_${documentId}`) || "introduction";
     }, [documentId]);
 
-    const handleSaveSuccess = (status: "draft" | "review") => {
-        console.log(`Document saved as ${status}`);
-    };
-
     return (
         <div className="flex flex-col h-full">
             {/* Document Actions Bar - show when loaded */}
@@ -218,7 +205,6 @@ export function EditorWrapper({ documentId, userName, userId }: EditorWrapperPro
                             getTitle={getTitle}
                             getDescription={getDescription}
                             getCategory={getCategory}
-                            onSaveSuccess={handleSaveSuccess}
                         />
                     </div>
                 </div>

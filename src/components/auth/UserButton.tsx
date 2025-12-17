@@ -101,14 +101,6 @@ export function UserButton() {
                                 <User className="h-4 w-4 text-muted-foreground" />
                                 <span>Profile</span>
                             </Link>
-                            <Link
-                                href="/settings"
-                                onClick={() => setIsOpen(false)}
-                                className="flex items-center gap-3 px-3 py-2 text-sm rounded-md hover:bg-accent transition-colors"
-                            >
-                                <Settings className="h-4 w-4 text-muted-foreground" />
-                                <span>Settings</span>
-                            </Link>
                         </div>
 
                         {/* Sign Out */}

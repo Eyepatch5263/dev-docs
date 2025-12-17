@@ -12,7 +12,7 @@ export default withAuth(
                     return !!token;
                 }
                 // Define which routes require authentication
-                const protectedRoutes = ["/profile", "/settings", "/dashboard","/collaborative-editor/*"];
+                const protectedRoutes = ["/profile","/collaborative-editor/*"];
                 const pathname = req.nextUrl.pathname;
 
                 

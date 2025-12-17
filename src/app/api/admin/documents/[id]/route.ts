@@ -3,6 +3,8 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { supabaseAdmin } from "@/lib/supabase";
 import { isAdmin } from "@/lib/admin";
+import { rateLimitMiddleware } from "@/app/middleware/rateLimit";
+import { WRITE_RATE_LIMIT } from "@/lib/rate-limit-config";
 
 interface RouteParams {
     params: Promise<{ id: string }>;
@@ -14,6 +16,21 @@ export async function PATCH(
     { params }: RouteParams
 ) {
     try {
+        // Apply rate limiting
+        const rateLimitResult = await rateLimitMiddleware(request, WRITE_RATE_LIMIT)
+        if (!rateLimitResult.allowed) {
+            return NextResponse.json(
+                {
+                    error: 'Too many requests',
+                    retryAfter: rateLimitResult.retryAfter
+                },
+                {
+                    status: 429,
+                    headers: rateLimitResult.headers
+                }
+            )
+        }
+
         const session = await getServerSession(authOptions);
         const { id } = await params;
 
@@ -126,6 +143,8 @@ export async function PATCH(
         return NextResponse.json({
             message: `Document ${status} successfully`,
             document: updatedDoc,
+        }, {
+            headers: rateLimitResult.headers
         });
     } catch (error) {
         console.error("Admin document update error:", error);

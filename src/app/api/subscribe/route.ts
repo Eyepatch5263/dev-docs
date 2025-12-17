@@ -1,34 +1,51 @@
-import { NextResponse } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
 import { resend } from '@/lib/resend';
+import { rateLimitMiddleware } from '@/app/middleware/rateLimit';
+import { WRITE_RATE_LIMIT } from '@/lib/rate-limit-config';
 
-export async function POST(request: Request) {
-    try {
-        const { email } = await request.json();
-
-        // Validate email
-        if (!email || typeof email !== 'string') {
-            return NextResponse.json(
-                { error: 'Email is required' },
-                { status: 400 }
-            );
+export async function POST(request: NextRequest) {
+  try {
+    // Apply rate limiting
+    const rateLimitResult = await rateLimitMiddleware(request, WRITE_RATE_LIMIT)
+    if (!rateLimitResult.allowed) {
+      return NextResponse.json(
+        {
+          error: 'Too many requests',
+          retryAfter: rateLimitResult.retryAfter
+        },
+        {
+          status: 429,
+          headers: rateLimitResult.headers
         }
+      )
+    }
 
-        // Testing for valid email via regex pattern
-        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-        if (!emailRegex.test(email)) {
-            return NextResponse.json(
-                { error: 'Invalid email format' },
-                { status: 400 }
-            );
-        }
+    const { email } = await request.json();
 
-        // Send welcome email using Resend
-        const { error } = await resend.emails.send({
-            from: 'Explain Bytes <newsletter@news.explainbytes.tech>',
-            to: [email],
-            replyTo: 'support@news.explainbytes.tech',
-            subject: 'Welcome to Explain Bytes Newsletter!',
-            text: `
+    // Validate email
+    if (!email || typeof email !== 'string') {
+      return NextResponse.json(
+        { error: 'Email is required' },
+        { status: 400 }
+      );
+    }
+
+    // Testing for valid email via regex pattern
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) {
+      return NextResponse.json(
+        { error: 'Invalid email format' },
+        { status: 400 }
+      );
+    }
+
+    // Send welcome email using Resend
+    const { error } = await resend.emails.send({
+      from: 'Explain Bytes <newsletter@news.explainbytes.tech>',
+      to: [email],
+      replyTo: 'support@news.explainbytes.tech',
+      subject: 'Welcome to Explain Bytes Newsletter!',
+      text: `
 Welcome to Explain Bytes! 🎉
 
 Hi Reader!
@@ -52,7 +69,7 @@ The Explain Bytes Team
 ---
 © ${new Date().getFullYear()} Explain Bytes. All rights reserved.
       `,
-            html: `
+      html: `
         <!DOCTYPE html>
         <html>
           <head>
@@ -110,25 +127,28 @@ The Explain Bytes Team
           </body>
         </html>
       `,
-        });
+    });
 
-        if (error) {
-            console.error('Resend error:', error);
-            return NextResponse.json(
-                { error: 'Failed to send email. Please try again later.' },
-                { status: 500 }
-            );
-        }
-
-        return NextResponse.json(
-            { success: true, message: 'Successfully subscribed!' },
-            { status: 200 }
-        );
-    } catch (error) {
-        console.error('Newsletter subscription error:', error);
-        return NextResponse.json(
-            { error: 'An unexpected error occurred. Please try again later.' },
-            { status: 500 }
-        );
+    if (error) {
+      console.error('Resend error:', error);
+      return NextResponse.json(
+        { error: 'Failed to send email. Please try again later.' },
+        { status: 500 }
+      );
     }
+
+    return NextResponse.json(
+      { success: true, message: 'Successfully subscribed!' },
+      {
+        status: 200,
+        headers: rateLimitResult.headers
+      }
+    );
+  } catch (error) {
+    console.error('Newsletter subscription error:', error);
+    return NextResponse.json(
+      { error: 'An unexpected error occurred. Please try again later.' },
+      { status: 500 }
+    );
+  }
 }

@@ -29,7 +29,6 @@ function getStatusBadge(status: string) {
 export function DocumentsGrid({ initialDocuments }: DocumentsGridProps) {
     const [documents, setDocuments] = useState(initialDocuments);
     const docSize = documents.length
-    console.log(MAX_DOCUMENTS)
     const handleDelete = (documentId: string) => {
         setDocuments(documents.filter(doc => doc.id !== documentId));
     };

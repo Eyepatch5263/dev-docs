@@ -3,10 +3,27 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { supabaseAdmin } from "@/lib/supabase";
 import { isAdmin } from "@/lib/admin";
+import { rateLimitMiddleware } from "@/app/middleware/rateLimit";
+import { READ_RATE_LIMIT } from "@/lib/rate-limit-config";
 
 // GET - Fetch all documents for admin review
 export async function GET(request: NextRequest) {
     try {
+        // Apply rate limiting
+        const rateLimitResult = await rateLimitMiddleware(request, READ_RATE_LIMIT)
+        if (!rateLimitResult.allowed) {
+            return NextResponse.json(
+                {
+                    error: 'Too many requests',
+                    retryAfter: rateLimitResult.retryAfter
+                },
+                {
+                    status: 429,
+                    headers: rateLimitResult.headers
+                }
+            )
+        }
+
         const session = await getServerSession(authOptions);
 
         if (!session?.user?.id) {
@@ -82,7 +99,9 @@ export async function GET(request: NextRequest) {
             );
         }
 
-        return NextResponse.json({ documents });
+        return NextResponse.json({ documents }, {
+            headers: rateLimitResult.headers
+        });
     } catch (error) {
         console.error("Admin documents list error:", error);
         return NextResponse.json(

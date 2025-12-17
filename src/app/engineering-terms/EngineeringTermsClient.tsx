@@ -7,6 +7,8 @@ import { Input } from '@/components/ui/input';
 import type { EngineeringTerm } from '../../../data/sample-terms';
 import { TermCard } from '@/components/TermCard';
 import HeroReusableComponent from '@/components/HeroReusableComponent';
+import { RateLimitError } from '@/components/ui/rate-limit-error';
+import { isRateLimited, getRateLimitInfo } from '@/lib/rate-limit-utils';
 
 interface SearchResponse {
     success: boolean;
@@ -14,6 +16,7 @@ interface SearchResponse {
     total: number;
     source: 'elasticsearch' | 'local' | 'cache';
     error?: string;
+    retryAfter?: number;
 }
 
 export function EngineeringTermsClient() {
@@ -24,6 +27,8 @@ export function EngineeringTermsClient() {
     const [source, setSource] = useState<'elasticsearch' | 'local' | 'cache'>('local');
     const [error, setError] = useState<string | null>(null);
     const [isMounted, setIsMounted] = useState(false);
+    const [isRateLimitedState, setIsRateLimitedState] = useState(false);
+    const [rateLimitInfo, setRateLimitInfo] = useState<{ retryAfter: number; limit?: number } | null>(null);
 
     const searchInputRef = useRef<HTMLInputElement>(null);
     const debounceRef = useRef<NodeJS.Timeout | null>(null);
@@ -52,6 +57,8 @@ export function EngineeringTermsClient() {
     const performSearch = useCallback(async (searchQuery: string) => {
         setIsLoading(true);
         setError(null);
+        setIsRateLimitedState(false);
+        setRateLimitInfo(null);
 
         try {
             const response = await fetch(
@@ -59,9 +66,18 @@ export function EngineeringTermsClient() {
             );
             const data: SearchResponse = await response.json();
 
-            if (data.success) {
+            if (response.ok && data.success) {
                 setResults(data.terms);
                 setSource(data.source);
+            } else if (isRateLimited(response)) {
+                // Handle rate limit
+                const rateLimitData = await getRateLimitInfo(response);
+                setIsRateLimitedState(true);
+                setRateLimitInfo({
+                    retryAfter: data.retryAfter || rateLimitData?.retryAfter || 60,
+                    limit: rateLimitData?.limit,
+                });
+                setResults([]);
             } else {
                 setError(data.error || 'Search failed');
                 setResults([]);
@@ -138,7 +154,21 @@ export function EngineeringTermsClient() {
 
             {/* Error State */}
             <AnimatePresence>
-                {error && (
+                {isRateLimitedState && rateLimitInfo ? (
+                    <motion.div
+                        initial={{ opacity: 0, y: -10 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        exit={{ opacity: 0, y: -10 }}
+                        className="max-w-2xl mx-auto mb-8"
+                    >
+                        <RateLimitError
+                            variant="inline"
+                            retryAfter={rateLimitInfo.retryAfter}
+                            limit={rateLimitInfo.limit}
+                            onRetry={() => performSearch(query)}
+                        />
+                    </motion.div>
+                ) : error ? (
                     <motion.div
                         initial={{ opacity: 0, y: -10 }}
                         animate={{ opacity: 1, y: 0 }}
@@ -147,7 +177,7 @@ export function EngineeringTermsClient() {
                     >
                         {error}
                     </motion.div>
-                )}
+                ) : null}
             </AnimatePresence>
 
             {/* Results contain category, term, definition, and tags */}

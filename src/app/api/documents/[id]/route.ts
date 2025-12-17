@@ -2,6 +2,8 @@ import { NextRequest, NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { supabaseAdmin } from "@/lib/supabase";
+import { rateLimitMiddleware } from "@/app/middleware/rateLimit";
+import { READ_RATE_LIMIT, WRITE_RATE_LIMIT } from "@/lib/rate-limit-config";
 
 interface RouteParams {
     params: Promise<{ id: string }>;
@@ -10,6 +12,21 @@ interface RouteParams {
 // GET - Get document by document_id
 export async function GET(request: NextRequest, { params }: RouteParams) {
     try {
+        // Apply rate limiting
+        const rateLimitResult = await rateLimitMiddleware(request, READ_RATE_LIMIT)
+        if (!rateLimitResult.allowed) {
+            return NextResponse.json(
+                {
+                    error: 'Too many requests',
+                    retryAfter: rateLimitResult.retryAfter
+                },
+                {
+                    status: 429,
+                    headers: rateLimitResult.headers
+                }
+            )
+        }
+
         const session = await getServerSession(authOptions);
         const { id: documentId } = await params;
 
@@ -50,6 +67,8 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
                 owner: document.owner,
             },
             isOwner,
+        }, {
+            headers: rateLimitResult.headers
         });
     } catch (error) {
         console.error("Document fetch error:", error);
@@ -63,6 +82,21 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
 // DELETE - Delete a document (owner only)
 export async function DELETE(request: NextRequest, { params }: RouteParams) {
     try {
+        // Apply rate limiting
+        const rateLimitResult = await rateLimitMiddleware(request, WRITE_RATE_LIMIT)
+        if (!rateLimitResult.allowed) {
+            return NextResponse.json(
+                {
+                    error: 'Too many requests',
+                    retryAfter: rateLimitResult.retryAfter
+                },
+                {
+                    status: 429,
+                    headers: rateLimitResult.headers
+                }
+            )
+        }
+
         const session = await getServerSession(authOptions);
         const { id: documentId } = await params;
 
@@ -116,6 +150,8 @@ export async function DELETE(request: NextRequest, { params }: RouteParams) {
 
         return NextResponse.json({
             message: "Document deleted successfully",
+        }, {
+            headers: rateLimitResult.headers
         });
     } catch (error) {
         console.error("Document delete error:", error);

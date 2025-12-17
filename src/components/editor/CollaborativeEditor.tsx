@@ -110,7 +110,6 @@ function TiptapEditorInner({
 
         // Set new timer to mark user as idle after 5s
         idleTimeoutRef.current = setTimeout(() => {
-            console.log("User idle - removing awareness state");
             // Remove local cursor/selection state but keep user info
             provider.awareness.setLocalStateField("cursor", null);
             provider.awareness.setLocalStateField("lastActive", null);
@@ -262,7 +261,6 @@ function TiptapEditorInner({
         const shouldLoad = localStorage.getItem(`loadFromDb_${documentId}`);
 
         if (shouldLoad === 'true') {
-            console.log('Loading forked document content from database...');
 
             // Fetch content from API
             fetch(`/api/documents/${documentId}`)

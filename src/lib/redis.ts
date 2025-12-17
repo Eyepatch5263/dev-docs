@@ -1,17 +1,23 @@
 import Redis from 'ioredis';
-
+import { redisClient } from './rate-limiter';
 // Configure Redis client
 // Default to localhost:6300 as per user's setup
-const redisClient = new Redis({
-    host: process.env.REDIS_HOST || 'localhost',
-    port: parseInt(process.env.REDIS_PORT || '6300', 10),
-    maxRetriesPerRequest: 3,
-    retryStrategy(times) {
-        const delay = Math.min(times * 50, 2000);
-        return delay;
-    },
-    lazyConnect: true, // Don't connect until first command
-});
+
+// import { Redis } from '@upstash/redis'
+
+
+// For local development use docker based redis container
+// const redisClient = new Redis({
+//     host: process.env.REDIS_HOST || 'localhost',
+//     port: parseInt(process.env.REDIS_PORT || '6300', 10),
+//     maxRetriesPerRequest: 3,
+//     retryStrategy(times) {
+//         const delay = Math.min(times * 50, 2000);
+//         return delay;
+//     },
+//     lazyConnect: true, // Don't connect until first command
+// });
+
 
 // Handle connection events
 redisClient.on('connect', () => {

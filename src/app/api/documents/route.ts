@@ -3,9 +3,24 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { supabaseAdmin } from "@/lib/supabase";
 import { formatTopicName, formatCategoryName } from "@/constants/editor";
+import { rateLimitMiddleware } from "@/app/middleware/rateLimit";
+import { READ_RATE_LIMIT, WRITE_RATE_LIMIT } from "@/lib/rate-limit-config";
 
-// POST - Create or update a document
 export async function POST(request: NextRequest) {
+
+    const rateLimitResult = await rateLimitMiddleware(request, WRITE_RATE_LIMIT)
+    if (!rateLimitResult.allowed) {
+        return NextResponse.json(
+            {
+                error: 'Too many requests',
+                retryAfter: rateLimitResult.retryAfter
+            },
+            {
+                status: 429,
+                headers: rateLimitResult.headers
+            }
+        )
+    }
     try {
         const session = await getServerSession(authOptions);
 
@@ -89,6 +104,8 @@ export async function POST(request: NextRequest) {
                 message: "Document updated successfully",
                 document: updatedDoc,
                 isFork: false,
+            }, {
+                headers: rateLimitResult.headers
             });
         } else {
             // Create new document
@@ -125,7 +142,10 @@ export async function POST(request: NextRequest) {
                 document: newDoc,
                 isFork: isFork,
                 newDocumentId: isFork ? newDocumentId : undefined,
-            }, { status: 201 });
+            }, {
+                status: 201,
+                headers: rateLimitResult.headers
+            });
         }
     } catch (error) {
         console.error("Document save error:", error);
@@ -139,6 +159,21 @@ export async function POST(request: NextRequest) {
 // GET - List user's documents
 export async function GET(request: NextRequest) {
     try {
+        // Apply rate limiting
+        const rateLimitResult = await rateLimitMiddleware(request, READ_RATE_LIMIT)
+        if (!rateLimitResult.allowed) {
+            return NextResponse.json(
+                {
+                    error: 'Too many requests',
+                    retryAfter: rateLimitResult.retryAfter
+                },
+                {
+                    status: 429,
+                    headers: rateLimitResult.headers
+                }
+            )
+        }
+
         const session = await getServerSession(authOptions);
 
         if (!session?.user?.id) {
@@ -178,7 +213,9 @@ export async function GET(request: NextRequest) {
             );
         }
 
-        return NextResponse.json({ documents });
+        return NextResponse.json({ documents }, {
+            headers: rateLimitResult.headers
+        });
     } catch (error) {
         console.error("Document list error:", error);
         return NextResponse.json(
