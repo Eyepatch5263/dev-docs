@@ -1,8 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
-import { supabaseAdmin } from "@/lib/supabase";
-import { isAdmin } from "@/lib/admin";
+import { db } from "@/lib/db";
+import { isAdmin } from "@/lib/admin-server";
 import { rateLimitMiddleware } from "@/app/middleware/rateLimit";
 import { READ_RATE_LIMIT } from "@/lib/rate-limit-config";
 
@@ -42,57 +42,30 @@ export async function GET(request: NextRequest) {
             );
         }
 
-        if (!supabaseAdmin) {
-            return NextResponse.json(
-                { error: "Database connection not available" },
-                { status: 500 }
-            );
-        }
-
         const { searchParams } = new URL(request.url);
         const status = searchParams.get("status") || "review";
 
-        // Build query
-        let query = supabaseAdmin
-            .from("documents")
-            .select(`
-                id,
-                document_id,
-                title,
-                description,
-                topic,
-                category,
-                status,
-                content,
-                created_at,
-                updated_at,
-                reviewed_by,
-                reviewed_at,
-                owner:users!owner_id (
-                    id,
-                    name,
-                    email,
-                    avatar_url
-                )
-            `);
+        let documents;
+        try {
+            let sql = `SELECT d.id, d.document_id, d.title, d.description, d.topic, d.category, d.status, d.content, d.created_at, d.updated_at, d.reviewed_by, d.reviewed_at,
+                              json_build_object('id', u.id, 'name', u.name, 'email', u.email, 'avatar_url', u.avatar_url) as owner
+                       FROM documents d
+                       LEFT JOIN users u ON d.owner_id = u.id`;
+            const params: any[] = [];
 
-        // Filter by status
-        if (status === "all") {
-            // For "all", exclude drafts - only show submitted documents
-            query = query.in("status", ["review", "approved", "rejected"]);
-        } else if (status !== "all") {
-            // For specific status, filter normally
-            query = query.eq("status", status);
-        }
+            if (status === "all") {
+                sql += ` WHERE d.status IN ('review', 'approved', 'rejected')`;
+            } else {
+                sql += ` WHERE d.status = $1`;
+                params.push(status);
+            }
 
-        // Order by updated_at descending
-        query = query.order("updated_at", { ascending: false });
+            sql += ` ORDER BY d.updated_at DESC`;
 
-        // Execute query
-        const { data: documents, error } = await query;
-
-        if (error) {
-            console.error("Error fetching documents:", error);
+            const res = await db.query(sql, params);
+            documents = res.rows;
+        } catch (error) {
+            console.error("Error fetching documents for admin:", error);
             return NextResponse.json(
                 { error: "Failed to fetch documents" },
                 { status: 500 }

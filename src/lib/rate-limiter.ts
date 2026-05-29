@@ -1,8 +1,6 @@
-import Redis from "ioredis";
+import redisClient from "./redis";
 
-const REDIS_URL = String(process.env.REDIS_URL);
-
-export const redisClient = new Redis(REDIS_URL);
+export { redisClient };
 
 export async function SlidingWindowRateLimiter(ip: string, maxRequest: number = 100, window: number = 60000): Promise<{ allowed: boolean, remaining: number, resetTime: number, retryAfter?: number }> {
     const now = Date.now()

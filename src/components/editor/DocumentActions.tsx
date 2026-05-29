@@ -108,7 +108,7 @@ export function DocumentActions({
                 const docDescription = getDescription();
 
                 // Build URL with metadata and loadFromDb flag
-                const url = new URL(`/collaborative-editor/${responseData.newDocumentId}`, window.location.origin);
+                const url = new URL(`/collaborative-editor/${encodeURIComponent(responseData.newDocumentId)}`, window.location.origin);
                 if (topic) url.searchParams.set('topic', topic);
                 if (category) url.searchParams.set('category', category);
                 if (docTitle) url.searchParams.set('title', docTitle);

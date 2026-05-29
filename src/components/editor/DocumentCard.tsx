@@ -39,7 +39,7 @@ export function DocumentCard({ doc, formatDate, getStatusBadge, onDelete }: Docu
         setIsDeleting(true);
 
         try {
-            const response = await fetch(`/api/documents/${doc.document_id}`, {
+            const response = await fetch(`/api/documents/${encodeURIComponent(doc.document_id)}`, {
                 method: "DELETE",
             });
 
@@ -61,7 +61,7 @@ export function DocumentCard({ doc, formatDate, getStatusBadge, onDelete }: Docu
         <>
             <div className="group relative">
                 <Link
-                    href={`/collaborative-editor/${doc.document_id}`}
+                    href={`/collaborative-editor/${encodeURIComponent(doc.document_id)}`}
                     className="block"
                 >
                     <div className="relative p-6 rounded-xl border border-border bg-card hover:border-primary/50 hover:shadow-lg transition-all duration-200">

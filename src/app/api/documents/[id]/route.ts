@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
-import { supabaseAdmin } from "@/lib/supabase";
+import { db } from "@/lib/db";
 import { rateLimitMiddleware } from "@/app/middleware/rateLimit";
 import { READ_RATE_LIMIT, WRITE_RATE_LIMIT } from "@/lib/rate-limit-config";
 
@@ -30,20 +30,27 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
         const session = await getServerSession(authOptions);
         const { id: documentId } = await params;
 
-        if (!supabaseAdmin) {
+        let document;
+        try {
+            const res = await db.query<any>(
+                `SELECT d.*, 
+                        json_build_object('id', u.id, 'name', u.name, 'email', u.email, 'avatar_url', u.avatar_url) as owner
+                 FROM documents d
+                 LEFT JOIN users u ON d.owner_id = u.id
+                 WHERE d.document_id = $1
+                 LIMIT 1`,
+                [documentId]
+            );
+            document = res.rows[0];
+        } catch (dbError) {
+            console.error("Database error fetching document:", dbError);
             return NextResponse.json(
-                { error: "Database connection not available" },
+                { error: "Database connection or query failed" },
                 { status: 500 }
             );
         }
 
-        const { data: document, error } = await supabaseAdmin
-            .from("documents")
-            .select("*, owner:users(id, name, email, avatar_url)")
-            .eq("document_id", documentId)
-            .single();
-
-        if (error || !document) {
+        if (!document) {
             // Document doesn't exist yet - that's okay
             return NextResponse.json({
                 document: null,
@@ -107,19 +114,21 @@ export async function DELETE(request: NextRequest, { params }: RouteParams) {
             );
         }
 
-        if (!supabaseAdmin) {
+        // Check if document exists and user is owner
+        let document;
+        try {
+            const docRes = await db.query<any>(
+                "SELECT id, owner_id FROM documents WHERE document_id = $1 LIMIT 1",
+                [documentId]
+            );
+            document = docRes.rows[0];
+        } catch (dbError) {
+            console.error("Database error finding document:", dbError);
             return NextResponse.json(
-                { error: "Database connection not available" },
+                { error: "Database query failed" },
                 { status: 500 }
             );
         }
-
-        // Check if document exists and user is owner
-        const { data: document } = await supabaseAdmin
-            .from("documents")
-            .select("id, owner_id")
-            .eq("document_id", documentId)
-            .single();
 
         if (!document) {
             return NextResponse.json(
@@ -135,12 +144,12 @@ export async function DELETE(request: NextRequest, { params }: RouteParams) {
             );
         }
 
-        const { error: deleteError } = await supabaseAdmin
-            .from("documents")
-            .delete()
-            .eq("id", document.id);
-
-        if (deleteError) {
+        try {
+            await db.query(
+                "DELETE FROM documents WHERE id = $1",
+                [document.id]
+            );
+        } catch (deleteError) {
             console.error("Error deleting document:", deleteError);
             return NextResponse.json(
                 { error: "Failed to delete document" },

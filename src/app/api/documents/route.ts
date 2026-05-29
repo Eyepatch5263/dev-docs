@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
-import { supabaseAdmin } from "@/lib/supabase";
+import { db } from "@/lib/db";
 import { formatTopicName, formatCategoryName } from "@/constants/editor";
 import { rateLimitMiddleware } from "@/app/middleware/rateLimit";
 import { READ_RATE_LIMIT, WRITE_RATE_LIMIT } from "@/lib/rate-limit-config";
@@ -31,12 +31,7 @@ export async function POST(request: NextRequest) {
             );
         }
 
-        if (!supabaseAdmin) {
-            return NextResponse.json(
-                { error: "Database connection not available" },
-                { status: 500 }
-            );
-        }
+
 
         const { documentId, title, description, topic, category, content, status, isOriginalOwner } = await request.json();
 
@@ -57,12 +52,11 @@ export async function POST(request: NextRequest) {
         }
 
         // Check if document exists with this document_id and user is the owner
-        const { data: existingDoc } = await supabaseAdmin
-            .from("documents")
-            .select("id, owner_id, document_id")
-            .eq("document_id", documentId)
-            .eq("owner_id", session.user.id)
-            .single();
+        const existingDocRes = await db.query<{ id: string; owner_id: string; document_id: string }>(
+            "SELECT id, owner_id, document_id FROM documents WHERE document_id = $1 AND owner_id = $2 LIMIT 1",
+            [documentId, session.user.id]
+        );
+        const existingDoc = existingDocRes.rows[0];
 
         // Determine if this should be a fork based on client-provided ownership
         const isFork = !isOriginalOwner;
@@ -77,22 +71,25 @@ export async function POST(request: NextRequest) {
 
         if (existingDoc) {
             // User's document exists - update it
-            const { data: updatedDoc, error: updateError } = await supabaseAdmin
-                .from("documents")
-                .update({
-                    title: title || "Untitled Document",
-                    description: description || "",
-                    topic: formatTopicName(topic || "system-design"),
-                    category: formatCategoryName(category || "introduction"),
-                    content,
-                    status: status || "draft",
-                    updated_at: new Date().toISOString(),
-                })
-                .eq("id", existingDoc.id)
-                .select()
-                .single();
-
-            if (updateError) {
+            let updatedDoc;
+            try {
+                const updateRes = await db.query<any>(
+                    `UPDATE documents 
+                     SET title = $1, description = $2, topic = $3, category = $4, content = $5, status = $6, updated_at = NOW() 
+                     WHERE id = $7 
+                     RETURNING *`,
+                    [
+                        title || "Untitled Document",
+                        description || "",
+                        formatTopicName(topic || "system-design"),
+                        formatCategoryName(category || "introduction"),
+                        content,
+                        status || "draft",
+                        existingDoc.id
+                    ]
+                );
+                updatedDoc = updateRes.rows[0];
+            } catch (updateError) {
                 console.error("Error updating document:", updateError);
                 return NextResponse.json(
                     { error: "Failed to update document" },
@@ -114,22 +111,25 @@ export async function POST(request: NextRequest) {
                 ? `${session.user.name?.toLowerCase().replace(/\s+/g, '_') || 'user'}_${Math.random().toString(36).substring(2, 15)}`
                 : documentId;
 
-            const { data: newDoc, error: createError } = await supabaseAdmin
-                .from("documents")
-                .insert({
-                    document_id: newDocumentId,
-                    owner_id: session.user.id,
-                    title: title || "Untitled Document",
-                    description: description || "",
-                    topic: formatTopicName(topic || "system-design"),
-                    category: formatCategoryName(category || "introduction"),
-                    content,
-                    status: status || "draft",
-                })
-                .select()
-                .single();
-
-            if (createError) {
+            let newDoc;
+            try {
+                const insertRes = await db.query<any>(
+                    `INSERT INTO documents (document_id, owner_id, title, description, topic, category, content, status) 
+                     VALUES ($1, $2, $3, $4, $5, $6, $7, $8) 
+                     RETURNING *`,
+                    [
+                        newDocumentId,
+                        session.user.id,
+                        title || "Untitled Document",
+                        description || "",
+                        formatTopicName(topic || "system-design"),
+                        formatCategoryName(category || "introduction"),
+                        content,
+                        status || "draft"
+                    ]
+                );
+                newDoc = insertRes.rows[0];
+            } catch (createError) {
                 console.error("Error creating document:", createError);
                 return NextResponse.json(
                     { error: "Failed to create document" },
@@ -183,29 +183,28 @@ export async function GET(request: NextRequest) {
             );
         }
 
-        if (!supabaseAdmin) {
-            return NextResponse.json(
-                { error: "Database connection not available" },
-                { status: 500 }
-            );
-        }
+
 
         const { searchParams } = new URL(request.url);
         const status = searchParams.get("status");
 
-        let query = supabaseAdmin
-            .from("documents")
-            .select("id, document_id, title, description, topic, content, category, status, created_at, updated_at")
-            .eq("owner_id", session.user.id)
-            .order("updated_at", { ascending: false });
+        let documents;
+        try {
+            let sql = `SELECT id, document_id, title, description, topic, content, category, status, created_at, updated_at 
+                       FROM documents 
+                       WHERE owner_id = $1`;
+            const params: any[] = [session.user.id];
 
-        if (status) {
-            query = query.eq("status", status);
-        }
+            if (status) {
+                sql += ` AND status = $2`;
+                params.push(status);
+            }
 
-        const { data: documents, error } = await query;
+            sql += ` ORDER BY updated_at DESC`;
 
-        if (error) {
+            const res = await db.query(sql, params);
+            documents = res.rows;
+        } catch (error) {
             console.error("Error fetching documents:", error);
             return NextResponse.json(
                 { error: "Failed to fetch documents" },

@@ -3,7 +3,7 @@ import CredentialsProvider from "next-auth/providers/credentials";
 import GitHubProvider from "next-auth/providers/github";
 import GoogleProvider from "next-auth/providers/google";
 import bcrypt from "bcryptjs";
-import { supabaseAdmin } from "./supabase";
+import { db } from "./db";
 import { Resend } from "resend";
 
 const resend = new Resend(process.env.RESEND_API_KEY);
@@ -196,18 +196,14 @@ export const authOptions: NextAuthOptions = {
                     throw new Error("Email and password are required");
                 }
 
-                if (!supabaseAdmin) {
-                    throw new Error("Database connection not available");
-                }
-
                 // Find user by email
-                const { data: user, error } = await supabaseAdmin
-                    .from("users")
-                    .select("*")
-                    .eq("email", credentials.email.toLowerCase())
-                    .single();
+                const res = await db.query<any>(
+                    "SELECT * FROM users WHERE email = $1 LIMIT 1",
+                    [credentials.email.toLowerCase()]
+                );
+                const user = res.rows[0];
 
-                if (error || !user) {
+                if (!user) {
                     throw new Error("Invalid email or password");
                 }
 
@@ -270,28 +266,24 @@ export const authOptions: NextAuthOptions = {
                 token.picture = user.image;
             }
 
-            // Handle OAuth sign-in - create or update user in Supabase
-            if (account && account.provider !== "credentials" && user && supabaseAdmin) {
-                const { data: existingUser } = await supabaseAdmin
-                    .from("users")
-                    .select("id")
-                    .eq("email", user.email?.toLowerCase())
-                    .single();
+            // Handle OAuth sign-in - create or update user in Postgres
+            if (account && account.provider !== "credentials" && user) {
+                const existingUserRes = await db.query<{ id: string }>(
+                    "SELECT id FROM users WHERE email = $1 LIMIT 1",
+                    [user.email?.toLowerCase()]
+                );
+                const existingUser = existingUserRes.rows[0];
 
                 if (!existingUser) {
                     // Create new user for OAuth sign-in
                     // OAuth users have verified emails from the provider
-                    const { data: newUser } = await supabaseAdmin
-                        .from("users")
-                        .insert({
-                            email: user.email?.toLowerCase(),
-                            name: user.name,
-                            avatar_url: user.image,
-                            oauth_provider: account.provider,
-                            email_verified: true, // OAuth providers verify emails
-                        })
-                        .select()
-                        .single();
+                    const insertRes = await db.query<{ id: string }>(
+                        `INSERT INTO users (email, name, avatar_url, oauth_provider, email_verified) 
+                         VALUES ($1, $2, $3, $4, true) 
+                         RETURNING id`,
+                        [user.email?.toLowerCase(), user.name, user.image, account.provider]
+                    );
+                    const newUser = insertRes.rows[0];
 
                     if (newUser) {
                         token.id = newUser.id;
@@ -321,11 +313,11 @@ export const authOptions: NextAuthOptions = {
     events: {
         async signIn({ user, account }) {
             // Update last login timestamp
-            if (supabaseAdmin && user.email) {
-                await supabaseAdmin
-                    .from("users")
-                    .update({ last_login: new Date().toISOString() })
-                    .eq("email", user.email.toLowerCase());
+            if (user.email) {
+                await db.query(
+                    "UPDATE users SET last_login = NOW() WHERE email = $1",
+                    [user.email.toLowerCase()]
+                );
             }
         },
     },

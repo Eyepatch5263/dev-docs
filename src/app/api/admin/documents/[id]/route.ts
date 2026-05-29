@@ -1,8 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
-import { supabaseAdmin } from "@/lib/supabase";
-import { isAdmin } from "@/lib/admin";
+import { db } from "@/lib/db";
+import { isAdmin } from "@/lib/admin-server";
 import { rateLimitMiddleware } from "@/app/middleware/rateLimit";
 import { WRITE_RATE_LIMIT } from "@/lib/rate-limit-config";
 
@@ -50,14 +50,6 @@ export async function PATCH(
             );
         }
 
-        if (!supabaseAdmin) {
-            return NextResponse.json(
-                { error: "Database connection not available" },
-                { status: 500 }
-            );
-        }
-
-
         const { status } = await request.json();
 
         // Validate status
@@ -68,42 +60,34 @@ export async function PATCH(
             );
         }
 
-        // Update document status
-        console.log("Updating document status:", id);
-        const { data: updatedDoc, error: updateError } = await supabaseAdmin
-            .from("documents")
-            .update({
-                status,
-                reviewed_by: session.user.id,
-                reviewed_at: new Date().toISOString(),
-            })
-            .eq("id", id)
-            .select(`
-                id,
-                document_id,
-                title,
-                description,
-                topic,
-                category,
-                status,
-                content,
-                updated_at,
-                reviewed_by,
-                reviewed_at,
-                owner:users!owner_id (
-                    id,
-                    name,
-                    email,
-                    avatar_url
-                )
-            `)
-            .single();
-
-        if (updateError) {
+        let updatedDoc;
+        try {
+            const updateRes = await db.query<any>(
+                `WITH updated AS (
+                     UPDATE documents 
+                     SET status = $1, reviewed_by = $2, reviewed_at = NOW() 
+                     WHERE id = $3 
+                     RETURNING *
+                 )
+                 SELECT u.*, 
+                        json_build_object('id', usr.id, 'name', usr.name, 'email', usr.email, 'avatar_url', usr.avatar_url) as owner
+                 FROM updated u
+                 LEFT JOIN users usr ON u.owner_id = usr.id`,
+                [status, session.user.id, id]
+            );
+            updatedDoc = updateRes.rows[0];
+        } catch (updateError) {
             console.error("Error updating document:", updateError);
             return NextResponse.json(
                 { error: "Failed to update document" },
                 { status: 500 }
+            );
+        }
+
+        if (!updatedDoc) {
+            return NextResponse.json(
+                { error: "Document not found" },
+                { status: 404 }
             );
         }
 

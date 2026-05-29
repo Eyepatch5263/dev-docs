@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { supabaseAdmin } from "@/lib/supabase";
+import { db } from "@/lib/db";
 import { Resend } from "resend";
 
 const resend = new Resend(process.env.RESEND_API_KEY);
@@ -191,21 +191,14 @@ export async function GET(request: NextRequest) {
             );
         }
 
-        if (!supabaseAdmin) {
-            return NextResponse.json(
-                { error: "Database connection not available" },
-                { status: 500 }
-            );
-        }
-
         // Find user with this verification token
-        const { data: user, error: findError } = await supabaseAdmin
-            .from("users")
-            .select("id, email, name, verification_token_expires, email_verified")
-            .eq("verification_token", token)
-            .single();
+        const findRes = await db.query<any>(
+            "SELECT id, email, name, verification_token_expires, email_verified FROM users WHERE verification_token = $1 LIMIT 1",
+            [token]
+        );
+        const user = findRes.rows[0];
 
-        if (findError || !user) {
+        if (!user) {
             return NextResponse.json(
                 { error: "Invalid or expired verification link" },
                 { status: 400 }
@@ -232,17 +225,14 @@ export async function GET(request: NextRequest) {
         }
 
         // Update user as verified and clear token
-        const { error: updateError } = await supabaseAdmin
-            .from("users")
-            .update({
-                email_verified: true,
-                verification_token: null,
-                verification_token_expires: null,
-                updated_at: new Date().toISOString(),
-            })
-            .eq("id", user.id);
-
-        if (updateError) {
+        try {
+            await db.query(
+                `UPDATE users 
+                 SET email_verified = true, verification_token = null, verification_token_expires = null, updated_at = NOW() 
+                 WHERE id = $1`,
+                [user.id]
+            );
+        } catch (updateError) {
             console.error("Error verifying user:", updateError);
             return NextResponse.json(
                 { error: "Failed to verify email. Please try again." },

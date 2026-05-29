@@ -1,30 +1,4 @@
-import { supabaseAdmin } from "./supabase";
 
-/**
- * Check if a user has admin role
- */
-export async function isAdmin(userId: string): Promise<boolean> {
-    if (!supabaseAdmin) {
-        return false;
-    }
-
-    try {
-        const { data: user, error } = await supabaseAdmin
-            .from("users")
-            .select("role")
-            .eq("id", userId)
-            .single();
-
-        if (error || !user) {
-            return false;
-        }
-
-        return user.role === "admin";
-    } catch (error) {
-        console.error("Error checking admin status:", error);
-        return false;
-    }
-}
 
 /**
  * Generate user avatar initials from name or email

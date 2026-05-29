@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import bcrypt from "bcryptjs";
 import crypto from "crypto";
-import { supabaseAdmin } from "@/lib/supabase";
+import { db } from "@/lib/db";
 import { Resend } from "resend";
 
 const resend = new Resend(process.env.RESEND_API_KEY);
@@ -178,20 +178,12 @@ export async function POST(request: NextRequest) {
             );
         }
 
-        // Check Supabase connection
-        if (!supabaseAdmin) {
-            return NextResponse.json(
-                { error: "Database connection not available" },
-                { status: 500 }
-            );
-        }
-
         // Check if user already exists
-        const { data: existingUser } = await supabaseAdmin
-            .from("users")
-            .select("id, email_verified")
-            .eq("email", email.toLowerCase())
-            .single();
+        const existingUserRes = await db.query<{ id: string; email_verified: boolean }>(
+            "SELECT id, email_verified FROM users WHERE email = $1 LIMIT 1",
+            [email.toLowerCase()]
+        );
+        const existingUser = existingUserRes.rows[0];
 
         if (existingUser) {
             // If user exists but not verified, resend verification email
@@ -200,13 +192,10 @@ export async function POST(request: NextRequest) {
                 const tokenExpires = new Date(Date.now() + 24 * 60 * 60 * 1000); // 24 hours
 
                 // Update token
-                await supabaseAdmin
-                    .from("users")
-                    .update({
-                        verification_token: verificationToken,
-                        verification_token_expires: tokenExpires.toISOString(),
-                    })
-                    .eq("id", existingUser.id);
+                await db.query(
+                    "UPDATE users SET verification_token = $1, verification_token_expires = $2 WHERE id = $3",
+                    [verificationToken, tokenExpires.toISOString(), existingUser.id]
+                );
 
                 // Send verification email
                 const verificationUrl = `${process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000"}/verify-email?token=${verificationToken}`;
@@ -240,23 +229,17 @@ export async function POST(request: NextRequest) {
         const verificationToken = generateVerificationToken();
         const tokenExpires = new Date(Date.now() + 24 * 60 * 60 * 1000); // 24 hours
 
-        // Create user in Supabase
-        const { data: newUser, error: createError } = await supabaseAdmin
-            .from("users")
-            .insert({
-                email: email.toLowerCase(),
-                password_hash: passwordHash,
-                name: name.trim(),
-                email_verified: false,
-                verification_token: verificationToken,
-                verification_token_expires: tokenExpires.toISOString(),
-                created_at: new Date().toISOString(),
-                updated_at: new Date().toISOString(),
-            })
-            .select("id, email, name")
-            .single();
-
-        if (createError) {
+        // Create user in Postgres
+        let newUser;
+        try {
+            const insertRes = await db.query<{ id: string; email: string; name: string }>(
+                `INSERT INTO users (email, password_hash, name, email_verified, verification_token, verification_token_expires)
+                 VALUES ($1, $2, $3, false, $4, $5)
+                 RETURNING id, email, name`,
+                [email.toLowerCase(), passwordHash, name.trim(), verificationToken, tokenExpires.toISOString()]
+            );
+            newUser = insertRes.rows[0];
+        } catch (createError) {
             console.error("Error creating user:", createError);
             return NextResponse.json(
                 { error: "Failed to create account. Please try again." },

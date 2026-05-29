@@ -2,7 +2,7 @@ import { redirect } from "next/navigation";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { Header } from "@/components/Header";
-import { supabaseAdmin } from "@/lib/supabase";
+import { db } from "@/lib/db";
 import { DocumentsGrid } from "@/components/editor/DocumentsGrid";
 
 export const metadata = {
@@ -10,22 +10,21 @@ export const metadata = {
     description: "Create and collaborate on documents in real-time",
 };
 
-// Fetch user's documents from Supabase
+// Fetch user's documents from Postgres
 async function getUserDocuments(userId: string) {
-    if (!supabaseAdmin) return [];
-
-    const { data: documents, error } = await supabaseAdmin
-        .from("documents")
-        .select("id, document_id, title, description, topic, category, status, created_at, updated_at")
-        .eq("owner_id", userId)
-        .order("updated_at", { ascending: false });
-
-    if (error) {
+    try {
+        const res = await db.query(
+            `SELECT id, document_id, title, description, topic, category, status, created_at, updated_at 
+             FROM documents 
+             WHERE owner_id = $1 
+             ORDER BY updated_at DESC`,
+            [userId]
+        );
+        return res.rows || [];
+    } catch (error) {
         console.error("Error fetching documents:", error);
         return [];
     }
-
-    return documents || [];
 }
 
 export default async function CollaborativeEditorPage() {

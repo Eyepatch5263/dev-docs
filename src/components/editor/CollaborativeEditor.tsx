@@ -263,7 +263,7 @@ function TiptapEditorInner({
         if (shouldLoad === 'true') {
 
             // Fetch content from API
-            fetch(`/api/documents/${documentId}`)
+            fetch(`/api/documents/${encodeURIComponent(documentId)}`)
                 .then(res => res.json())
                 .then(data => {
                     if (data.document && data.document.content) {

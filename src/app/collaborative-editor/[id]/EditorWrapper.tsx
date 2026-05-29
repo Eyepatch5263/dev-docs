@@ -101,7 +101,7 @@ export function EditorWrapper({ documentId, userName, userId }: EditorWrapperPro
         // Check document ownership from API (only for existing documents)
         const checkOwnership = async () => {
             try {
-                const response = await fetch(`/api/documents/${documentId}`);
+                const response = await fetch(`/api/documents/${encodeURIComponent(documentId)}`);
                 const data = await response.json();
 
                 if (data.document) {

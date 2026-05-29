@@ -47,14 +47,19 @@ export function EngineeringTermsClient() {
     }, []);
 
     // Load initial terms on mount
-    // when component mounts for the first time initally load the local searches
     useEffect(() => {
         setIsMounted(true);
-        performSearch('');
     }, []);
 
     // perform search function, using useCallback to prevent expensive re-renders
     const performSearch = useCallback(async (searchQuery: string) => {
+        if (!searchQuery.trim()) {
+            setResults([]);
+            setHasSearched(false);
+            setIsLoading(false);
+            return;
+        }
+
         setIsLoading(true);
         setError(null);
         setIsRateLimitedState(false);
@@ -99,6 +104,13 @@ export function EngineeringTermsClient() {
 
         if (debounceRef.current) {
             clearTimeout(debounceRef.current);
+        }
+
+        if (!value.trim()) {
+            setResults([]);
+            setHasSearched(false);
+            setIsLoading(false);
+            return;
         }
 
         debounceRef.current = setTimeout(() => {
