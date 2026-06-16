@@ -1,243 +1,169 @@
 ---
 title: Distributed Cache
-description: Strategies for improving performance with caching
-order: 10
+description: Scale application performance with distributed caching. Learn about caching topologies, Cache-Aside, Write-Through, Write-Behind, and mitigating Cache Penetration, Avalanche, and Breakdown.
+order: 6
 category: Building Blocks
 ---
 
-# Caching
+# Distributed Caching
 
-Caching is a technique for storing frequently accessed data in a fast-access storage layer to reduce latency and database load. Effective caching can dramatically improve application performance.
+Caching is the process of storing frequently accessed data in a temporary, high-speed memory layer (typically RAM) to serve reads faster and reduce load on backend databases. While local caching stores data within a single server instance, a **Distributed Cache** provides a shared, centralized cache layer accessible by all application instances.
 
-## Cache Locations
+---
 
-### Client-Side Cache
+## 1. Caching Topologies: Local vs. Distributed
 
-Browser or application caches data locally.
+How you position your cache layer determines how easily you can scale:
 
-```http
-Cache-Control: max-age=3600, public
-ETag: "abc123"
-```
+<Mermaid chart='flowchart TD[nl]
+    subgraph LocalCache["1. Local In-Memory Cache"][nl]
+        ClientA["Client"] --> LB1["Load Balancer"][nl]
+        LB1 --> App1["App Server A[br](Local Cache)"][nl]
+        LB1 --> App2["App Server B[br](Local Cache)"][nl]
+    end[nl]
+[nl]
+    subgraph DistributedCache["2. Centralized Distributed Cache"][nl]
+        ClientB["Client"] --> LB2["Load Balancer"][nl]
+        LB2 --> App3["App Server A"][nl]
+        LB2 --> App4["App Server B"][nl]
+        App3 -->|Shared Network Query| CentralCache[("Central Redis / Memcached")][nl]
+        App4 -->|Shared Network Query| CentralCache[nl]
+    end' />
 
-### CDN (Content Delivery Network)
+*   **Local Cache**: Session or app state stored in the application's RAM (e.g., node-cache, Java Guava).
+    *   *Downside*: Inconsistent data. If App Server A updates a user record, Server B doesn't know, leading to inconsistent views.
+*   **Distributed Cache**: A dedicated cache cluster (e.g., Redis, Memcached) accessible via network calls.
+    *   *Upside*: Data consistency. Every application instance queries the same cache, making horizontal scaling simple.
 
-Distributed servers cache static content closer to users.
+---
 
-```plaintext
-User (Tokyo) → CDN Edge (Tokyo) → Origin (US)
-                    ↓
-              Cache HIT → Instant response
-```
+## 2. Caching Strategies (Data Flow Patterns)
 
-**Popular CDNs:**
-- Cloudflare
-- AWS CloudFront
-- Fastly
-- Akamai
+How data is synchronized between the client, cache, and database depends on your read-to-write ratio and consistency requirements:
 
-### Application Cache
+### 1. Cache-Aside (Lazy Loading)
+The application handles all data operations. It queries the cache first. If a cache miss occurs, the application fetches data from the database, writes it to the cache, and returns it.
 
-In-memory caches within application servers.
+<Mermaid chart='sequenceDiagram[nl]
+    autonumber[nl]
+    actor App as Application[nl]
+    participant Cache as Cache (Redis)[nl]
+    participant DB as Database[nl]
+[nl]
+    App->>Cache: GET user:100[nl]
+    Cache-->>App: Cache MISS[nl]
+    App->>DB: Query user:100[nl]
+    DB-->>App: User Data[nl]
+    App->>Cache: SET user:100 (TTL: 1 hour)[nl]
+    App-->>App: Return User Data' />
+
+*   **Best For**: Read-heavy workloads.
+*   **Pros**: Only caches requested data; database failures do not completely crash writes.
+*   **Cons**: Cache miss penalty (two network hops on miss); data can become stale if database updates bypass the cache.
+
+### 2. Write-Through
+The application writes data to the cache and the database in a single transaction. The write is only considered successful when both operations complete.
+
+<Mermaid chart='sequenceDiagram[nl]
+    autonumber[nl]
+    actor App as Application[nl]
+    participant Cache as Cache (Redis)[nl]
+    participant DB as Database[nl]
+[nl]
+    App->>Cache: Write user data[nl]
+    Cache->>DB: Save user data[nl]
+    DB-->>Cache: Acknowledged[nl]
+    Cache-->>App: Success (200 OK)' />
+
+*   **Best For**: Applications requiring strong consistency between cache and database.
+*   **Pros**: Cached data is never stale.
+*   **Cons**: High write latency; write-once data floods the cache.
+
+### 3. Write-Behind (Write-Back)
+The application writes data directly to the cache. The cache layer immediately acknowledges the write. A background process asynchronously pushes these updates to the database.
+
+<Mermaid chart='sequenceDiagram[nl]
+    autonumber[nl]
+    actor App as Application[nl]
+    participant Cache as Cache (Redis)[nl]
+    participant DB as Database[nl]
+[nl]
+    App->>Cache: Write user data[nl]
+    Cache-->>App: Success (Fast Ack)[nl]
+    Note over Cache: Queue write in background[nl]
+    Cache->>DB: Asynchronous DB batch write' />
+
+*   **Best For**: Write-heavy workloads (e.g., streaming logs, real-time counters).
+*   **Pros**: Low write latency; buffers database writes.
+*   **Cons**: Risk of data loss if the cache server crashes before the background write completes.
+
+---
+
+## 3. High-Scale Caching Disasters & Mitigations
+
+Under heavy load, simple caching setups can experience failures that can cascade and take down backend databases.
+
+### 1. Cache Penetration
+An attacker queries keys that do not exist in either the cache or the database (e.g., `GET user:invalid-id-9999`). Every query results in a cache miss, forwarding all requests to the database, eventually overloading it.
+
+<Mermaid chart='flowchart LR[nl]
+    Client["Attacker / Client"] -->|GET invalid_key| Cache["Cache (Miss)"][nl]
+    Cache -->|Query database every time| DB["Database (Overloaded)"]' />
+
+*   **Mitigation 1 (Cache Nulls)**: If a key does not exist in the database, write a placeholder value (e.g., `null` or `"{}"`) with a short TTL (e.g., 5 minutes) to the cache.
+*   **Mitigation 2 (Bloom Filters)**: Position an in-memory Bloom Filter before the cache. The filter quickly rejects requests for keys that do not exist in the dataset.
+
+---
+
+### 2. Cache Avalanche
+A large number of cached keys expire at the exact same time, or the cache cluster itself crashes. This causes all subsequent queries to hit the database simultaneously, causing a database crash.
+
+<Mermaid chart='flowchart TD[nl]
+    Keys["1. Thousands of Keys Expire simultaneously"] --> Misses["2. Massive Cache Misses"][nl]
+    Misses --> DB["3. Database flooded with queries (Crashes)"]' />
+
+*   **Mitigation 1 (Randomized TTL)**: Add a random jitter to the TTL of every key when writing (e.g., instead of 1 hour, set it to $1 \text{ hour} \pm \text{random}(1\text{ to }10\text{ minutes})$).
+*   **Mitigation 2 (High-Availability Cache)**: Run Redis in Sentinel or Cluster mode with primary-replica replication to survive node failures.
+
+---
+
+### 3. Cache Breakdown (Cache Stampede)
+A highly popular "hot key" (e.g., a breaking news article) expires. Because the key is queried thousands of times per second, the cache miss triggers duplicate queries to the database before the first query can write the result back to the cache.
+
+*   **Mitigation (Mutex Locks)**: When a cache miss occurs, the first thread acquires a distributed mutex lock (e.g., Redis `SETNX`) to query the database. Other threads wait for the lock to release or read the cached value once populated, preventing duplicate database hits.
 
 ```typescript
-const cache = new Map<string, { data: any; expiry: number }>();
+async function getHotKeyWithLock<T>(key: string, fetchDbFn: () => Promise<T>, ttl: number): Promise<T> {
+    const cached = await redis.get(key);
+    if (cached) return JSON.parse(cached);
 
-function getFromCache<T>(key: string): T | null {
-  const item = cache.get(key);
-  if (!item) return null;
-  if (Date.now() > item.expiry) {
-    cache.delete(key);
-    return null;
-  }
-  return item.data as T;
+    const lockKey = `lock:${key}`;
+    const acquiredLock = await redis.set(lockKey, "1", "EX", 10, "NX");
+
+    if (acquiredLock) {
+        // Only one process queries the database
+        const data = await fetchDbFn();
+        await redis.setex(key, ttl, JSON.stringify(data));
+        await redis.del(lockKey);
+        return data;
+    } else {
+        // Wait and retry
+        await sleep(100);
+        return getHotKeyWithLock(key, fetchDbFn, ttl);
+    }
 }
 ```
 
-### Distributed Cache
+---
 
-Shared cache across multiple application instances.
+## 4. Redis vs. Memcached
 
-```typescript
-import Redis from 'ioredis';
-
-const redis = new Redis();
-
-async function cacheGet<T>(key: string): Promise<T | null> {
-  const data = await redis.get(key);
-  return data ? JSON.parse(data) : null;
-}
-
-async function cacheSet(key: string, value: any, ttl: number) {
-  await redis.setex(key, ttl, JSON.stringify(value));
-}
-```
-
-## Caching Strategies
-
-### Cache-Aside (Lazy Loading)
-
-Application manages cache population on demand.
-
-```typescript
-async function getUser(userId: string): Promise<User> {
-  // 1. Check cache first
-  const cached = await redis.get(`user:${userId}`);
-  if (cached) {
-    return JSON.parse(cached);
-  }
-  
-  // 2. Cache miss - fetch from database
-  const user = await db.users.findById(userId);
-  
-  // 3. Store in cache for next time
-  await redis.setex(`user:${userId}`, 3600, JSON.stringify(user));
-  
-  return user;
-}
-```
-
-**Pros:** Only caches requested data
-**Cons:** Cache miss penalty, potential stale data
-
-### Write-Through
-
-Data is written to cache and database simultaneously.
-
-```typescript
-async function updateUser(userId: string, data: Partial<User>) {
-  // 1. Update database
-  const user = await db.users.update(userId, data);
-  
-  // 2. Update cache immediately
-  await redis.setex(`user:${userId}`, 3600, JSON.stringify(user));
-  
-  return user;
-}
-```
-
-**Pros:** Cache always consistent with DB
-**Cons:** Write latency (two writes)
-
-### Write-Behind (Write-Back)
-
-Data is written to cache first, then asynchronously to database.
-
-```typescript
-async function updateUser(userId: string, data: Partial<User>) {
-  // 1. Update cache immediately
-  const user = { ...currentUser, ...data };
-  await redis.setex(`user:${userId}`, 3600, JSON.stringify(user));
-  
-  // 2. Queue database write for later
-  await queue.add('db-write', { userId, data });
-  
-  return user;
-}
-```
-
-**Pros:** Low write latency
-**Cons:** Risk of data loss, complexity
-
-### Write-Around
-
-Data is written directly to database, bypassing cache.
-
-```typescript
-async function createUser(data: UserInput): Promise<User> {
-  // Write directly to database
-  const user = await db.users.create(data);
-  
-  // Cache will be populated on first read
-  return user;
-}
-```
-
-**Pros:** Cache not flooded with write-once data
-**Cons:** First read always a cache miss
-
-## Cache Invalidation
-
-The hardest problem in caching is knowing when to invalidate cached data.
-
-### Time-Based Expiration (TTL)
-
-```typescript
-// Set TTL when caching
-await redis.setex('key', 300, 'value'); // Expires in 5 minutes
-```
-
-### Event-Based Invalidation
-
-```typescript
-// Invalidate on data change
-async function updateProduct(productId: string, data: ProductUpdate) {
-  await db.products.update(productId, data);
-  
-  // Invalidate all related caches
-  await redis.del(`product:${productId}`);
-  await redis.del(`category:${data.categoryId}:products`);
-  await redis.del('featured-products');
-}
-```
-
-### Version-Based Invalidation
-
-```typescript
-// Use version in cache key
-const cacheVersion = await redis.get('products:version');
-const cacheKey = `products:${cacheVersion}:list`;
-
-// Invalidate by incrementing version
-await redis.incr('products:version');
-```
-
-## Cache Patterns
-
-### Cache Stampede Prevention
-
-Prevent multiple simultaneous cache misses from overwhelming the database.
-
-```typescript
-async function getWithLock<T>(
-  key: string,
-  fetchFn: () => Promise<T>,
-  ttl: number
-): Promise<T> {
-  const cached = await redis.get(key);
-  if (cached) return JSON.parse(cached);
-  
-  // Try to acquire lock
-  const lockKey = `lock:${key}`;
-  const acquired = await redis.set(lockKey, '1', 'EX', 10, 'NX');
-  
-  if (acquired) {
-    const data = await fetchFn();
-    await redis.setex(key, ttl, JSON.stringify(data));
-    await redis.del(lockKey);
-    return data;
-  }
-  
-  // Wait and retry if another process is fetching
-  await sleep(100);
-  return getWithLock(key, fetchFn, ttl);
-}
-```
-
-## Redis vs Memcached
+When selecting a distributed caching engine, these are the core differences to consider:
 
 | Feature | Redis | Memcached |
-|---------|-------|-----------|
-| Data Structures | Rich (strings, lists, sets, hashes) | Simple (strings only) |
-| Persistence | Yes | No |
-| Replication | Yes | No |
-| Memory Efficiency | Lower | Higher |
-| Multi-threading | Single-threaded | Multi-threaded |
-
-## Best Practices
-
-1. **Set Appropriate TTLs**: Balance freshness vs. cache hit rate
-2. **Monitor Cache Metrics**: Track hit rate, memory usage, evictions
-3. **Use Consistent Hashing**: For distributed caches
-4. **Plan for Cache Failures**: Gracefully degrade to database
-5. **Avoid Caching Sensitive Data**: Or encrypt it
+| :--- | :--- | :--- |
+| **Data Structures** | Rich (Strings, Lists, Hashes, Sets, Sorted Sets, HyperLogLogs, Geospatial). | Simple (Strings only - key/value blobs). |
+| **Threading Model** | Single-threaded event loop (uses multi-threading only for disk I/O in newer versions). | Multi-threaded (scales easily with more CPU cores). |
+| **Persistence** | Supported (RDB snapshots, AOF append logs). Can act as a database. | No persistence (in-memory only). |
+| **Eviction Algorithms** | LRU, LFU, Random, TTL. | LRU only. |
+| **Replication** | Built-in (Master-Replica clusters). | Requires client-side routing logic. |

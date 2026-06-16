@@ -1,0 +1,111 @@
+---
+title: Non-Functional System Characteristics
+description: Deep dive into the operational qualities of a system, including scalability, availability, reliability, and fault tolerance.
+order: 4
+category: Introduction
+---
+
+## Introduction
+
+When building software, **functional requirements** define *what* the system should do (e.g., "A user can add an item to the shopping cart"). 
+
+However, **non-functional characteristics** (often called the "-ilities" of software architecture) define *how* the system behaves under load, during failures, and over time. These characteristics are the difference between a system that runs locally and a system that can serve millions of users worldwide.
+
+---
+
+## 1. Scalability
+
+Scalability is a system's ability to handle growing amounts of work or traffic by adding resources.
+
+<Mermaid chart='flowchart LR[nl]
+    subgraph Vertical["Vertical Scaling (Scale Up)"][nl]
+        Server1["Small Server[br](4 CPU, 16GB RAM)"] -->|Add CPU/RAM| Server2["Giant Server[br](128 CPU, 512GB RAM)"][nl]
+    end[nl]
+[nl]
+    subgraph Horizontal["Horizontal Scaling (Scale Out)"][nl]
+        Server3["Server 1"] -->|Add Servers| Server4["Server 1"][nl]
+        Server3 -->|Add Servers| Server5["Server 2"][nl]
+        Server3 -->|Add Servers| Server6["Server 3"][nl]
+    end' />
+
+
+
+### Vertical Scaling (Scale Up)
+Adding more power (CPU, RAM, Storage) to a single machine.
+*   **Pros**: Simple. No architectural changes required. Data stays local (no network latency).
+*   **Cons**: Hard hardware limits. Single point of failure. Extremely expensive at the high end.
+
+### Horizontal Scaling (Scale Out)
+Adding more machines to your resource pool.
+*   **Pros**: Virtually unlimited scale. High redundancy (no single point of failure). Cost-effective commodity hardware.
+*   **Cons**: High architectural complexity. Requires load balancing, networking overhead, and distributed databases.
+
+---
+
+## 2. Availability vs. Reliability
+
+These two terms are closely related but represent different concepts:
+
+### Reliability
+Reliability is the probability that a system will perform its required function under specified conditions for a specified period without failure. It is measured by metrics like **MTBF** (Mean Time Between Failures).
+*   *Analogy*: An airplane is reliable if it completes its flight safely. If the engines fail mid-flight, it is unreliable.
+
+### Availability
+Availability is the percentage of time a system is operational and accessible to process requests. It is measured by uptime metrics.
+*   *Analogy*: An airplane is available if it is parked at the gate ready for passengers. It could be available even if it has a broken engine that will fail mid-flight (which would make it unreliable).
+
+```text
+Availability = MTBF / (MTBF + MTTR)
+```
+
+Where **MTTR** is the *Mean Time to Repair/Restore*.
+
+### The "Nines" of Availability
+
+Availability is commonly represented as a series of "nines":
+
+| Availability | Downtime per Year | Downtime per Day | Class of System |
+| :--- | :--- | :--- | :--- |
+| **99%** ("Two Nines") | 3.65 days | 14.4 minutes | Standard internal tool |
+| **99.9%** ("Three Nines") | 8.76 hours | 1.44 minutes | E-commerce storefront |
+| **99.99%** ("Four Nines") | 52.6 minutes | 8.6 seconds | Cloud database infrastructure |
+| **99.999%** ("Five Nines") | 5.26 minutes | 0.86 seconds | Telecommunications / Hospital networks |
+
+---
+
+## 3. Fault Tolerance & Redundancy
+
+Fault tolerance is the property that enables a system to continue operating properly in the event of the failure of some of its components.
+
+<Mermaid chart='flowchart TD[nl]
+    subgraph ActivePassive["Active-Passive (Warm Standby)"][nl]
+        ClientA["Client"] -->|Read/Write| ServerA["Active Server"][nl]
+        ServerA -->|Sync Replication| ServerB["Passive Server (Standby)"][nl]
+        ServerA -.->|On Crash: Failover| ServerB[nl]
+    end[nl]
+[nl]
+    subgraph ActiveActive["Active-Active (Load Balanced)"][nl]
+        ClientB["Client"] -->|Round Robin| LB["Load Balancer"][nl]
+        LB -->|Traffic| ServerC["Active Server 1"][nl]
+        LB -->|Traffic| ServerD["Active Server 2"][nl]
+    end' />
+
+
+
+To eliminate **Single Points of Failure (SPOFs)**, systems employ redundancy:
+
+1.  **Active-Passive (Failover)**: One server handles all traffic while another stands by. If the active server dies, traffic is rerouted to the passive server.
+2.  **Active-Active**: All servers process traffic simultaneously. If one server dies, the load balancer distributes its share of the traffic among the remaining active servers.
+
+---
+
+## 4. SLA, SLO, and SLI
+
+How engineering teams measure and commit to non-functional characteristics:
+
+*   **SLI (Service Level Indicator)**: The raw metric we measure.
+    *   *Example*: *"99% of database read operations completed in < 100ms."*
+*   **LO (Service Level Objective)**: The target target we set for our SLI.
+    *   *Example*: *"We want database read SLI to be true 99.9% of the time over a rolling 30-day window."*
+*   **SLA (Service Level Agreement)**: The legal commitment made to customers. It defines consequences (like refunds) if the SLO is missed.
+    *   *Example*: *"If system availability drops below 99.9% in a billing cycle, we will refund 10% of your bill."*

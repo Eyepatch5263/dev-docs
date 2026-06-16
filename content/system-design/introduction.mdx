@@ -16,20 +16,15 @@ At its core, system design answers questions like:
 - How do we make the system fast for users across the globe?
 - How do we evolve the system as requirements change?
 
-```
-┌─────────────────────────────────────────────────────────────────┐
-│                     System Design Spectrum                      │
-├─────────────────────────────────────────────────────────────────┤
-│                                                                 │
-│   Requirements ──► Architecture ──► Components ──► Data Flow    │
-│        │               │                │              │        │
-│        ▼               ▼                ▼              ▼        │
-│   Functional      High-Level       Databases      APIs &        │
-│   Non-functional  Decisions        Caches         Protocols     │
-│   Constraints     Trade-offs       Queues         Interfaces    │
-│                                                                 │
-└─────────────────────────────────────────────────────────────────┘
-```
+<Mermaid chart='flowchart TD[nl]
+    Req["Requirements"] --> Arch["Architecture"][nl]
+    Arch --> Comp["Components"][nl]
+    Comp --> DF["Data Flow"][nl]
+    [nl]
+    Req --> ReqD["Functional and[br]Non-functional Constraints"][nl]
+    Arch --> ArchD["High-Level Decisions[br]Trade-offs"][nl]
+    Comp --> CompD["Databases, Caches,[br]Queues"][nl]
+    DF --> DFD["APIs & Protocols[br]Interfaces"]' />
 
 ## Why Learn System Design?
 
@@ -88,24 +83,22 @@ This documentation is structured to take you from fundamentals to advanced topic
 
 You don't need to be an expert, but familiarity with these topics will help:
 
-```
-┌─────────────────────────────────────────────────────────────────┐
-│                    Recommended Background                       │
-├─────────────────────────────────────────────────────────────────┤
-│                                                                 │
-│  ✓ Basic programming (any language)                             │
-│  ✓ Understanding of APIs (REST, HTTP methods)                   │
-│  ✓ Familiarity with databases (basic SQL)                       │
-│  ✓ Basic networking (IP, ports, DNS)                            │
-│  ✓ Command line / terminal basics                               │
-│                                                                 │
-│  Nice to have:                                                  │
-│  ○ Experience with cloud services (AWS, GCP, Azure)             │
-│  ○ Worked on production systems                                 │
-│  ○ Basic understanding of containers (Docker)                   │
-│                                                                 │
-└─────────────────────────────────────────────────────────────────┘
-```
+<Mermaid chart='flowchart LR[nl]
+    subgraph Core["Core Prerequisites"][nl]
+        direction TB[nl]
+        r1["Basic Programming (any language)"][nl]
+        r2["Understanding of APIs (REST, HTTP)"][nl]
+        r3["Familiarity with Databases (SQL)"][nl]
+        r4["Basic Networking (IP, Ports, DNS)"][nl]
+        r5["Command Line / Terminal Basics"][nl]
+    end[nl]
+    [nl]
+    subgraph Nice["Nice to Have"][nl]
+        direction TB[nl]
+        n1["Cloud Services (AWS, GCP, Azure)"][nl]
+        n2["Worked on Production Systems"][nl]
+        n3["Containers & Virtualization (Docker)"][nl]
+    end' />
 
 ## The System Design Mindset
 
@@ -128,18 +121,12 @@ There's no perfect solution. Every decision involves trade-offs:
 
 Don't over-engineer. A system that handles 10x your current load is often sufficient. You can always iterate.
 
-```
-                    Over-engineering Trap
-                    
-    Requirements: 1,000 users/day
-    
-    ❌ Wrong: "Let's build for 1 billion users from day one!"
-              Result: 6 months of complexity, no product
-    
-    ✓ Right:  "Let's build for 100,000 users, with clear
-              scaling paths when needed."
-              Result: Ship fast, scale when you have the problem
-```
+<Mermaid chart='flowchart TD[nl]
+    Req["Target Requirements: 1,000 users / day"] --> Wrong["Wrong Approach: Build for 1B users from day one!"][nl]
+    Req --> Right["Right Approach: Build for 100K users with scaling paths"][nl]
+    [nl]
+    Wrong --> WrongRes["Result: 6 months of complexity,[br]no product shipped"][nl]
+    Right --> RightRes["Result: Ship fast, scale[br]when you have the problem"]' />
 
 ### 3. **Understand the Numbers**
 
@@ -165,31 +152,32 @@ Develop intuition for scale. Know these rough orders of magnitude:
 
 Always begin with the simplest architecture that could work:
 
-```
-Evolution of Architecture:
-
-Stage 1: Monolith
-┌─────────────────┐
-│   Single App    │──► Database
-└─────────────────┘
-
-Stage 2: Add Caching
-┌─────────────────┐
-│   Single App    │──► Cache ──► Database
-└─────────────────┘
-
-Stage 3: Scale Horizontally
-         ┌─────────┐
-         │  App 1  │
-┌────┐   ├─────────┤        ┌─────────┐
-│ LB │──►│  App 2  │──►Cache│ Database│
-└────┘   ├─────────┤        └─────────┘
-         │  App 3  │
-         └─────────┘
-
-Stage 4: Split Services (only when needed)
-... and so on
-```
+<Mermaid chart='flowchart TD[nl]
+    subgraph Stage1["Stage 1: Monolith"][nl]
+        direction LR[nl]
+        App1["Single App"] --> DB1[("Database")][nl]
+    end[nl]
+    [nl]
+    subgraph Stage2["Stage 2: Add Caching"][nl]
+        direction LR[nl]
+        App2["Single App"] --> Cache2["Cache"] --> DB2[("Database")][nl]
+    end[nl]
+    [nl]
+    subgraph Stage3["Stage 3: Scale Horizontally"][nl]
+        direction LR[nl]
+        LB3["LB[br](Load Balancer)"] --> App3a["App 1"][nl]
+        LB3 --> App3b["App 2"][nl]
+        LB3 --> App3c["App 3"][nl]
+        App3a --> Cache3["Cache"][nl]
+        App3b --> Cache3[nl]
+        App3c --> Cache3[nl]
+        Cache3 --> DB3[("Database")][nl]
+    end[nl]
+    [nl]
+    subgraph Stage4["Stage 4: Split Services"][nl]
+        direction LR[nl]
+        S4["Microservices /[br]Distributed Services"] --> DB4[("Split Databases")][nl]
+    end' />
 
 ### 5. **Ask Clarifying Questions**
 
@@ -219,20 +207,17 @@ In interviews and real projects, always clarify:
 
 ## Key Takeaways
 
-```
-┌─────────────────────────────────────────────────────────────────┐
-│                   System Design Principles                      │
-├─────────────────────────────────────────────────────────────────┤
-│                                                                 │
-│  1. There are no perfect solutions, only trade-offs             │
-│  2. Requirements drive architecture                             │
-│  3. Start simple, add complexity only when needed               │
-│  4. Understand the numbers (latency, throughput, scale)         │
-│  5. Design for failure—things will break                        │
-│  6. Iterate and evolve—you won't get it right the first time    │
-│                                                                 │
-└─────────────────────────────────────────────────────────────────┘
-```
+<Mermaid chart='flowchart TD[nl]
+    Central["System Design Principles"] --> Left["Core Mindsets"][nl]
+    Central --> Right["Engineering Realities"][nl]
+    [nl]
+    Left --> P1["1. No perfect solutions,[br]only trade-offs"][nl]
+    Left --> P2["2. Requirements[br]drive architecture"][nl]
+    Left --> P3["3. Start simple, add[br]complexity when needed"][nl]
+    [nl]
+    Right --> P4["4. Understand the numbers[br](latency, throughput, scale)"][nl]
+    Right --> P5["5. Design for failure[br](things will break)"][nl]
+    Right --> P6["6. Iterate and evolve[br](will not get it right first time)"]' />
 
 ## Next Steps
 

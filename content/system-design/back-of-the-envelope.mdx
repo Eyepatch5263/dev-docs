@@ -1,7 +1,157 @@
 ---
 title: Back-of-the-envelope Calculations
-description: Quick estimations for system capacity planning
-order: 4
+description: Learn how to perform quick mathematical estimations for system capacity, storage, memory, and network bandwidth.
+order: 5
 category: Introduction
 ---
 
+## Introduction
+
+In system design, a **back-of-the-envelope calculation** is a quick, rough estimation used to determine if a proposed architecture can support the required scale. 
+
+Instead of aiming for 100% precision, these calculations help you:
+1.  Verify if an architectural approach is feasible (e.g., *“Will this database fit in memory?”*).
+2.  Choose the right technologies (e.g., SSDs vs. HDDs, caching tiers vs. raw disk database writes).
+3.  Design capacity plans (e.g., *“How many servers or storage blocks do we need to buy for the next 5 years?”*).
+
+---
+
+## 1. Latency Numbers Every Programmer Should Know
+
+To make accurate hardware and performance assumptions, you must understand relative speeds. The table below illustrates the classic latency comparison (updated for modern hardware):
+
+| Operation | Latency | Human Scale (Scaled up by 1 billion times) |
+| :--- | :--- | :--- |
+| **L1 Cache reference** | 0.5 ns | 0.5 seconds |
+| **L2 Cache reference** | 7 ns | 7 seconds |
+| **Main memory (RAM) access** | 100 ns | 100 seconds |
+| **SSD random read** | 16,000 ns (16 µs) | 4.4 hours |
+| **Read 1 MB sequentially from RAM** | 250,000 ns (250 µs) | 2.8 days |
+| **Network round-trip (same datacenter)** | 500,000 ns (500 µs) | 5.7 days |
+| **Read 1 MB sequentially from SSD** | 1,000,000 ns (1 ms) | 11.5 days |
+| **Network round-trip (NY to London)** | 150,000,000 ns (150 ms) | 4.7 years |
+
+### Key Takeaway:
+*   **Memory access is fast; disk and network are slow.** 
+*   Avoid disk reads/writes in high-throughput loops. Use caching where possible.
+*   Optimize cross-region network round-trips as they introduce massive physical latency bottlenecks.
+
+---
+
+## 2. The Power of Two & Data Conversions
+
+Systems handle huge numbers of requests and bytes. Having a quick cheat sheet for data sizes is essential:
+
+| Power of Two | Value | Prefix | Abbreviation | Approximate Human Terms |
+| :--- | :--- | :--- | :--- | :--- |
+| 2^10 | 1,024 | Kilo | KB | 1 page of text (~1 KB) |
+| 2^20 | 1,048,576 | Mega | MB | 1 minute of MP3 audio (~1 MB) |
+| 2^30 | 1,073,741,824 | Giga | GB | 1 movie in HD (~1-2 GB) |
+| 2^40 | 1,099,511,627,776 | Tera | TB | Size of a high-end personal SSD |
+| 2^50 | 1,125,899,906,842,624 | Peta | PB | Large-scale corporate database size |
+
+---
+
+## 3. Step-by-Step Estimation Blueprint
+
+Whenever you tackle an estimation problem in system design, follow this structured pattern:
+
+<Mermaid chart='flowchart LR[nl]
+    DAU["1. Identify DAU"] --> QPS["2. Calculate QPS[br](Reads & Writes)"][nl]
+    QPS --> Storage["3. Calculate Storage[br](Daily & Multi-year)"][nl]
+    Storage --> Bandwidth["4. Calculate Bandwidth[br](Ingress & Egress)"]' />
+
+
+---
+
+### Step 1: Query Per Second (QPS) Estimation
+QPS tells us how many request hits our servers will handle.
+
+```text
+Average QPS = (Daily Active Users * Average Requests per User) / 86,400 seconds
+```
+
+#### The "Peak QPS" Multiplier:
+Traffic is never flat. It peaks during active hours. To design safe headroom, multiply the average QPS by a factor of 2:
+
+```text
+Peak QPS = Average QPS * 2
+```
+
+---
+
+### Step 2: Storage Estimation
+Storage size determines the volume of disks (or blob stores) needed.
+
+```text
+Daily Storage = Write QPS * 86,400 seconds * Average Size of 1 Payload
+```
+
+```text
+5-Year Storage = Daily Storage * 365 days * 5 years
+```
+
+---
+
+### Step 3: Network Bandwidth Estimation
+Bandwidth tells you how much network pipeline throughput you need.
+
+```text
+Ingress Bandwidth = Write QPS * Average Write Payload Size
+```
+
+```text
+Egress Bandwidth = Read QPS * Average Read Payload Size
+```
+
+---
+
+## Worked Example: Photo-Sharing App (Instagram-like)
+
+Let's estimate the requirements for a photo-sharing application under the following constraints:
+
+### Constraints:
+*   **Daily Active Users (DAU)**: 300 Million.
+*   **Write behavior**: A user uploads an average of 1 photo per day.
+*   **Read behavior**: A user views an average of 40 photos per day.
+*   **Average photo size**: 200 KB.
+
+---
+
+### 1. Calculate QPS
+
+**Write QPS:**
+*   Daily uploads = 300M * 1 photo = 300,000,000 uploads/day.
+*   Average Write QPS = 300,000,000 / 86,400 ≈ 3,472 QPS.
+*   Peak Write QPS = 3,472 * 2 ≈ **6,944 QPS**.
+
+**Read QPS:**
+*   Daily views = 300M * 40 photos = 12,000,000,000 views/day.
+*   Average Read QPS = 12,000,000,000 / 86,400 ≈ 138,888 QPS.
+*   Peak Read QPS = 138,888 * 2 ≈ **277,776 QPS**.
+
+---
+
+### 2. Calculate Storage
+
+*   **Daily uploads**: 300M photos/day.
+*   Daily Storage = 300,000,000 * 200 KB = 60,000,000,000 KB = **60 TB/day**.
+*   5-Year Storage = 60 TB/day * 365 days * 5 years ≈ **109.5 PB**.
+
+---
+
+### 3. Calculate Bandwidth
+
+**Ingress (Write) Bandwidth:**
+*   Ingress = 3,472 uploads/sec * 200 KB = 694,400 KB/s ≈ **694.4 MB/s** (or 5.55 Gbps).
+
+**Egress (Read) Bandwidth:**
+*   Egress = 138,888 views/sec * 200 KB = 27,777,600 KB/s ≈ **27.78 GB/s** (or 222.24 Gbps).
+
+---
+
+## Practical Rules of Thumb
+
+1.  **Always round numbers**: Make calculations simple to do in your head or on paper (e.g., treat 365 days ≈ 400, or 86,400 seconds ≈ 100,000 to get quick estimates).
+2.  **Estimate metadata overhead**: Don't just estimate image/video size. Databases store index metadata, schema structures, and logs. Add a 10%-20% safety buffer to your final storage numbers.
+3.  **Remember replication factor**: Real systems replication factor is usually 3. Multiply your storage estimates by 3 to get the actual infrastructure hardware required.

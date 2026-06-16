@@ -1,266 +1,165 @@
 ---
-title: Key Value Stores
-description: Understanding key-value storage systems
+title: Key-Value Stores
+description: Deep dive into distributed key-value store architecture. Learn about LSM-Trees, consistent hashing, replication quorums, vector clocks, and Gossip protocols.
 order: 4
 category: Building Blocks
 ---
 
-## Overview
+# Key-Value Stores
 
-A **Key-Value Store** is the simplest form of NoSQL database. It stores data as a collection of key-value pairs, where the key is a unique identifier and the value is an opaque blob. This simplicity enables extremely fast lookups and high write throughput, making key-value stores a fundamental building block in distributed systems.
+A **Key-Value Store** is a non-relational database that stores data as a collection of key-value pairs. Keys are unique strings or hashes, and values can be simple types (strings, integers) or complex blobs (JSON, serialized objects). Key-value stores provide sub-millisecond, constant-time $O(1)$ lookups and high write throughput, serving as a critical building block for distributed systems.
 
-## Data model
+---
 
-```
-┌─────────────────────────────────────────┐
-│           Key-Value Store               │
-├─────────────────┬───────────────────────┤
-│      Key        │        Value          │
-├─────────────────┼───────────────────────┤
-│  user:1001      │  {"name": "Alice"}    │
-│  session:abc123 │  {token, expiry, ...} │
-│  cache:product5 │  <binary blob>        │
-│  counter:views  │  42                   │
-└─────────────────┴───────────────────────┘
-```
+## 1. High-Level Distributed Architecture
 
-### Key characteristics
-- **Key**: Unique identifier (string, number, or binary). Often hashed for distribution.
-- **Value**: Opaque blob — the store doesn't interpret the structure (JSON, binary, serialized objects)
-- **Metadata**: Optional TTL, version/timestamp, content type
+To scale a key-value store beyond a single machine, we partition keys across a ring of coordinator nodes using consistent hashing, replicating each key to multiple physical nodes for high availability.
 
-## Common use cases
+<Mermaid chart='flowchart TD[nl]
+    Client["Client Application"] -->|PUT / GET| Coordinator["Coordinator Node (Routing)"][nl]
+    Coordinator -->|Consistent Hashing| NodeA["Node A (Replica 1 - Leader)"][nl]
+    Coordinator -->|Replication Factor = 3| NodeB["Node B (Replica 2 - Follower)"][nl]
+    Coordinator -->|Replication Factor = 3| NodeC["Node C (Replica 3 - Follower)"][nl]
+[nl]
+    subgraph StorageEngine["Storage Engine (Inside each Node)"][nl]
+        Memtable["MemTable (In-Memory)"] -->|Flush| SSTable["SSTables (Disk)"][nl]
+        WAL["Write-Ahead Log (Disk)"][nl]
+    end[nl]
+    NodeA --- StorageEngine' />
 
-| Use Case | Example | Why Key-Value? |
-|----------|---------|----------------|
-| **Caching** | Redis, Memcached | Sub-millisecond reads |
-| **Session storage** | User sessions by session ID | Fast lookups, TTL support |
-| **Feature flags** | Config by feature name | Simple reads, atomic updates |
-| **Rate limiting** | Counters per user/IP | Atomic increment operations |
-| **User profiles** | Profile by user ID | Schema flexibility |
-| **Shopping carts** | Cart by session/user | Fast reads/writes |
+---
 
-## Core operations
+## 2. Under the Hood: The LSM-Tree Storage Engine
 
-```python
-# Basic operations
-PUT(key, value)      # Insert or update
-GET(key) → value     # Retrieve by key
-DELETE(key)          # Remove entry
+Key-value stores optimized for high write performance (like Cassandra or RocksDB) use a **Log-Structured Merge-Tree (LSM-Tree)** engine instead of modifying files in place.
 
-# Extended operations
-EXISTS(key) → bool   # Check existence
-EXPIRE(key, ttl)     # Set time-to-live
-INCR(key)            # Atomic increment
-MGET(keys[])         # Batch get
-MPUT(pairs[])        # Batch put
-```
+<Mermaid chart='flowchart TD[nl]
+    Request["1. Write Request (PUT)"] --> WAL["2. Append to Write-Ahead Log (WAL)"][nl]
+    Request --> Memtable["3. Insert into Memtable (In-Memory Sorted Tree)"][nl]
+[nl]
+    subgraph DiskStorage["Disk Storage"][nl]
+        SST1["SSTable Level 0 (Unmerged, Sorted)"][nl]
+        SST2["SSTable Level 1 (Merged, Compacted)"][nl]
+        Bloom["Bloom Filter (In Memory)"][nl]
+    end[nl]
+[nl]
+    Memtable -->|Flush when full| SST1[nl]
+    SST1 -->|Compaction| SST2[nl]
+[nl]
+    ReadRequest["Read Request (GET)"] --> Bloom[nl]
+    Bloom -->|If exists| Memtable[nl]
+    Bloom -->|If not in Memtable| SST1' />
 
-## Design considerations
+### The Write Path (Blazing Fast)
+1.  **Write-Ahead Log (WAL)**: The write is appended to a sequential log on disk. If the server crashes, this log is replayed to recover lost memory data.
+2.  **MemTable**: The data is written to an in-memory sorted data structure (typically a Red-Black Tree or Skip List).
+3.  **Flush**: When the MemTable reaches a threshold (e.g., 64MB), it is flushed to disk as an immutable **SSTable** (Sorted String Table).
 
-### Performance
-- **O(1) lookups**: Hash-based key access provides constant-time reads
-- **In-memory vs. persistent**: Trade-off between speed and durability
-- **Write patterns**: Append-only logs, LSM trees for write-heavy workloads
+### The Read Path (Optimized)
+1.  Check the **MemTable**. If the key is there, return it.
+2.  If not, check the **Bloom Filter** (an in-memory, space-efficient probabilistic data structure that can tell if a key is *definitely not* in the SSTables).
+3.  If the Bloom filter indicates the key might exist, scan the **SSTables** from newest to oldest.
 
-### Data organization
+---
 
-```
-┌──────────────────────────────────────────────────────────┐
-│                    In-Memory Store                       │
-│  ┌─────────────┐  ┌─────────────┐  ┌─────────────┐       │
-│  │  Hash Table │  │  Skip List  │  │   Bloom     │       │
-│  │   (index)   │  │  (sorted)   │  │   Filter    │       │
-│  └─────────────┘  └─────────────┘  └─────────────┘       │
-└──────────────────────────────────────────────────────────┘
-                          │
-                          ▼
-┌──────────────────────────────────────────────────────────┐
-│                   Persistent Storage                     │
-│  ┌─────────────┐  ┌─────────────┐  ┌─────────────┐       │
-│  │     WAL     │  │   SSTable   │  │  Snapshots  │       │
-│  │ (write log) │  │  (sorted)   │  │  (backup)   │       │
-│  └─────────────┘  └─────────────┘  └─────────────┘       │
-└──────────────────────────────────────────────────────────┘
-```
+## 3. Distributed Partitioning & Consistent Hashing
 
-## Partitioning (Sharding)
+Consistent hashing maps keys to nodes on a circular hash space (the "Hash Ring"), preventing massive data migration when nodes are added or removed.
 
-Distribute keys across multiple nodes to scale horizontally.
+<Mermaid chart='flowchart TD[nl]
+    subgraph HashRing["Consistent Hashing Ring"][nl]
+        N1["Node A (Token: 120)"] --- N2["Node B (Token: 240)"][nl]
+        N2 --- N3["Node C (Token: 360)"][nl]
+        N3 --- N1[nl]
+    end[nl]
+[nl]
+    Key1["Key: user_123 (Hash: 150)"] -->|Routes clockwise| N2[nl]
+    Key2["Key: user_456 (Hash: 300)"] -->|Routes clockwise| N3' />
 
-### Consistent hashing
+*   **Virtual Nodes (Vnodes)**: Instead of mapping a physical server to a single token on the ring, each server is assigned multiple tokens (e.g., 256 virtual nodes). This ensures that if Node A has double the hardware capacity of Node B, Node A can be assigned twice as many virtual nodes, balancing the database load proportionally.
 
-```
-        Node A              Node B              Node C
-           │                   │                   │
-    ┌──────┴──────┐     ┌──────┴──────┐     ┌──────┴──────┐
-    │  Keys 0-33  │     │  Keys 34-66 │     │  Keys 67-99 │
-    └─────────────┘     └─────────────┘     └─────────────┘
+---
 
-Hash ring with virtual nodes:
-    0 ────── A ────── B ────── A ────── C ────── B ────── 100
-              │               │               │
-           key:user1       key:sess2       key:cart3
+## 4. Tunable Consistency (Dynamo-style)
+
+In distributed key-value stores, you can tune consistency on a per-request basis by configuring three variables:
+
+*   **$N$**: Replication Factor (number of nodes storing a copy of the data).
+*   **$W$**: Write Quorum (number of replica nodes that must acknowledge a write before it is marked successful).
+*   **$R$**: Read Quorum (number of replica nodes that must respond to a read query before returning the result to the client).
+
+```text
+W + R > N  ──► Strong Consistency (Guarantees reading the latest write)
+W + R <= N ──► Eventual Consistency (Fast, but read may return stale data)
 ```
 
-**Benefits of consistent hashing**:
-- Adding/removing nodes moves only K/N keys (K = total keys, N = nodes)
-- Virtual nodes balance load across heterogeneous hardware
+### Common Quorum Configurations (where $N = 3$)
 
-### Partitioning strategies
+| Configuration | $W$ | $R$ | Characteristics | Use Case |
+| :--- | :--- | :--- | :--- | :--- |
+| **Balanced Quorum** | $2$ | $2$ | Strong consistency. Decent read/write speed. Can tolerate $1$ node failure. | Default transactional system. |
+| **Write-Optimized** | $1$ | $3$ | Extremely fast writes. Slow reads (must query all nodes). | IoT metrics logging. |
+| **Read-Optimized** | $3$ | $1$ | Extremely fast reads. Slow writes (must wait for all replicas). | Product Catalog caching. |
 
-| Strategy | Pros | Cons |
-|----------|------|------|
-| **Hash partitioning** | Even distribution | No range queries |
-| **Range partitioning** | Range queries | Hot spots possible |
-| **Consistent hashing** | Minimal rebalancing | Complexity |
+---
 
-## Replication
+## 5. Conflict Resolution: Vector Clocks
 
-Keep copies of data on multiple nodes for availability and durability.
+In a masterless system (e.g., Cassandra or DynamoDB), network partitions can result in concurrent writes to different replicas, creating conflicts.
 
-```
-┌─────────────────────────────────────────────────────────┐
-│                    Replication                          │
-│                                                         │
-│   Write ──► Leader ──► Follower 1                       │
-│                    └──► Follower 2                      │
-│                    └──► Follower 3                      │
-│                                                         │
-│   Read  ◄── Any replica (eventual consistency)          │
-│         ◄── Leader only (strong consistency)            │
-└─────────────────────────────────────────────────────────┘
-```
+To track causality and detect concurrent updates, distributed stores use **Vector Clocks**. A vector clock is a list of `[node, counter]` pairs associated with a record.
 
-### Replication strategies
+<Mermaid chart='flowchart TD[nl]
+    Step1["1. Client writes record on Node A[br]Clock: (A: 1)"] --> Step2["2. Client updates record on Node A[br]Clock: (A: 2)"][nl]
+    Step2 --> Step3a["3a. Network partition: Client writes to Node B[br]Clock: (A: 2, B: 1)"][nl]
+    Step2 --> Step3b["3b. Network partition: Client writes to Node C[br]Clock: (A: 2, C: 1)"][nl]
+    Step3a --> Step4["4. Replicas merge. Clock (A: 2, B: 1) and (A: 2, C: 1) are concurrent.[br]Conflict detected! App must resolve."][nl]
+    Step3b --> Step4' />
 
-- **Leader-follower**: Writes go to leader, replicated to followers
-- **Leaderless**: Any node accepts writes (Dynamo-style)
-- **Synchronous**: Wait for replicas before acknowledging (durable, slower)
-- **Asynchronous**: Acknowledge immediately, replicate in background (fast, potential data loss)
+*   **Causally Dependent**: If Clock 1 has all counters greater than or equal to Clock 2 (e.g., `[A: 2, B: 1]` vs. `[A: 1, B: 1]`), Clock 1 is newer and overwrites Clock 2.
+*   **Concurrent (Conflict)**: If one clock has a higher counter on Node A but a lower counter on Node B (e.g., `[A: 2, B: 1]` vs. `[A: 1, B: 2]`), a conflict has occurred. The system returns both versions to the application client to resolve (e.g., merging shopping cart items).
 
-## Consistency models
+---
 
-### Tunable consistency (Dynamo-style)
+## 6. Anti-Entropy & Node Synchronization
 
-```
-N = Replication factor (total replicas)
-W = Write quorum (replicas that must acknowledge write)
-R = Read quorum (replicas that must respond to read)
+Distributed nodes must detect when data drifts between replicas (due to temporary network drops) without scanning the entire database.
 
-Strong consistency: W + R > N
-Example: N=3, W=2, R=2 → Always read latest write
-```
+### Gossip Protocol
+Nodes continuously exchange cluster state metadata (e.g., node health, token ring membership, vector clocks) by periodically pinging a few random nodes. This decentralizes membership management and ensures that membership updates propagate exponentially across the cluster.
 
-| Configuration | W | R | Guarantee |
-|--------------|---|---|-----------|
-| Strong consistency | 2 | 2 | Always latest (N=3) |
-| Fast writes | 1 | 3 | Durable reads |
-| Fast reads | 3 | 1 | Durable writes |
-| Eventual | 1 | 1 | Fastest, may be stale |
+### Merkle Trees
+To resolve differences between two replica databases, nodes compare **Merkle Trees** (cryptographic hash trees).
 
-### Conflict resolution
+<Mermaid chart='flowchart TD[nl]
+    RootHash["Root Hash: h(A+B)"][nl]
+    HashA["Node Hash A: h(val1+val2)"][nl]
+    HashB["Node Hash B: h(val3+val4)"][nl]
+    Leaf1["Leaf 1: h(val1)"][nl]
+    Leaf2["Leaf 2: h(val2)"][nl]
+    Leaf3["Leaf 3: h(val3)"][nl]
+    Leaf4["Leaf 4: h(val4)"][nl]
+[nl]
+    RootHash --- HashA[nl]
+    RootHash --- HashB[nl]
+    HashA --- Leaf1[nl]
+    HashA --- Leaf2[nl]
+    HashB --- Leaf3[nl]
+    HashB --- Leaf4' />
 
-When concurrent writes occur:
-- **Last-write-wins (LWW)**: Timestamp-based, simple but can lose data
-- **Vector clocks**: Track causality, detect conflicts
-- **CRDTs**: Conflict-free data types that auto-merge
-- **Application-level**: Return conflicts to application to resolve
+*   Nodes compare the **Root Hash**. If it matches, the databases are identical.
+*   If the root hash differs, they compare the children. They traverse down the tree to isolate the exact leaf keys that differ, only replicating the modified records over the network.
 
-## TTL and eviction
+---
 
-### Expiration policies
+## 7. Memory Management & Eviction Policies
 
-```python
-# Set TTL on write
-SET user:session:123 "data" EX 3600  # Expires in 1 hour
+When acting as a cache (like Redis), the data size may exceed physical RAM, requiring an **Eviction Policy** to purge older data:
 
-# Passive expiration: Check on access
-GET key → if expired → return null, delete
-
-# Active expiration: Background thread samples and deletes
-```
-
-### Eviction policies (when memory is full)
-
-| Policy | Description | Use Case |
-|--------|-------------|----------|
-| **LRU** | Least Recently Used | General caching |
-| **LFU** | Least Frequently Used | Hot data retention |
-| **TTL** | Expire oldest TTL first | Session data |
-| **Random** | Random eviction | Simple, fast |
-| **No eviction** | Reject writes | Critical data |
-
-## Example systems
-
-| System | Type | Key Features |
-|--------|------|--------------|
-| **Redis** | In-memory | Rich data types, persistence, clustering |
-| **Memcached** | In-memory | Simple, multi-threaded, distributed |
-| **DynamoDB** | Managed | Auto-scaling, serverless, global tables |
-| **etcd** | Distributed | Strong consistency, leader election |
-| **RocksDB** | Embedded | LSM-tree, high write throughput |
-
-## Designing a distributed key-value store
-
-### High-level architecture
-
-```
-┌─────────────────────────────────────────────────────────────┐
-│                        Clients                              │
-└─────────────────────────────────────────────────────────────┘
-                              │
-                              ▼
-┌─────────────────────────────────────────────────────────────┐
-│                    Coordinator Layer                        │
-│         (routing, load balancing, request handling)         │
-└─────────────────────────────────────────────────────────────┘
-                              │
-              ┌───────────────┼───────────────┐
-              ▼               ▼               ▼
-        ┌──────────┐   ┌──────────┐   ┌──────────┐
-        │ Shard 1  │   │ Shard 2  │   │ Shard 3  │
-        │┌────────┐│   │┌────────┐│   │┌────────┐│
-        ││Leader  ││   ││Leader  ││   ││Leader  ││
-        │├────────┤│   │├────────┤│   │├────────┤│
-        ││Follower││   ││Follower││   ││Follower││
-        ││Follower││   ││Follower││   ││Follower││
-        │└────────┘│   │└────────┘│   │└────────┘│
-        └──────────┘   └──────────┘   └──────────┘
-```
-
-### Design checklist
-
-1. **Partitioning**: Use consistent hashing with virtual nodes
-2. **Replication**: 3 replicas per partition for durability
-3. **Consistency**: Tunable quorums (default: eventual, option for strong)
-4. **Failure detection**: Gossip protocol or heartbeats
-5. **Handoff**: Hinted handoff for temporary failures
-6. **Anti-entropy**: Merkle trees to sync replicas
-7. **Persistence**: WAL + periodic snapshots
-
-## Operational considerations
-
-### Monitoring metrics
-
-- **Latency**: p50, p95, p99 for GET/PUT operations
-- **Throughput**: Operations per second
-- **Cache hit ratio**: For caching use cases
-- **Memory usage**: Eviction rates, fragmentation
-- **Replication lag**: Time for replicas to catch up
-
-### Common issues
-
-| Issue | Cause | Solution |
-|-------|-------|----------|
-| Hot keys | Skewed access | Key hashing, local caching |
-| Memory pressure | Data growth | Eviction policies, sharding |
-| Replication lag | High write volume | Tune async settings |
-| Split brain | Network partition | Quorum-based consensus |
-
-## Further reading
-
-- Designing Data-Intensive Applications — Martin Kleppmann
-- Amazon Dynamo Paper (2007)
-- Redis documentation: https://redis.io/documentation
-- etcd documentation: https://etcd.io/docs/
+| Policy | Full Name | Mechanism | Best For |
+| :--- | :--- | :--- | :--- |
+| **LRU** | Least Recently Used | Evicts the key that has not been accessed for the longest time. | General-purpose caching. |
+| **LFU** | Least Frequently Used | Evicts the key with the lowest access count. | Retaining "hot" items (e.g., homepage banners). |
+| **FIFO** | First In, First Out | Evicts the oldest key in the store, regardless of access patterns. | Time-series stream buffers. |
+| **Volatile-TTL** | Volatile Time-To-Live | Evicts keys with the shortest remaining TTL first. | Temporary session tokens. |
+| **No-Eviction** | No Eviction | Rejects new writes with an error once memory is full. | Critical database stores where loss is unacceptable. |

@@ -1,196 +1,188 @@
 ---
 title: Load Balancers
-description: Distributing traffic across multiple servers efficiently
+description: Distributing network and application traffic across servers. Learn about Layer 4 vs Layer 7 load balancing, routing algorithms, session persistence, health checks, and scaling strategies.
 order: 2
 category: Building Blocks
 ---
 
 # Load Balancing
 
-Load balancing is the process of distributing network traffic across multiple servers to ensure no single server bears too much demand. This improves responsiveness and availability of applications.
+A single web server can only handle a limited number of concurrent connections. To scale beyond a single machine, we use **Load Balancers (LBs)**. A load balancer acts as a traffic cop, routing incoming client requests across a pool of backend servers. This prevents any single server from becoming a bottleneck, eliminates single points of failure, and enables horizontal scaling.
 
-## Types of Load Balancers
+---
+
+## 1. Multi-Tier Load Balancing Architecture
+
+In large-scale systems, load balancing is not handled by a single device. Instead, it is structured in multiple layers to handle massive throughput:
+
+<Mermaid chart='flowchart TD[nl]
+    Client["Client Requests"] -->|1. Geolocation DNS| DNS["DNS Anycast Routing"][nl]
+    DNS -->|2. Route to nearest region| L4["Layer 4 Load Balancer (LVS / HAProxy)[br](IP/Port Routing - Fast)"][nl]
+    L4 -->|3. Route to L7 cluster| L7["Layer 7 Load Balancer (NGINX / Envoy)[br](Content-Aware - SSL Termination)"][nl]
+    L7 -->|4. Forward request| App1["App Server 1"][nl]
+    L7 -->|4. Forward request| App2["App Server 2"][nl]
+    L7 -->|4. Forward request| App3["App Server 3"]' />
+
+1.  **DNS Tier (Anycast/GeoDNS)**: Routes the client to the topologically closest data center.
+2.  **L4 Tier (IP/Port)**: A high-throughput, hardware or low-level software load balancer (e.g., Linux Virtual Server (LVS), AWS Network Load Balancer (NLB)) receives millions of raw packets and forwards them to a cluster of L7 load balancers without reading application headers.
+3.  **L7 Tier (HTTP/HTTPS)**: A content-aware reverse proxy (e.g., NGINX, HAProxy, Envoy) performs SSL termination, inspects HTTP headers/cookies, and forwards requests to specific application instances.
+
+---
+
+## 2. Layer 4 vs. Layer 7 Load Balancing
+
+The division between Layer 4 and Layer 7 corresponds to the OSI (Open Systems Interconnection) network model.
+
+<Mermaid chart='flowchart LR[nl]
+    L4["L4 Load Balancing[br](Transport Layer)"] -->|Inspects only| L4Fields["Source/Dest IP & TCP/UDP Port"][nl]
+    L7["L7 Load Balancing[br](Application Layer)"] -->|Inspects fully| L7Fields["HTTP Headers, Cookies, URL Paths, JSON Payload"]' />
 
 ### Layer 4 (L4) Load Balancing
-
-Operates at the transport layer (TCP/UDP). Makes routing decisions based on IP addresses and ports.
-
-```plaintext
-Client → L4 Load Balancer → Server
-         ↓
-  Routes based on:
-  - Source IP
-  - Destination IP
-  - Source Port
-  - Destination Port
-```
-
-**Characteristics:**
-- Very fast (minimal packet inspection)
-- Protocol agnostic
-- No SSL termination
-- Cannot make content-based decisions
+L4 load balancers operate at the **Transport Layer** (TCP/UDP). They make routing decisions purely based on packet headers (IP addresses and port numbers) without opening or reading the message payload.
+*   **Pros**: Extremely fast. Minimal CPU/memory overhead since it does not parse application protocols.
+*   **Cons**: Cannot do smart routing (e.g., routing `/api/v1/payments` to a payments service and `/static` to a CDN). Cannot terminate SSL or handle cookies.
 
 ### Layer 7 (L7) Load Balancing
+L7 load balancers operate at the **Application Layer** (HTTP/HTTPS/gRPC). They terminate the network connection, decrypt SSL/TLS, and read the entire application message (URL, cookies, headers, query parameters).
+*   **Pros**: Content-aware routing. Can manage session cookies (sticky sessions), perform rate limiting, compress responses (Gzip/Brotli), and handle path-based routing.
+*   **Cons**: High CPU and memory utilization. Slower than L4 due to connection termination and packet inspection.
 
-Operates at the application layer (HTTP/HTTPS). Can inspect content and make intelligent routing decisions.
+---
 
-```plaintext
-Client → L7 Load Balancer → Server
-         ↓
-  Routes based on:
-  - URL path
-  - HTTP headers
-  - Cookies
-  - Request content
-```
+## 3. Load Balancing Algorithms
 
-**Characteristics:**
-- Content-aware routing
-- SSL termination
-- Can modify requests/responses
-- More resource-intensive
+Load balancers use specific strategies to choose which server receives the next request:
 
-## Load Balancing Algorithms
-
-### Round Robin
-
-Requests are distributed sequentially across servers.
+### 1. Round Robin
+Requests are distributed sequentially down the list of servers.
+*   **Pros**: Extremely simple; no state required.
+*   **Cons**: Assumes all backend servers have the same capacity and that all requests consume the same amount of resources.
 
 ```typescript
-class RoundRobinBalancer {
-  private servers: string[];
-  private current = 0;
+class RoundRobin {
+    private servers: string[];
+    private index = 0;
 
-  getNextServer(): string {
-    const server = this.servers[this.current];
-    this.current = (this.current + 1) % this.servers.length;
-    return server;
-  }
-}
-```
-
-**Pros:** Simple, equal distribution
-**Cons:** Ignores server load and capacity
-
-### Weighted Round Robin
-
-Servers are assigned weights based on their capacity.
-
-```typescript
-class WeightedRoundRobin {
-  private servers = [
-    { host: 'server1', weight: 5 },
-    { host: 'server2', weight: 3 },
-    { host: 'server3', weight: 2 },
-  ];
-  
-  // server1 gets 50% of traffic
-  // server2 gets 30% of traffic
-  // server3 gets 20% of traffic
-}
-```
-
-### Least Connections
-
-Routes to the server with the fewest active connections.
-
-```typescript
-class LeastConnections {
-  private servers = new Map<string, number>();
-
-  getNextServer(): string {
-    let minServer = '';
-    let minConnections = Infinity;
-    
-    for (const [server, connections] of this.servers) {
-      if (connections < minConnections) {
-        minConnections = connections;
-        minServer = server;
-      }
+    constructor(servers: string[]) {
+        this.servers = servers;
     }
-    return minServer;
-  }
+
+    getNextServer(): string {
+        const server = this.servers[this.index];
+        this.index = (this.index + 1) % this.servers.length;
+        return server;
+    }
 }
 ```
 
-**Best for:** Varying request processing times
-
-### IP Hash
-
-Routes based on client IP address, ensuring the same client always reaches the same server.
+### 2. Weighted Round Robin
+Each server is assigned a weight representing its processing capacity (e.g., CPU, RAM). Servers with higher weights receive more traffic.
+*   **Pros**: Handles heterogeneous server pools (e.g., combining 16-core servers with 4-core servers).
 
 ```typescript
-function ipHash(clientIp: string, serverCount: number): number {
-  let hash = 0;
-  for (let i = 0; i < clientIp.length; i++) {
-    hash = (hash * 31 + clientIp.charCodeAt(i)) % serverCount;
-  }
-  return hash;
+interface WeightedServer {
+    host: string;
+    weight: number;
+}
+
+class WeightedRoundRobin {
+    private servers: WeightedServer[];
+    private currentIndex = 0;
+    private currentWeight = 0;
+    private maxWeight = 0;
+
+    constructor(servers: WeightedServer[]) {
+        this.servers = servers;
+        this.maxWeight = Math.max(...servers.map(s => s.weight));
+    }
+
+    getNextServer(): string {
+        while (true) {
+            this.currentIndex = (this.currentIndex + 1) % this.servers.length;
+            if (this.currentIndex === 0) {
+                this.currentWeight = this.currentWeight - 1;
+                if (this.currentWeight <= 0) {
+                    this.currentWeight = this.maxWeight;
+                }
+            }
+            if (this.servers[this.currentIndex].weight >= this.currentWeight) {
+                return this.servers[this.currentIndex].host;
+            }
+        }
+    }
 }
 ```
 
-**Best for:** Session persistence without cookies
+### 3. Least Connections
+Directs traffic to the server with the fewest active, concurrent connections.
+*   **Pros**: Dynamically adapts. If Server A receives a slow request (e.g., a file upload) and Server B receives fast requests, the balancer will route subsequent requests to Server B.
+*   **Best For**: Long-lived connections (e.g., WebSockets, Database pools) and varying request processing times.
 
-### Consistent Hashing
+### 4. IP Hash (Session Affinity)
+Hashes the client's IP address and uses it to select a server. This guarantees that a specific user always lands on the same backend server.
+*   **Pros**: Provides session persistence without storing state in a shared database.
+*   **Cons**: If a backend server crashes, all users hashed to that server lose their session state. Causes uneven load distribution if many users share a gateway IP (NAT).
 
-Distributes requests using a hash ring, minimizing redistribution when servers are added/removed.
+---
 
-```plaintext
-        Server A
-           ●
-          /|\
-         / | \
-        /  |  \
-   ●---●   |   ●---●
- Key1     |     Key2
-          ●
-       Server B
-```
+## 4. Session Persistence: Sticky Sessions vs. Stateless Sessions
 
-**Best for:** Distributed caches, session storage
+If your application server stores session state in local memory (stateful design), the user must hit the same server on every request.
 
-## Health Checks
+<Mermaid chart='flowchart TD[nl]
+    subgraph StickySession["1. Sticky Sessions (Session Affinity)"][nl]
+        ClientA["Client A"] -->|Cookie: server=1| LB1["Load Balancer"][nl]
+        LB1 -->|Routes based on Cookie| AppS1["App Server 1 (Local Session)"][nl]
+    end[nl]
+[nl]
+    subgraph StatelessSession["2. Stateless Architecture (Recommended)"][nl]
+        ClientB["Client B"] -->|JWT Auth Token| LB2["Load Balancer"][nl]
+        LB2 -->|Any Server can process| AppS2["App Server 2"][nl]
+        LB2 -->|Any Server can process| AppS3["App Server 3"][nl]
+        AppS2 -->|Fetch session state| SharedCache["Shared Redis Cache"][nl]
+        AppS3 -->|Fetch session state| SharedCache[nl]
+    end' />
 
-Load balancers monitor server health to route traffic only to healthy instances.
+1.  **Sticky Sessions (Cookie-based)**: The load balancer inserts a cookie (e.g., `SERVERID=app1`) into the first HTTP response. Subsequent requests read this cookie to route the user back to `app1`.
+    *   *Downside*: Hard to scale horizontally. Server crashes cause data loss.
+2.  **Shared Session State (Stateless)**: Backend servers do not store session data locally. Instead, they fetch session credentials from a fast, shared distributed cache (e.g., Redis).
+    *   *Upside*: Highly scalable; any server can process any request.
 
-### Passive Health Checks
+---
 
-Monitor response codes and timeouts during normal traffic:
+## 5. Health Checks & High Availability
+
+To prevent routing traffic to dead servers, the load balancer continuously performs **Health Checks**.
 
 ```yaml
-upstream backend {
-  server backend1.example.com max_fails=3 fail_timeout=30s;
-  server backend2.example.com max_fails=3 fail_timeout=30s;
-}
-```
-
-### Active Health Checks
-
-Periodically probe servers with health check requests:
-
-```yaml
+# Conceptual health check configuration (Nginx-like)
 health_check:
-  path: /health
-  interval: 10s
-  timeout: 5s
-  healthy_threshold: 2
-  unhealthy_threshold: 3
+  path: "/healthz"
+  interval: 10s       # Probe every 10 seconds
+  timeout: 5s         # Fail if no response in 5 seconds
+  unhealthy_limit: 3  # Mark dead after 3 consecutive failures
+  healthy_limit: 2    # Return to service after 2 consecutive successes
 ```
 
-## Common Load Balancers
+### Active vs. Passive Health Checks
+*   **Active Health Checks**: The load balancer proactively sends periodic ping/HTTP requests to a specific `/healthz` endpoint on all backend servers.
+*   **Passive Health Checks**: The load balancer monitors real-world user traffic. If a server starts returning `502 Bad Gateway` or timing out on actual user requests, the load balancer dynamically marks it as offline.
 
-| Software | Type | Use Case |
-|----------|------|----------|
-| NGINX | L7 | Web traffic, reverse proxy |
-| HAProxy | L4/L7 | High-performance TCP/HTTP |
-| AWS ALB | L7 | AWS cloud applications |
-| AWS NLB | L4 | AWS high-throughput TCP |
+---
 
-## Best Practices
+## 6. SSL/TLS Management: Termination vs. Passthrough
 
-1. **Use Multiple Load Balancers**: Avoid single points of failure
-2. **Implement Health Checks**: Both active and passive
-3. **Enable Session Persistence**: When stateful apps require it
-4. **SSL Termination**: Offload encryption to load balancers
-5. **Monitor Metrics**: Track latency, error rates, and throughput
+Handling cryptographic handshakes for SSL/TLS is CPU-intensive. Load balancers handle this in two ways:
+
+| SSL Strategy | Flow | Pros | Cons |
+| :--- | :--- | :--- | :--- |
+| **SSL Termination (Offloading)** | `Client ──[HTTPS]──► LB ──[Plain HTTP]──► Servers` | Offloads CPU decryption work from app servers. Enables L7 path routing. | Plaintext HTTP inside the internal network. Requires strict VPC firewall security. |
+| **SSL Passthrough** | `Client ──[HTTPS]──► LB ──[HTTPS]──► Servers` | End-to-end encryption. The LB cannot read the data, ensuring high privacy. | App servers must consume CPU decrypting. No L7 smart routing possible (L4 only). |
+
+---
+
+## 7. Best Practices for System Designers
+
+1.  **Redundant Load Balancers**: A load balancer is a Single Point of Failure (SPOF). Always run a pair of load balancers using **Keepalived** or **floating IPs (VRRP)** so a backup takes over if the primary fails.
+2.  **Choose L7 for Web, L4 for Scale**: Use L7 load balancers (like NGINX/Envoy) for routing web traffic, SSL offloading, and security. Use L4 (like AWS NLB or LVS) at the ingress tier to distribute load among your NGINX cluster.
+3.  **Implement Graceful Shutdowns**: When deploying code, configure the load balancer to stop sending *new* connections to a server but allow *existing* connections to finish processing (connection draining).

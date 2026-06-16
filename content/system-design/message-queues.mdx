@@ -1,311 +1,149 @@
 ---
-title: Distributed Messaging Queue
-description: Asynchronous communication patterns with message brokers
-order: 5
+title: Message Queues
+description: Scale asynchronous communication. Learn about broker-based vs log-based queues (RabbitMQ vs Kafka), delivery guarantees, consumer groups, and Dead Letter Queues (DLQ).
+order: 7
 category: Building Blocks
 ---
 
-# Message Queues
+# Message Queues & Event Streaming
 
-Message queues enable asynchronous communication between services by allowing producers to send messages that consumers process independently. This decoupling improves scalability, reliability, and flexibility.
+In monolithic applications, services communicate via in-memory function calls. In distributed architectures, services communicate via synchronous network calls (HTTP/gRPC) or asynchronously via a **Message Queue (MQ)** or **Event Stream**. Message queues decouple services, smooth traffic spikes, and improve system availability by allowing producers to send messages without waiting for consumers to process them.
 
-## Why Use Message Queues?
+---
 
-### Decoupling
+## 1. Core Messaging Patterns
 
-Services don't need to know about each other:
+How messages are routed from producers to consumers determines your system architecture:
 
-```plaintext
-Without Queue:
-Order Service → User Service → Email Service → Analytics
+### 1. Point-to-Point (Queue-centric)
+A producer sends a message to a specific queue. Only one consumer receives and processes that message. Once processed and acknowledged, the message is deleted from the queue.
 
-With Queue:
-Order Service → Queue ← User Service
-                     ← Email Service  
-                     ← Analytics
-```
+<Mermaid chart='flowchart LR[nl]
+    Producer["Producer App"] -->|"1. Send Message"| Queue["Message Queue"][nl]
+    Queue -->|"2. Consume (Exclusively)"| Consumer1["Consumer App A"][nl]
+    Queue -.->|Inactive| Consumer2["Consumer App B"]' />
 
-### Load Leveling
+*   **Best For**: Task distribution, work queues, background job processing (e.g., sending verification emails, processing video uploads).
 
-Handle traffic spikes by buffering requests:
+### 2. Publish-Subscribe (Pub/Sub - Topic-centric)
+Producers publish messages to a **Topic**. Multiple consumers subscribe to that topic. The message broker duplicates the message and sends it to all active subscribers.
 
-```plaintext
-Traffic Spike:        Normal Processing:
-████████████          ████
-████████████   →      ████
-████████████          ████
-    Queue             Workers
-```
+<Mermaid chart='flowchart TD[nl]
+    Publisher["Publisher App"] -->|Publish event| Topic["Topic: Order Created"][nl]
+    Topic --> SubscriberA["Subscriber A (Inventory Service)"][nl]
+    Topic --> SubscriberB["Subscriber B (Email Service)"][nl]
+    Topic --> SubscriberC["Subscriber C (Analytics Service)"]' />
 
-### Reliability
+*   **Best For**: Event-driven architectures (e.g., notifying inventory, shipping, and email services when an order is completed).
 
-Messages persist until successfully processed:
+### 3. Fan-out / Exchange Routing (RabbitMQ style)
+Producers send messages to an **Exchange**. The exchange routes the message to multiple queues based on binding rules (routing keys, wildcards).
+
+<Mermaid chart='flowchart LR[nl]
+    Prod["Producer"] --> Exchange["Exchange"][nl]
+    Exchange -->|Binding Key: payment.*| QueueA["Payment Queue"] --> ConsumerA["Payment Service"][nl]
+    Exchange -->|Binding Key: shipping.*| QueueB["Shipping Queue"] --> ConsumerB["Shipping Service"]' />
+
+---
+
+## 2. Broker-based vs. Log-based Architectures
+
+Choosing the right messaging technology requires understanding the two architectural models:
+
+### 1. Traditional Message Brokers (e.g., RabbitMQ, ActiveMQ)
+Uses a **"Smart Broker, Dumb Consumer"** design. The broker manages message states, routes messages dynamically using exchanges, tracks consumer acknowledgments, and deletes messages once consumed.
+*   **Mechanism**: Push-based delivery. The broker pushes messages to consumers.
+*   **Pros**: Flexible routing, individual message acknowledgments, low latency.
+*   **Cons**: Scaling is limited because keeping track of individual message state across clustered queues consumes significant memory and CPU.
+
+---
+
+### 2. Log-Structured Streamers (e.g., Apache Kafka, Pulsar)
+Uses a **"Dumb Broker, Smart Consumer"** design. The broker acts as an append-only log of events written to disk. The broker does not track consumer state or delete messages upon consumption. Instead, messages remain in the partition until a retention policy expires (e.g., 7 days).
+
+<Mermaid chart='flowchart TD[nl]
+    subgraph Topic["Kafka Topic (Partitioned Log)"][nl]
+        P0["Partition 0[br](Msg 0, Msg 1, Msg 2)"][nl]
+        P1["Partition 1[br](Msg 0, Msg 1)"][nl]
+        P2["Partition 2[br](Msg 0, Msg 1, Msg 2, Msg 3)"][nl]
+    end[nl]
+[nl]
+    Producer["Producer"] -->|Publish with hash key| Topic[nl]
+[nl]
+    subgraph CG1["Consumer Group A[br](Share the partitions - scaled reads)"][nl]
+        C1["Consumer 1"] --- P0[nl]
+        C2["Consumer 2"] --- P1[nl]
+        C2 --- P2[nl]
+    end' />
+
+*   **Offsets**: Consumers track their own progress using a pointer called an **offset**. Multiple consumers can read the same partition at different speeds or replay the entire log by resetting their offset.
+*   **Mechanism**: Pull-based delivery. Consumers pull batches of messages from the broker.
+*   **Pros**: Massive throughput (millions of writes/sec), event replayability, horizontal scaling via partitioning.
+*   **Cons**: No complex routing; consumers must handle their own concurrency and message filtering.
+
+---
+
+## 3. Distributed Delivery Guarantees
+
+In distributed systems, network packets can fail, leading to different delivery guarantee options:
+
+1.  **At-Most-Once**: Messages are sent with fire-and-forget. If the network drops or the consumer crashes before committing to the database, the message is lost.
+    *   *Mechanism*: Consumer acknowledges the message immediately upon receipt, *before* processing it.
+2.  **At-Least-Once (Default)**: Messages are guaranteed to be delivered, but duplicates may occur.
+    *   *Mechanism*: Consumer only acknowledges the message *after* successfully committing the processed data to the database. If the consumer crashes mid-process, the broker redelivers the message.
+3.  **Exactly-Once**: The message is processed exactly once, with zero duplicates and zero loss.
+    *   *Mechanism*: Requires transactional coordination between the message broker and database, or designing **Idempotent Consumers**.
+
+---
+
+## 4. Designing Idempotent Consumers
+
+Since achieving "Exactly-Once" over the network is physically impossible, system designers build for **At-Least-Once** and ensure that processing the same message multiple times has no side effects.
+
+### Using Idempotency Keys
+Producers attach a unique `idempotency_key` (e.g., a UUID) to every message.
 
 ```typescript
-// Producer sends message
-await queue.send({ orderId: '123', action: 'process' });
-
-// Consumer processes with acknowledgment
-const message = await queue.receive();
-try {
-  await processOrder(message.data);
-  await message.ack(); // Confirm processing
-} catch (error) {
-  await message.nack(); // Return to queue
+interface MessagePayload {
+    idempotencyKey: string; // UUID
+    userId: string;
+    amount: number;
 }
-```
 
-## Message Queue Patterns
+async function processPayment(message: MessagePayload) {
+    // 1. Check if the key already exists in a fast distributed cache (Redis)
+    const alreadyProcessed = await redis.set(
+        `processed_payment:${message.idempotencyKey}`,
+        "success",
+        "EX", 86400, // Expire after 24 hours
+        "NX" // Only write if key does NOT exist
+    );
 
-### Point-to-Point (Queue)
-
-One producer, one consumer per message.
-
-```plaintext
-Producer → Queue → Consumer
-              ↓
-         Message goes to
-         ONE consumer only
-```
-
-### Publish-Subscribe (Topic)
-
-One producer, multiple subscribers receive copies.
-
-```plaintext
-Publisher → Topic → Subscriber A
-                 → Subscriber B
-                 → Subscriber C
-                 
-All subscribers receive
-every message
-```
-
-### Fan-Out
-
-Broadcast to multiple queues for different processing.
-
-```plaintext
-Order Created → Fan-out Exchange
-                    ├→ Inventory Queue → Inventory Service
-                    ├→ Email Queue → Email Service
-                    └→ Analytics Queue → Analytics Service
-```
-
-## Popular Message Queues
-
-### Apache Kafka
-
-Distributed streaming platform designed for high throughput.
-
-```typescript
-import { Kafka } from 'kafkajs';
-
-const kafka = new Kafka({
-  clientId: 'my-app',
-  brokers: ['kafka1:9092', 'kafka2:9092'],
-});
-
-// Producer
-const producer = kafka.producer();
-await producer.send({
-  topic: 'orders',
-  messages: [
-    { key: 'order-123', value: JSON.stringify({ amount: 100 }) },
-  ],
-});
-
-// Consumer
-const consumer = kafka.consumer({ groupId: 'order-processor' });
-await consumer.subscribe({ topic: 'orders' });
-await consumer.run({
-  eachMessage: async ({ topic, partition, message }) => {
-    console.log(`Received: ${message.value}`);
-  },
-});
-```
-
-**Best for:**
-- High throughput (millions of messages/sec)
-- Event streaming and replay
-- Log aggregation
-- Real-time analytics
-
-### RabbitMQ
-
-Traditional message broker with flexible routing.
-
-```typescript
-import amqp from 'amqplib';
-
-// Producer
-const connection = await amqp.connect('amqp://localhost');
-const channel = await connection.createChannel();
-await channel.assertQueue('tasks');
-channel.sendToQueue('tasks', Buffer.from(JSON.stringify({ task: 'process' })));
-
-// Consumer
-await channel.consume('tasks', (msg) => {
-  if (msg) {
-    const task = JSON.parse(msg.content.toString());
-    processTask(task);
-    channel.ack(msg);
-  }
-});
-```
-
-**Best for:**
-- Complex routing requirements
-- Request-reply patterns
-- Traditional job queues
-- Lower latency requirements
-
-### Amazon SQS
-
-Fully managed queue service.
-
-```typescript
-import { SQS } from '@aws-sdk/client-sqs';
-
-const sqs = new SQS({ region: 'us-east-1' });
-
-// Send message
-await sqs.sendMessage({
-  QueueUrl: 'https://sqs.us-east-1.amazonaws.com/123456789/my-queue',
-  MessageBody: JSON.stringify({ orderId: '123' }),
-});
-
-// Receive message
-const response = await sqs.receiveMessage({
-  QueueUrl: 'https://sqs.us-east-1.amazonaws.com/123456789/my-queue',
-  MaxNumberOfMessages: 10,
-});
-```
-
-**Best for:**
-- AWS-native applications
-- Simple queue needs
-- Serverless architectures
-
-## Delivery Guarantees
-
-### At-Most-Once
-
-Message may be lost, never duplicated.
-
-```plaintext
-Producer → Queue → Consumer
-              ↓
-         If consumer crashes,
-         message is lost
-```
-
-**Implementation:** No acknowledgment, fire-and-forget
-
-### At-Least-Once
-
-Message will be delivered, may be duplicated.
-
-```plaintext
-Producer → Queue → Consumer (crash!)
-              ↓
-         Message redelivered
-         to another consumer
-```
-
-**Implementation:** Acknowledge after processing
-
-```typescript
-const message = await queue.receive();
-await processMessage(message); // May run twice
-await message.ack();
-```
-
-### Exactly-Once
-
-Message delivered exactly once—the holy grail.
-
-**Implementation:** Requires idempotent processing or transactional guarantees
-
-```typescript
-// Idempotent processing
-async function processOrder(orderId: string, data: OrderData) {
-  // Check if already processed
-  const existing = await db.orders.findById(orderId);
-  if (existing) {
-    return existing; // Already processed, skip
-  }
-  
-  // Process and store
-  return db.orders.create({ id: orderId, ...data });
-}
-```
-
-## Kafka vs RabbitMQ
-
-| Feature | Kafka | RabbitMQ |
-|---------|-------|----------|
-| Model | Log-based | Queue-based |
-| Throughput | Very High | High |
-| Message Retention | Configurable (days) | Until consumed |
-| Replay | Yes | No |
-| Routing | Topics/Partitions | Exchanges/Bindings |
-| Ordering | Per partition | Per queue |
-| Protocol | Custom | AMQP |
-
-## Handling Failures
-
-### Dead Letter Queues (DLQ)
-
-Messages that fail processing go to a separate queue.
-
-```typescript
-async function processWithDLQ(message: Message) {
-  try {
-    await processMessage(message);
-    await message.ack();
-  } catch (error) {
-    if (message.retryCount >= 3) {
-      // Send to dead letter queue
-      await dlq.send(message);
-      await message.ack();
-    } else {
-      // Retry with backoff
-      await message.nack({ delay: Math.pow(2, message.retryCount) * 1000 });
+    if (!alreadyProcessed) {
+        console.log("Duplicate message detected. Skipping processing.");
+        return; // Skip duplicate message
     }
-  }
+
+    // 2. Perform the critical action (e.g., charge credit card)
+    await db.transactions.create({
+        idempotencyKey: message.idempotencyKey,
+        userId: message.userId,
+        amount: message.amount
+    });
 }
 ```
 
-### Idempotency Keys
+---
 
-Ensure processing the same message twice has the same effect.
+## 5. Handling Failures: Dead Letter Queues (DLQ)
 
-```typescript
-async function processPayment(payment: Payment) {
-  const idempotencyKey = `payment:${payment.orderId}:${payment.amount}`;
-  
-  // Check if already processed
-  const processed = await redis.get(idempotencyKey);
-  if (processed) {
-    return JSON.parse(processed);
-  }
-  
-  // Process payment
-  const result = await paymentGateway.charge(payment);
-  
-  // Store result for idempotency
-  await redis.setex(idempotencyKey, 86400, JSON.stringify(result));
-  
-  return result;
-}
-```
+When a consumer encounters a malformed or unprocessable message (e.g., parsing error), retrying indefinitely will block the queue. We handle this using a **Dead Letter Queue (DLQ)**.
 
-## Best Practices
+<Mermaid chart='flowchart LR[nl]
+    Queue["Main Job Queue"] -->|"1. Fetch Message"| Consumer["Consumer App"][nl]
+    Consumer -->|"2. Processing Fails (3 retries)"| DLQ["Dead Letter Queue (DLQ)"][nl]
+    DLQ -->|"3. Alert / Inspect"| Engineer["Developer Dashboard"]' />
 
-1. **Make Consumers Idempotent**: Assume messages may be delivered multiple times
-2. **Use Dead Letter Queues**: Don't lose failed messages
-3. **Set Appropriate Timeouts**: Visibility timeout > processing time
-4. **Monitor Queue Depth**: Alert on growing backlogs
-5. **Order When Necessary**: Use partition keys for ordering guarantees
-6. **Batch for Throughput**: Process messages in batches when possible
+1.  **Retry with Exponential Backoff**: If a transient database timeout occurs, return the message to the queue and retry, increasing the wait time with each attempt.
+2.  **Move to DLQ**: If a message fails after a set number of retries (e.g., 3), the consumer sends it to the DLQ and acknowledges it on the main queue. This unblocks the queue, allowing other messages to proceed.
+3.  **Manual Inspection**: Engineers monitor the DLQ, fix the root cause (e.g., updating database schemas or fixing software bugs), and replay the DLQ messages.

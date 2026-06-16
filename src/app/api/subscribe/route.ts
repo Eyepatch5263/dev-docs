@@ -54,10 +54,10 @@ Thanks for subscribing to the Explain Bytes newsletter. You're now part of a com
 
 Here's what you can expect:
 
-📚 Deep dives into DBMS, OS, Networking, and System Design
-🎯 New flashcards to help you memorize key concepts
-💡 System design breakdowns and best practices
-🚀 Updates on new features and content
+Deep dives into DBMS, OS, Networking, and System Design
+New flashcards to help you memorize key concepts
+System design breakdowns and best practices
+Updates on new features and content
 
 Start Learning: https://explainbytes.tech
 
@@ -94,10 +94,10 @@ The Explain Bytes Team
               </p>
               
               <ul style="margin-bottom: 30px; padding-left: 20px; color: #1f2937;">
-                <li style="margin-bottom: 10px;">📚 Deep dives into DBMS, OS, Networking, and System Design</li>
-                <li style="margin-bottom: 10px;">🎯 New flashcards to help you memorize key concepts</li>
-                <li style="margin-bottom: 10px;">💡 System design breakdowns and best practices</li>
-                <li style="margin-bottom: 10px;">🚀 Updates on new features and content</li>
+                <li style="margin-bottom: 10px;">Deep dives into DBMS, OS, Networking, and System Design</li>
+                <li style="margin-bottom: 10px;">New flashcards to help you memorize key concepts</li>
+                <li style="margin-bottom: 10px;">System design breakdowns and best practices</li>
+                <li style="margin-bottom: 10px;">Updates on new features and content</li>
               </ul>
               
               <div style="text-align: center; margin: 30px 0;">

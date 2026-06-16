@@ -1,0 +1,131 @@
+---
+title: System Design Interviews
+description: A structured, step-by-step framework to tackle system design interview questions at tech companies.
+order: 2
+category: Introduction
+---
+
+## Introduction
+
+System design interviews can feel intimidating because they are open-ended, conversational, and have no single "correct" answer. Rather than looking for a specific algorithm or piece of code, interviewers want to evaluate your **engineering intuition**, **communication skills**, and **ability to weigh trade-offs under constraints**.
+
+To succeed, you need a structured, repeatable framework. Instead of jumping straight to drawing databases and servers, you must guide the interviewer through a logical path from ambiguity to a concrete architecture.
+
+---
+
+## The 4-Step System Design Interview Framework
+
+A typical system design interview lasts 45 to 60 minutes. You should manage your time by following this standard four-step lifecycle:
+
+<Mermaid chart='flowchart TD[nl]
+    A["Step 1: Understand the Problem[br]& Scope the System[br]⏱️ 5-10 mins"] --> B["Step 2: Propose High-Level Design[br]& Get Buy-in[br]⏱️ 10-15 mins"][nl]
+    B --> C["Step 3: Design Deep Dive[br]& Scale the Bottlenecks[br]⏱️ 15-25 mins"][nl]
+    C --> D["Step 4: Wrap Up & Identify[br]Future Enhancements[br]⏱️ 5 mins"]' />
+
+
+
+---
+
+### Step 1: Understand the Problem & Scope (5-10 minutes)
+
+System design questions are intentionally vague (e.g., *"Design Twitter"*). Your first task is to narrow down the scope. Never start designing without asking clarifying questions.
+
+#### What to clarify:
+1. **Functional Requirements**: What are the core features we *must* support? (e.g., Can users post images? Can they follow others? Do we need a search feature?)
+2. **Non-functional Requirements**: What are the system's operational constraints? (e.g., High availability vs. strong consistency? What is the acceptable latency for a read/write?)
+3. **Scale & Traffic**: How many active users (DAU/MAU)? What is the anticipated volume of reads vs. writes? (e.g., 100M DAU, read-to-write ratio of 100:1).
+4. **Out of Scope**: Explicitly state what you will *not* design to keep the scope manageable.
+
+#### Example Walkthrough:
+* **Interviewer**: "Design WhatsApp."
+* **You**:
+  * *"Are we supporting group chats, or only one-on-one chats?"* (One-on-one first, groups if time permits)
+  * *"Should we support media attachments (images/videos) or only text?"* (Start with text, support media storage next)
+  * *"Do we need to store messages permanently, or delete them after delivery?"* (Store permanently for multi-device sync)
+
+---
+
+### Step 2: Propose High-Level Design (10-15 minutes)
+
+In this stage, your goal is to sketch a high-level architecture showing the core components and the data flow. Do not get bogged down in database schemas, indexes, or specific load-balancing algorithms yet.
+
+#### Key Actions:
+1. **Define APIs**: Write down the primary API endpoints needed to support the functional requirements. Use REST or gRPC format.
+   * `POST /v1/messages` (Send a message)
+   * `GET /v1/conversations/{id}/messages` (Retrieve chat history)
+2. **Sketch Core Components**: Draw the clients, gateways, application servers, databases, and caches.
+3. **Trace the Data Flow**: Explain what happens when a user triggers a write or read operation.
+
+<Mermaid chart='sequenceDiagram[nl]
+    autonumber[nl]
+    actor Client A[nl]
+    participant Gateway as API Gateway[nl]
+    participant DB as Message Database[nl]
+    actor Client B[nl]
+[nl]
+    Client A->>Gateway: POST /v1/messages (text, receiver_id)[nl]
+    Gateway->>DB: Save message to Disk[nl]
+    Gateway-->>Client A: 200 OK (message_id)[nl]
+    Gateway->>Client B: Push Message via WebSocket' />
+
+
+
+---
+
+### Step 3: Design Deep Dive (15-25 minutes)
+
+Once the interviewer approves your high-level design, dive into the most critical bottlenecks. This is where you demonstrate your depth of knowledge.
+
+#### Typical Deep Dive Topics:
+* **Database Selection**: Why choose a Relational DB (e.g., PostgreSQL for transactions) vs. NoSQL (e.g., Cassandra for massive write throughput of chat logs)?
+* **Scaling & Partitioning**: How do we partition (shard) the database? By `user_id` or `conversation_id`? How do we handle hot shards?
+* **Caching Strategy**: Where should caches (e.g., Redis) be placed? What eviction policy (LRU, LFU) is appropriate?
+* **Real-time Communication**: Should we use WebSockets, Long Polling, or Server-Sent Events (SSE)?
+* **System Resilience**: How do we handle server failures? (e.g., replication, leader election, failover mechanisms).
+
+---
+
+### Step 4: Wrap Up (5 minutes)
+
+Use the remaining time to summarize your design and highlight its strengths and weaknesses.
+
+#### Focus Areas:
+* **Review against requirements**: Walk through how your design solves the functional and non-functional requirements defined in Step 1.
+* **Identify Bottlenecks**: Be honest. No system is perfect. Where is the single point of failure (SPOF)? What happens if the cache layer goes down?
+* **Propose Improvements**: Suggest how you would improve monitoring, logging, or scale the system to the next order of magnitude (e.g., adding multi-region replication).
+
+---
+
+## How to Frame Trade-offs
+
+A great system design engineer doesn't suggest "silver bullets." Every decision is a compromise. Use the following trade-off matrices to articulate your choices during the interview:
+
+### Caching Trade-off
+| Option | Advantages | Disadvantages | Best For |
+| :--- | :--- | :--- | :--- |
+| **Write-Through Cache** | No stale data in cache. | Higher write latency. | Systems requiring immediate consistency. |
+| **Write-Back Cache** | Extremely fast write speeds. | Risk of data loss if cache crashes. | Write-heavy systems (e.g., logging). |
+
+### Consistency vs. Availability (CAP Theorem)
+* **CP (Consistency + Partition Tolerance)**: Reject reads/writes if replica sync is broken. Use for banking or payment ledgers.
+* **AP (Availability + Partition Tolerance)**: Allow stale reads to keep the service running. Use for social media feeds, chat, or comments.
+
+---
+
+## Common Pitfalls in Interviews
+
+1. **Jumping straight into drawing**: Drawing components before understanding requirements is the #1 reason candidates fail.
+2. **Talking in buzzwords**: Saying "we'll use Kafka and Kubernetes" without explaining *why* they are needed shows a lack of depth.
+3. **Silent designing**: Explain your thought process constantly. If you are silent for more than 30 seconds, the interviewer cannot evaluate you.
+4. **Defending designs blindly**: If the interviewer points out a bottleneck, accept the feedback and work with them to fix it.
+
+---
+
+## Summary Checklist
+
+Before your next system design interview, make sure you can answer these questions:
+* [ ] Can I define the difference between functional and non-functional requirements?
+* [ ] Do I have a standard set of clarifying questions for common system types?
+* [ ] Can I sketch a high-level database schema for relational and non-relational databases?
+* [ ] Do I understand how to estimate scale (QPS, storage, bandwidth)?
+* [ ] Can I explain the trade-offs of consistent hashing, replication, and sharding?

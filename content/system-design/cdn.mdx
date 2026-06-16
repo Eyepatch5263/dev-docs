@@ -1,195 +1,131 @@
 ---
-title: CDN
-description: Designing Content Delivery Networks for optimal performance
+title: CDN (Content Delivery Network)
+description: Deep dive into CDN architecture. Learn about GeoDNS vs Anycast routing, Push vs Pull caching topologies, Cache-Control headers, invalidation, and Edge Compute.
 order: 5
 category: Building Blocks
 ---
 
-## Overview
+# Content Delivery Networks (CDNs)
 
-A **Content Delivery Network (CDN)** is a geographically distributed system of cache servers that delivers web content to users with high availability and low latency. CDNs reduce load on origin servers, decrease latency by serving content from edge locations close to users, and improve reliability through replication and routing.
+A **Content Delivery Network (CDN)** is a geographically distributed system of edge servers (Points of Presence, or PoPs) that caches and delivers web content to users. By placing edge servers close to users, CDNs minimize physical network latency (Round Trip Time), offload massive amounts of bandwidth from origin servers, and protect application infrastructure from DDoS attacks.
 
-## Why use a CDN?
+---
 
-- **Reduced latency**: Content is served from edge servers geographically closer to users
-- **Lower origin load**: Static assets are offloaded from your origin servers
-- **High availability**: Distributed architecture provides redundancy and fault tolerance
-- **DDoS protection**: CDNs can absorb and mitigate large-scale attacks
-- **Bandwidth savings**: Caching reduces repeated data transfer from origin
+## 1. GeoDNS vs. Anycast CDN Routing
 
-## How CDNs work
+To deliver content with low latency, a CDN must route users' requests to the nearest edge server. This is accomplished using two routing technologies:
 
-```
-User Request → DNS Resolution → Nearest Edge Server → Cache Hit/Miss → Response
-                                        ↓
-                                   Cache Miss
-                                        ↓
-                                 Origin Server
-```
+### 1. GeoDNS Routing
+When a client resolves a domain name, the DNS server inspects the client's resolver IP address, determines its geographic location, and returns the IP address of the closest CDN data center.
 
-1. **DNS routing**: User's DNS request is resolved to the nearest edge server using GeoDNS or Anycast
-2. **Edge caching**: CDN caches static assets at edge servers in multiple regions
-3. **Cache miss flow**: On a cache miss, the edge fetches from origin, caches it, then returns to user
-4. **Request routing**: CDNs use DNS-based routing, Anycast, or application-layer routing
+<Mermaid chart='flowchart TD[nl]
+    ClientUS["User (New York)"] -->|Resolve cdn.com| DNS["GeoDNS Server"][nl]
+    DNS -->|US IP -> Return NY Edge IP| ClientUS[nl]
+    ClientEU["User (Berlin)"] -->|Resolve cdn.com| DNS[nl]
+    DNS -->|EU IP -> Return Frankfurt Edge IP| ClientEU' />
 
-## Types of content served
+*   *Downside*: If a user utilizes a public DNS resolver (like Google DNS) in a different country, the GeoDNS resolver might route the user to an incorrect location.
 
-| Content Type | Examples | Cacheability |
-|-------------|----------|--------------|
-| Static assets | Images, CSS, JS, fonts | Highly cacheable |
-| Media | Video/audio (HLS/DASH segments) | Highly cacheable |
-| API responses | GET requests, public data | Conditionally cacheable |
-| Dynamic content | Personalized pages | Edge compute or no-cache |
+### 2. Anycast Routing (Recommended)
+Multiple CDN edge locations advertise the exact same IP address using BGP (Border Gateway Protocol). Routers across the internet naturally route packets to the topologically closest edge server.
 
-## CDN architectures
+<Mermaid chart='flowchart LR[nl]
+    ClientUS["User (New York)"] -->|Send packet to 1.1.1.1| EdgeUS["Edge Server (New York)"][nl]
+    ClientEU["User (Berlin)"] -->|Send packet to 1.1.1.1| EdgeEU["Edge Server (Frankfurt)"]' />
 
-### Push CDN
-Content is explicitly uploaded to the CDN before users request it.
+*   *Upside*: Zero DNS latency penalty. If an edge location experiences a outage, BGP automatically re-routes traffic to the next closest healthy location, providing seamless failover.
 
-**Best for**: Video platforms, software distribution, large media files
+---
 
-```
-Origin Server ---(upload)---> CDN Storage ---> Edge Servers ---> Users
-```
+## 2. Push vs. Pull Caching Topologies
 
-### Pull CDN (Origin-Pull)
-CDN fetches content from origin on first request and caches it.
+CDNs fetch and store content from origin servers using one of two primary caching strategies:
 
-**Best for**: Websites, APIs, frequently changing content
+### 1. Pull CDN (Origin-Pull)
+The CDN edge server acts as a lazy cache. When a request arrives, the edge checks if the asset is in its cache. If it is (Cache Hit), it serves it immediately. If not (Cache Miss), it fetches the asset from the origin server, caches it for future requests, and returns it to the user.
 
-```
-User ---> Edge Server ---(cache miss)---> Origin Server
-                ↓
-          (cache & serve)
-                ↓
-            User
-```
+<Mermaid chart='sequenceDiagram[nl]
+    autonumber[nl]
+    actor Client as User Browser[nl]
+    participant Edge as CDN Edge Server (Cache)[nl]
+    participant Origin as Origin App Server[nl]
+[nl]
+    Client->>Edge: Request /static/logo.png[nl]
+    Note over Edge: Cache Check (Miss)[nl]
+    Edge->>Origin: Fetch /static/logo.png[nl]
+    Origin-->>Edge: Return logo.png + Cache-Control: max-age=86400[nl]
+    Note over Edge: Save logo.png to Cache[nl]
+    Edge-->>Client: Return logo.png[nl]
+[nl]
+    Note over Client, Edge: Subsequent Request (Hit)[nl]
+    Client->>Edge: Request /static/logo.png[nl]
+    Edge-->>Client: Return logo.png (Cached)' />
 
-### Multi-CDN
-Using multiple CDN providers for redundancy, performance, or cost optimization.
+*   **Best for**: Highly dynamic traffic, websites, API responses, and standard static web assets (images, CSS, JS).
+*   **Pros**: Low storage overhead (only caches requested files).
 
-```
-         ┌─── CDN A (Primary)
-Traffic ─┼─── CDN B (Failover)
-         └─── CDN C (Regional)
-```
+### 2. Push CDN
+The application explicitly uploads (pushes) files to the CDN storage bucket before any user requests them. Edge servers retrieve content directly from the CDN bucket.
 
-## Caching strategies
+<Mermaid chart='flowchart LR[nl]
+    Origin["Origin Build Server"] -->|1. Upload build assets| CDNBucket["CDN Storage Bucket"][nl]
+    CDNBucket -->|2. Sync globally| EdgeEU["Edge Frankfurt"][nl]
+    CDNBucket -->|2. Sync globally| EdgeUS["Edge New York"][nl]
+    User["User Browser"] -->|3. Fetch directly| EdgeEU' />
 
-### Cache-Control headers
+*   **Best for**: Large software downloads, game patches, and video files where the first user's request cannot suffer a cache-miss latency penalty.
+*   **Pros**: 100% Cache Hit rate. Zero load on the primary application servers during traffic spikes.
 
-```http
-Cache-Control: public, max-age=31536000, immutable
-Cache-Control: private, no-cache
-Cache-Control: public, max-age=3600, stale-while-revalidate=86400
-```
+---
 
-### Key caching concepts
+## 3. Caching Semantics & Cache-Control Headers
 
-- **TTL (Time-to-Live)**: How long content stays cached before revalidation
-- **Cache invalidation/Purge**: Force removal of cached content when origin changes
-- **Stale-while-revalidate**: Serve stale content while fetching fresh copy in background
-- **Stale-if-error**: Serve stale content if origin is unavailable
-- **Cache hierarchy**: Edge → Regional → Origin (reduces origin load)
+CDNs rely on standard HTTP response headers sent by the origin server to manage caching policies:
 
-### Cache key design
+*   `Cache-Control: public, max-age=31536000`: Allows any CDN and browser to cache the response for up to 1 year ($31,536,000$ seconds).
+*   `Cache-Control: private, no-store`: Prevents the CDN from caching the response. The request must go to the origin every time (e.g., user profiles, checkout pages).
+*   `Cache-Control: s-maxage=86400`: Overrides the standard `max-age` value exclusively for shared caches (CDNs), allowing a different cache lifetime for CDNs than for users' browsers.
+*   `stale-while-revalidate=3600`: Tells the CDN to serve stale (expired) content from the cache if requested, while asynchronously spawning a background request to fetch fresh data from the origin.
 
-```
-Cache Key = URL + Vary Headers + Query Params (selective)
+---
 
-Example:
-/api/products?category=shoes
-Vary: Accept-Language, Accept-Encoding
-```
+## 4. Cache Invalidation Strategies
 
-## Performance optimizations
+One of the greatest challenges in CDN management is ensuring that users receive fresh content when updates are deployed.
 
-- **Edge proximity**: Serve from servers closest to users (reduces RTT)
-- **Connection reuse**: Keep-alive connections, HTTP/2 multiplexing
-- **Protocol optimizations**: HTTP/2, HTTP/3 (QUIC), TLS 1.3
-- **Compression**: Gzip, Brotli at the edge
-- **Image optimization**: WebP/AVIF conversion, resizing at edge
-- **Prefetching**: Predictive content loading
+1.  **Time-To-Live (TTL)**: The simplest approach. Allow files to naturally expire after a set time.
+    *   *Trade-off*: Long TTLs improve performance but delay update delivery.
+2.  **Versioned / Fingerprinted URLs (Recommended)**: Append a hash of the file's content to its filename (e.g., `main.a8f2c9.js`).
+    *   *How it works*: When you deploy a new version, the filename changes. The CDN views this as a completely new request and pulls the fresh file immediately. Old URLs can be cached indefinitely.
+3.  **Active Purging (Invalidation)**: Send an API request to the CDN provider to force-clear a specific URL path (e.g., `/images/banner.png`) or a wildcard path (e.g., `/images/*`).
+    *   *Trade-off*: Fast, but purging across thousands of global servers can take from seconds to minutes and can be rate-limited or expensive.
 
-## Consistency considerations
+---
 
-CDNs trade **immediate consistency** for **availability and performance**.
+## 5. Modern CDN Superpower: Edge Compute
 
-| Strategy | Consistency | Performance |
-|----------|-------------|-------------|
-| Short TTL (seconds) | Higher | Lower cache hits |
-| Long TTL + Purge | Lower | Higher cache hits |
-| Versioned URLs | Immediate | Best cache hits |
-| Cache tags | Selective | Good balance |
+Modern CDNs do not just serve static files; they run serverless code at the edge (e.g., Cloudflare Workers, AWS Lambda@Edge).
 
-**Best practice**: Use versioned/fingerprinted URLs for assets:
-```
-/static/app.a1b2c3d4.js  ← Cache forever, new version = new URL
-```
+<Mermaid chart="flowchart LR\n
+    Client['Client Browser'] -->|Request| Edge['CDN Edge Server']\n
+    subgraph EdgeCompute['Edge Compute Execution']\n
+        Worker['Edge Worker Script'] -->|Inject headers / A-B Test / Redirect| Router['Router']\n
+    end\n
+    Edge --- EdgeCompute\n
+    EdgeCompute -->|Response| Client" />
 
-## Security features
+### Key Edge Use Cases
+*   **A/B Testing**: Intercept client requests at the edge and route 50% of users to version A and 50% to version B without hitting the origin database.
+*   **Dynamic Image Optimization**: Read the client's `Accept` headers to detect if the browser supports next-gen image formats (WebP/AVIF), converting images on the fly at the edge.
+*   **Edge Authentication**: Validate JWT signatures at the edge, blocking unauthorized requests before they consume origin compute resources.
+*   **Geo-Customization**: Detect user country headers at the edge to serve localized pages or block restricted regions (Geofencing).
 
-- **DDoS mitigation**: Absorb volumetric attacks across distributed edge
-- **TLS termination**: Terminate TLS at edge, reduce origin CPU
-- **WAF (Web Application Firewall)**: Filter malicious requests at edge
-- **Bot management**: Detect and block automated threats
-- **Origin shielding**: Hide origin IP, reduce direct attacks
-- **Token authentication**: Signed URLs for protected content
+---
 
-## Operational considerations
+## 6. CDN Security & Resiliency
 
-### Key metrics to monitor
+Because CDNs stand between the internet and your servers, they provide a critical shield for your infrastructure:
 
-- **Cache hit ratio**: Target > 90% for static assets
-- **Origin traffic**: Should be minimal with good caching
-- **Latency (p50, p95, p99)**: Edge latency should be < 50ms
-- **Error rates**: 4xx/5xx from edge and origin
-- **Bandwidth**: Egress costs and capacity
-
-### Cost optimization
-
-- Maximize cache hit ratio (reduces origin egress)
-- Use appropriate TTLs (longer = cheaper)
-- Compress assets (reduces bandwidth)
-- Consider reserved capacity for predictable traffic
-
-## Example: CDN for a web application
-
-```
-┌─────────────────────────────────────────────────────────────┐
-│                        Internet                              │
-└─────────────────────────────────────────────────────────────┘
-                              │
-                              ▼
-┌─────────────────────────────────────────────────────────────┐
-│                     CDN Edge Layer                           │
-│  ┌─────────┐  ┌─────────┐  ┌─────────┐  ┌─────────┐        │
-│  │ Edge US │  │ Edge EU │  │Edge Asia│  │Edge SA  │        │
-│  └─────────┘  └─────────┘  └─────────┘  └─────────┘        │
-│       Static assets, API cache, WAF, DDoS protection        │
-└─────────────────────────────────────────────────────────────┘
-                              │
-                              ▼ (cache miss only)
-┌─────────────────────────────────────────────────────────────┐
-│                     Origin Infrastructure                    │
-│  ┌──────────────┐    ┌──────────────┐    ┌──────────────┐  │
-│  │  Web Servers │    │  API Servers │    │ Object Store │  │
-│  └──────────────┘    └──────────────┘    └──────────────┘  │
-└─────────────────────────────────────────────────────────────┘
-```
-
-## Popular CDN providers
-
-| Provider | Strengths |
-|----------|-----------|
-| **Cloudflare** | DDoS, WAF, Workers (edge compute), free tier |
-| **AWS CloudFront** | AWS integration, Lambda@Edge |
-| **Fastly** | Real-time purging, VCL customization |
-| **Akamai** | Enterprise scale, global reach |
-| **Google Cloud CDN** | GCP integration, global load balancing |
-
-## Further reading
-
-- High Performance Browser Networking — Ilya Grigorik
-- CDN provider documentation (Cloudflare, Fastly, AWS CloudFront)
-- HTTP Caching (MDN Web Docs)
+*   **DDoS Mitigation**: CDNs possess massive global bandwidth capacity (often hundreds of Terabits/sec). They absorb volumetric DDoS floods (like SYN flood or HTTP flood) across their global network, neutralizing the attack before it touches your network gateway.
+*   **Web Application Firewall (WAF)**: Filters malicious request payloads (e.g., SQL injections, Cross-Site Scripting (XSS)) at the edge.
+*   **Origin Shielding**: A strategy where a dedicated regional CDN cache stands between the edge servers and your origin. This prevents thousands of edge servers from concurrently pulling from your origin during a cache stampede.
