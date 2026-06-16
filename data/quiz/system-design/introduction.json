@@ -1,0 +1,35 @@
+[
+  {
+    "question": "In system design, what is the correct response to a broad decision like choosing between stronger consistency and lower latency?",
+    "options": [
+      "Always prioritize stronger consistency to guarantee data accuracy.",
+      "Always prioritize lower latency to ensure the best user experience.",
+      "The right answer is always 'It depends on the requirements'—analyzing the specific trade-offs.",
+      "Choose whichever option is newer and has more modern open-source toolings."
+    ],
+    "correctIndex": 2,
+    "explanation": "There are no perfect solutions in system design, only trade-offs. Every choice should be guided entirely by the functional and non-functional requirements of the system."
+  },
+  {
+    "question": "Which of the following describes the 'Over-engineering Trap' when building for a target requirement of 1,000 users per day?",
+    "options": [
+      "Building a highly complex architecture to support 1 billion users from day one.",
+      "Using a simple monolith architecture with clear, documented scaling paths.",
+      "Designing a system that handles 10x the current load and shipping fast.",
+      "Sticking strictly to basic relational databases without unnecessary caches."
+    ],
+    "correctIndex": 0,
+    "explanation": "Building for massive scale (like 1 billion users) from day one when only 1,000 users are expected is a classic over-engineering trap. It results in months of complexity with no shipped product."
+  },
+  {
+    "question": "Based on common latency numbers, which of the following operations takes the longest time to execute?",
+    "options": [
+      "RAM access",
+      "SSD random read",
+      "Network round-trip inside the same datacenter",
+      "Network round-trip cross-continent"
+    ],
+    "correctIndex": 3,
+    "explanation": "A cross-continent network round-trip takes about 150 ms (milliseconds), which is much slower than same-datacenter round-trips (~0.5 ms), SSD random reads (~150 microseconds), and RAM access (~100 nanoseconds)."
+  }
+]

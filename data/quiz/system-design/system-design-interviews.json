@@ -1,0 +1,57 @@
+[
+  {
+    "question": "In a system design context, what is the primary benefit and risk associated with a Write-Back (Write-Behind) caching strategy?",
+    "options": [
+      "Immediate disk consistency, with the risk of high latency during read operations.",
+      "Extremely low write latency, with the risk of data loss if the cache server crashes before data is written back to the database.",
+      "Zero memory footprint, with the risk of slower read times for popular data.",
+      "Prevents any database locks, with the risk of high CPU overhead on cache eviction."
+    ],
+    "correctIndex": 1,
+    "explanation": "A Write-Back cache writes data to the cache first and returns success to the client immediately, minimizing write latency. The risk is that if the cache crashes before the data is asynchronously batched to the database, that data is lost."
+  },
+  {
+    "question": "How does a Twitter Snowflake-like distributed ID generation algorithm handle system clock drift in production?",
+    "options": [
+      "It queries a centralized NTP server synchronously for every ID generated.",
+      "It pauses ID generation (blocks requests) if it detects that the current local timestamp is behind the timestamp of the last generated ID.",
+      "It falls back to a centralized Redis counter until the clock catches up.",
+      "It automatically increments the sequence number indefinitely to bypass timestamps."
+    ],
+    "correctIndex": 1,
+    "explanation": "To guarantee time-sortable and unique IDs, if a Snowflake generator detects that its local physical clock has drifted backward (behind the last generated timestamp), it must block new ID generation until the clock catches up."
+  },
+  {
+    "question": "When scaling a persistent WebSocket chat tier to support 5 million concurrent active connections, what is the main scaling challenge compared to stateless HTTP servers?",
+    "options": [
+      "WebSocket connections cannot be load-balanced because they do not use standard HTTP ports.",
+      "Connections are stateful and sticky; standard round-robin load-balancing cannot instantly rebalance existing connections without connection draining.",
+      "WebSocket connections use double the database capacity for each connected client.",
+      "Clients must rebuild their handshake every 10 seconds to keep the session alive."
+    ],
+    "correctIndex": 1,
+    "explanation": "Because WebSocket connections are persistent TCP streams, they are stateful and sticky. You cannot easily shift active connections to new servers during autoscaling without implementing connection draining to slowly reconnect clients."
+  },
+  {
+    "question": "What is the recommended system design approach for uploading large media attachments in a high-scale real-time chat application?",
+    "options": [
+      "Upload the binary content directly through the existing WebSocket stream to prevent extra HTTP calls.",
+      "Upload the binary to the database first, then replicate it to the cache layer.",
+      "Offload binary uploads to object storage (e.g., S3) via client-side uploads using presigned URLs, and only route lightweight media metadata over the WebSocket.",
+      "Use long-polling to stream file segments to the chat server instances."
+    ],
+    "correctIndex": 2,
+    "explanation": "Sending large binary data over WebSockets blocks real-time text delivery and wastes memory buffers. The industry standard is to have the client upload directly to object storage via a secure, short-lived presigned URL, and then send only the tiny metadata JSON over the WebSocket."
+  },
+  {
+    "question": "What is a major trade-off of routing real-time chat messages via Redis Pub/Sub instead of persistent message brokers like Kafka?",
+    "options": [
+      "Redis Pub/Sub is fire-and-forget; it has no message persistence or delivery guarantees if a recipient's chat server crashes mid-delivery.",
+      "Redis Pub/Sub has significantly higher latency than Kafka, causing messages to arrive out of order.",
+      "Redis Pub/Sub requires all messages to be immediately written to disk on every publish event.",
+      "Redis Pub/Sub only supports unicast delivery and cannot support group chats."
+    ],
+    "correctIndex": 0,
+    "explanation": "Redis Pub/Sub is extremely fast (sub-millisecond) but is a fire-and-forget broker. If a subscriber server drops offline before delivery, the message is lost. We handle this by verifying deliveries via WebSocket ACKs and using the database as the source of truth for offline synchronization."
+  }
+]
