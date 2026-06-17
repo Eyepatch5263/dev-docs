@@ -104,12 +104,12 @@ When a user searches for "brown fox", multiple documents may match. The search e
 
 TF-IDF scores a term's importance in a document relative to the entire corpus:
 
-$$\text{TF-IDF}(t, d) = \text{TF}(t, d) \times \text{IDF}(t)$$
+<Math block formula="\text{TF-IDF}(t, d) = \text{TF}(t, d) \times \text{IDF}(t)" />
 
 *   **TF (Term Frequency)**: How often does the term appear in this document? A document mentioning "fox" 5 times is more about foxes than one mentioning it once.
 *   **IDF (Inverse Document Frequency)**: How rare is this term across all documents? The word "the" appears everywhere (low IDF = low value). The word "fox" appears in few documents (high IDF = high value).
 
-$$\text{IDF}(t) = \log\frac{N}{df(t)}$$
+<Math block formula="\text{IDF}(t) = \log\frac{N}{df(t)}" />
 
 Where $N$ is the total number of documents and $df(t)$ is the number of documents containing term $t$.
 

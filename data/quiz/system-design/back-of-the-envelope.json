@@ -1,0 +1,57 @@
+[
+  {
+    "question": "Based on latency numbers every systems architect must know, which of the following operations has the highest latency and presents the biggest performance bottleneck?",
+    "options": [
+      "Main memory (RAM) access",
+      "Reading 1 MB sequentially from RAM",
+      "SSD random read",
+      "Network round-trip between New York and London"
+    ],
+    "correctIndex": 3,
+    "explanation": "A network round-trip between New York and London has a physical latency of ~150 ms (equivalent to 4.7 years when scaled up by 1 billion), which is orders of magnitude slower than local RAM access (100 ns) or SSD reads (16 µs / 1 ms)."
+  },
+  {
+    "question": "If a system design scenario calculates that users will view a total of 1,000 TB of image files daily, how much RAM should you allocate for your Redis cache cluster using the standard 80/20 rule?",
+    "options": [
+      "800 TB of RAM",
+      "200 TB of RAM",
+      "20 TB of RAM",
+      "100 TB of RAM"
+    ],
+    "correctIndex": 1,
+    "explanation": "The 80/20 rule states that 80% of application request traffic hits 20% of your hottest data. Therefore, you should size your cache layer to store 20% of the daily read data volume (20% of 1,000 TB = 200 TB)."
+  },
+  {
+    "question": "What is the crucial distinction to make when calculating network bandwidth compared to storage capacity?",
+    "options": [
+      "Network bandwidth is measured in Bytes per second, whereas storage capacity is measured in bits.",
+      "Network bandwidth is measured in bits per second (bps) while storage capacity is measured in Bytes (B), requiring a conversion factor of 8.",
+      "Network bandwidth operates at Layer 4, whereas storage capacity operates at Layer 7.",
+      "There is no difference; both are measured in base-2 notation out of the box."
+    ],
+    "correctIndex": 1,
+    "explanation": "Storage drives are rated in Bytes (B) while network interface capacity and transmission limits are rated in bits per second (bps). To convert from storage throughput (e.g., MB/s) to network bandwidth (e.g., Mbps), you must multiply by 8."
+  },
+  {
+    "question": "If your application's calculated egress bandwidth requirements are 50 Gbps, and you choose cloud server instances equipped with a standard 10 Gbps Network Interface Card (NIC), what is the minimum number of application servers needed to handle the traffic?",
+    "options": [
+      "2 servers",
+      "5 servers",
+      "10 servers",
+      "50 servers"
+    ],
+    "correctIndex": 1,
+    "explanation": "The minimum server count is calculated by dividing total bandwidth requirements by the maximum network throughput per instance: 50 Gbps / 10 Gbps = 5 servers."
+  },
+  {
+    "question": "Why is it a critical system design practice to design resources for 'Peak QPS' rather than 'Average QPS'?",
+    "options": [
+      "Average QPS calculations exclude background batch job traffic completely.",
+      "Traffic patterns fluctuate throughout the day, and designing only for Average QPS means the system would fail during traffic spikes or high-traffic active hours.",
+      "Peak QPS represents a 3x database replication multiplier.",
+      "Average QPS requires stateful servers, while Peak QPS allows stateless scaling."
+    ],
+    "correctIndex": 1,
+    "explanation": "Traffic is never uniform. Designing capacity and server provisioning based on Average QPS would cause the system to crash during traffic surges, so architects apply a peak multiplier (typically 2x or more) to ensure enough headroom."
+  }
+]

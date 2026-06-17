@@ -160,8 +160,16 @@ To see the four steps in action, let's walk through a complete mock interview fo
 * **Storage requirements:** If an average message is 100 bytes (including metadata like IDs, timestamps, sender/receiver info):
   * 5 Billion messages × 100 bytes = **500 GB of new text data per day**.
   * Over 5 years: 500 GB × 365 days × 5 years ≈ **900 Terabytes**.
+* **Bandwidth requirements:**
+  * **Ingress (incoming payload):**
+    * Average: 60,000 messages/s × 100 bytes = 6 MB/s (48 Mbps).
+    * Peak: 120,000 messages/s × 100 bytes = 12 MB/s (96 Mbps).
+  * **Egress (outgoing payload):**
+    * Since this is 1-to-1 chat, every message sent is delivered to exactly one recipient. Egress bandwidth is equivalent to ingress bandwidth.
+    * Average: 6 MB/s (48 Mbps).
+    * Peak: 12 MB/s (96 Mbps).
 * **Concurrent Connections:** If 10% of our daily active users are online at any given moment:
-  * 5 Million × 10% = **5 Million concurrent WebSocket connections**.
+  * 50 Million × 10% = **5 Million concurrent WebSocket connections**.
 
 **Interviewer:** "Excellent analysis. This tells us we are dealing with a write-heavy system with high concurrency and huge storage requirements."
 

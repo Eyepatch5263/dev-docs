@@ -1,0 +1,57 @@
+[
+  {
+    "question": "What is the primary functional difference between a Layer 4 (L4) and a Layer 7 (L7) load balancer?",
+    "options": [
+      "Layer 4 load balancers inspect HTTP headers and cookies to make routing decisions, whereas Layer 7 load balancers only look at the TCP port.",
+      "Layer 4 load balancers route traffic based on IP address and port configurations without inspecting application payloads, while Layer 7 load balancers inspect application message contents like headers, cookies, and JSON payloads.",
+      "Layer 4 load balancers handle only UDP traffic, whereas Layer 7 load balancers handle only TCP traffic.",
+      "Layer 4 load balancers store session states in local RAM, whereas Layer 7 load balancers are completely stateless."
+    ],
+    "correctIndex": 1,
+    "explanation": "Layer 4 load balancers operate at the transport layer (TCP/UDP) and route traffic based purely on network information (IP/Port). Layer 7 load balancers operate at the application layer, allowing them to inspect HTTP headers, cookies, and payloads to make content-aware routing decisions."
+  },
+  {
+    "question": "In a distributed system, why are stateless application servers generally preferred for horizontal scaling over stateful ones?",
+    "options": [
+      "Stateless servers use less payload size during network transfers than stateful servers.",
+      "Stateless servers store user session records in local memory, which reduces lookup times to external database systems.",
+      "Since stateless servers treat each request in isolation and do not store session context in local memory, any server instance behind a load balancer can handle any request, making scale-out and fault tolerance trivial.",
+      "Stateless servers natively support relational databases out-of-the-box, whereas stateful servers only support NoSQL."
+    ],
+    "correctIndex": 2,
+    "explanation": "Stateless servers do not save user context in their local memory or disk. This makes scaling them extremely simple: you can spin up or down server instances behind a load balancer dynamically, and any node can handle any incoming request."
+  },
+  {
+    "question": "Which of the following is a key advantage of using gRPC/Protocol Buffers over REST/JSON for inter-service microservice communication?",
+    "options": [
+      "gRPC relies on human-readable text representations which are extremely easy to inspect and debug manually in a web browser.",
+      "gRPC uses high-performance binary serialization and utilizes HTTP/2 for bi-directional streaming, reducing payload size and network latency.",
+      "gRPC allows clients to declare exactly what fields they want in their query, which eliminates any server-side database work.",
+      "gRPC operates entirely at Layer 4 (Transport Layer) to bypass application layer security constraints."
+    ],
+    "correctIndex": 1,
+    "explanation": "gRPC uses Protocol Buffers (a compact binary serialization format) instead of JSON, and HTTP/2 instead of HTTP/1.1. This results in much smaller payloads, faster serialization speeds, and support for multiplexed streams, making it ideal for internal microservice communication."
+  },
+  {
+    "question": "Why do write-heavy NoSQL databases (like Cassandra) often use Log-Structured Merge-trees (LSM-trees) instead of standard relational B-Tree index structures?",
+    "options": [
+      "LSM-trees convert all random writes into sequential memory buffer appends and write to immutable sequential files on disk, maximizing write throughput.",
+      "LSM-trees guarantee strict ACID compliance globally across all server nodes without coordination.",
+      "LSM-trees support relational JOIN queries natively in-memory.",
+      "LSM-trees require zero disk memory and store all indices entirely in-memory."
+    ],
+    "correctIndex": 0,
+    "explanation": "LSM-trees optimize write performance by writing sequentially to memory (MemTables) and appending to immutable sequential log files (SSTables) on disk. B-Trees require random disk writes to update tree nodes, which is much slower and a bottleneck for high-write workloads."
+  },
+  {
+    "question": "What is a major advantage of a microservices architecture in terms of operational resilience compared to a monolithic architecture?",
+    "options": [
+      "Microservices guarantee single-database ACID transaction safety out-of-the-box across all domain areas.",
+      "Microservices have zero network latency because services execute tasks directly on the same local memory thread.",
+      "Microservices offer localized fault isolation; a crash or memory leak in one domain service (e.g., product catalog) does not immediately take down other unrelated services (e.g., authentication or checkout).",
+      "Microservices completely eliminate the need for an API Gateway or Reverse Proxy."
+    ],
+    "correctIndex": 2,
+    "explanation": "In a monolith, a memory leak or crash in any module can crash the entire single runtime process. In microservices, services are deployed as separate network-isolated processes, meaning an outage in one service can be isolated, allowing the rest of the application to degrade gracefully instead of failing entirely."
+  }
+]

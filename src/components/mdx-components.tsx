@@ -2,6 +2,7 @@ import type { ComponentPropsWithoutRef } from "react";
 import { cn } from "@/lib/utils";
 import { Mermaid } from "@/components/Mermaid";
 import { Quiz } from "@/components/Quiz";
+import { Math } from "@/components/Math";
 
 // Language display names
 const languageDisplay: Record<string, string> = {
@@ -227,4 +228,5 @@ export const mdxComponents = {
     td: Td,
     Mermaid: Mermaid,
     Quiz: Quiz,
+    Math: Math,
 };

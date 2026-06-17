@@ -1,0 +1,57 @@
+[
+  {
+    "question": "What is the key distinction between a system being 'scalable' and a system being 'elastic'?",
+    "options": [
+      "Scalability refers to adding more CPUs to a single server, whereas elasticity refers to adding more physical servers to a cluster.",
+      "Scalability is the architectural capacity to handle increased workloads by expanding the hardware footprint, while elasticity is the ability to automatically scale resources up or down in real-time based on immediate demand.",
+      "Scalability applies only to databases, while elasticity applies only to caching layers.",
+      "Scalability guarantees zero downtime, whereas elasticity always requires manual intervention to deploy code."
+    ],
+    "correctIndex": 1,
+    "explanation": "Scalability is the capability of a system to handle larger workloads when resources are added. Elasticity builds on top of scalability by adding automated dynamic scaling (both scaling out and scaling in) in real-time as traffic fluctuates."
+  },
+  {
+    "question": "An airplane that sits at the gate ready for boarding but experiences navigation computer failures mid-flight is best described as having which resilience profile?",
+    "options": [
+      "High reliability and low availability.",
+      "Low reliability and low availability.",
+      "High availability but low reliability.",
+      "Low availability but high reliability."
+    ],
+    "correctIndex": 2,
+    "explanation": "Availability measures whether the system is reachable and responsive at any given moment (the plane sits ready at the gate). Reliability measures whether the system can run its tasks continuously without failing over a period of time (the navigation system crashing mid-flight makes it highly unreliable)."
+  },
+  {
+    "question": "If a system has a Mean Time Between Failures (MTBF) of 99 hours and a Mean Time to Repair/Restore (MTTR) of 1 hour, what is the system's availability percentage?",
+    "options": [
+      "90%",
+      "99%",
+      "99.9%",
+      "99.99%"
+    ],
+    "correctIndex": 1,
+    "explanation": "Using the formula: Availability = MTBF / (MTBF + MTTR) = 99 / (99 + 1) = 99 / 100 = 99%."
+  },
+  {
+    "question": "In service level definitions, how do SLI, SLO, and SLA relate to one another?",
+    "options": [
+      "SLA is the raw metric, SLO is the target range, and SLI is the legal contract.",
+      "SLI is the legal contract, SLO is the metric, and SLA is the performance target.",
+      "SLI is the quantitative metric (how we measure), SLO is the target objective (what we want to achieve), and SLA is the legal/financial agreement committing to the SLO.",
+      "SLIs are set by product owners, SLOs by developers, and SLAs by the database administrators."
+    ],
+    "correctIndex": 2,
+    "explanation": "The Service Level Indicator (SLI) is the actual metric (e.g., latency is 150ms). The Service Level Objective (SLO) is the target goal (e.g., latency must be <200ms for 99% of requests). The Service Level Agreement (SLA) is the contract with customers specifying penalties if the SLO is not met."
+  },
+  {
+    "question": "Which software resiliency pattern is designed to prevent a failing downstream dependency from consuming all system threads in an upstream caller service?",
+    "options": [
+      "Active-Passive Sync Replication",
+      "Circuit Breaker",
+      "Graceful Degradation",
+      "Vertical Scaling"
+    ],
+    "correctIndex": 1,
+    "explanation": "A Circuit Breaker monitors for downstream failures. If a service begins failing or times out consistently, the breaker trips, and subsequent calls fail fast immediately instead of waiting for network timeouts and tying up web server worker threads."
+  }
+]
