@@ -46,16 +46,7 @@ export function Header({ children, githubHidden = true, forceShow = false }: Hea
                     {children}
                     <Link href="/" className="flex items-center gap-2.5 group transition-opacity hover:opacity-90">
                         {/* Custom 4-pointed Sparkle/Star SVG Logo */}
-                        <svg
-                            viewBox="0 0 24 24"
-                            className="h-5.5 w-5.5 text-foreground fill-current transition-transform group-hover:scale-105"
-                            xmlns="http://www.w3.org/2000/svg"
-                        >
-                            <path d="M12 3 Q12 12 3 12 Q12 12 12 21 Q12 12 21 12 Q12 12 12 3 Z" />
-                        </svg>
-                        <span className={`${Inria_Sans_Font.className} text-base font-semibold tracking-tight text-foreground`}>
-                            Explainbytes
-                        </span>
+                        <img src="/explain.png" alt="Logo" className="h-5.5 w-10" />
                     </Link>
                 </div>
 
