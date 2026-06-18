@@ -218,7 +218,7 @@ export function CollaborativeEditorSlide() {
                                             <span className="text-[9px] text-slate-400 dark:text-slate-500">{doc.edited}</span>
                                         </div>
                                     </div>
-                                    <div className="col-span-2 hidden sm:flex items-center gap-1">
+                                    <div className="col-span-2 sm:flex items-center gap-1">
                                         <div className="flex -space-x-1">
                                             {Array.from({ length: Math.min(doc.collaborators + 1, 3) }).map((_, i) => (
                                                 <div key={i} className="w-5 h-5 rounded-full border border-white dark:border-slate-950 bg-slate-200 dark:bg-slate-800 text-[7px] font-bold text-slate-500 dark:text-slate-400 flex items-center justify-center">
@@ -230,7 +230,7 @@ export function CollaborativeEditorSlide() {
                                             <span className="text-[9px] text-slate-400 dark:text-slate-500">+{doc.collaborators}</span>
                                         )}
                                     </div>
-                                    <div className="col-span-3 hidden sm:block">
+                                    <div className="col-span-3  sm:block">
                                         <span className="text-[10px] text-slate-500 dark:text-slate-400 block">{doc.time}</span>
                                         <span className="text-[9px] text-slate-400 dark:text-slate-500">by {doc.by}</span>
                                     </div>
