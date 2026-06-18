@@ -271,7 +271,7 @@ export function FlashCardsSection() {
 
     return (
         <section 
-            className="relative w-full min-h-screen lg:h-full flex items-center justify-center overflow-visible lg:overflow-hidden bg-slate-50 dark:bg-slate-950 px-4 py-12 lg:py-0 transition-colors duration-500"
+            className="relative w-full min-h-screen lg:h-full flex items-center justify-center overflow-visible lg:overflow-hidden bg-slate-50 dark:bg-black px-4 py-12 lg:py-0 transition-colors duration-500"
         >
             {/* Subtle gradient overlay */}
             <div className="absolute inset-0 bg-linear-to-b from-primary/2 via-transparent to-primary/3 dark:from-amber-500/2 dark:via-transparent dark:to-primary/4 pointer-events-none" />
