@@ -128,7 +128,7 @@ export function CollaborativeEditorSlide() {
                                 <Globe className="w-3 h-3" /> Anyone with the link
                             </span>
                             <button className="flex items-center gap-1.5 px-3.5 py-2 rounded-lg bg-slate-900 dark:bg-white text-white dark:text-slate-950 text-[11px] font-semibold font-mono tracking-wide whitespace-nowrap">
-                                <Copy className="w-3 h-3" /> Copy Link
+                                <Copy className="w-3 h-3" />
                             </button>
                         </div>
                     </div>
