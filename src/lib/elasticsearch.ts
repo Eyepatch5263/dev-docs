@@ -11,9 +11,9 @@ interface SearchResult {
 
 // configure elasticsearch client
 const client = new Client({
-    node: process.env.ELASTICSEARCH_PROD_URL,
+    node: process.env.ELASTICSEARCH_URL,
     auth: {
-        apiKey: process.env.ELASTICSEARCH_PROD_API_KEY || '',
+        apiKey: process.env.ELASTICSEARCH_API_KEY || '',
     },
     tls: {
         rejectUnauthorized: false,

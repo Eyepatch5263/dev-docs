@@ -8,7 +8,6 @@ import AdminStats from "@/components/admin/AdminStats";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Loader2, ShieldAlert, FileText } from "lucide-react";
 import { toast } from "sonner";
-import { Header } from "@/components/Header";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { QueryProvider } from "@/components/providers/QueryProvider";
 import { adminBgColor } from "@/constants/admin";
@@ -162,7 +161,6 @@ export default function AdminDashboard() {
     return (
         <QueryProvider>
             <div className="min-h-screen bg-background">
-                <Header githubHidden={true} />
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
                     {/* Header */}
                     <div className="mb-6">

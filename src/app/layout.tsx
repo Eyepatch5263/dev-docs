@@ -4,6 +4,7 @@ import { ThemeProvider } from "@/components/ThemeProvider";
 import { AuthProvider } from "@/components/auth/AuthProvider";
 import { QueryProvider } from "@/components/providers/QueryProvider";
 import { Toaster } from "sonner";
+import { Header } from "@/components/Header";
 import "./globals.css";
 
 const Inria_Serif_Font = Inria_Serif({
@@ -107,6 +108,7 @@ export default function RootLayout({
               enableSystem
               disableTransitionOnChange
             >
+              <Header />
               {children}
               <Toaster style={{fontFamily:"ui-serif"}} richColors position="top-right" />
             </ThemeProvider>

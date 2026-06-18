@@ -3,7 +3,7 @@ export interface EngineeringTerm {
     term: string;
     slug: string;
     definition: string;
-    category: 'System Design' | 'DBMS' | 'OS' | 'Networking' | 'DevOps' | 'Machine Learning';
+    category: 'System Design' | 'DBMS' | 'OS' | 'Networking' | 'DevOps' | 'Machine Learning' | 'Programming' | 'Web Development' | 'Data Structures' | 'Databases';
     tags: string[];
 }
 
@@ -187,6 +187,46 @@ export const sampleTerms: EngineeringTerm[] = [
         definition: 'An open-source container orchestration platform that automates deployment, scaling, and management of containerized applications across clusters.',
         category: 'DevOps',
         tags: ['orchestration', 'containers', 'scalability'],
+    },
+    {
+        id: 'api',
+        term: 'API',
+        slug: 'api',
+        definition: 'Application Programming Interface. A set of rules and protocols that allows different software applications to communicate and interact with each other.',
+        category: 'Web Development',
+        tags: ['integration', 'web', 'protocols'],
+    },
+    {
+        id: 'sql',
+        term: 'SQL',
+        slug: 'sql',
+        definition: 'Structured Query Language. A standard programming language specifically designed for managing, querying, and manipulating data stored in relational database management systems.',
+        category: 'DBMS',
+        tags: ['databases', 'queries', 'storage'],
+    },
+    {
+        id: 'oop',
+        term: 'OOP',
+        slug: 'oop',
+        definition: 'Object-Oriented Programming. A programming paradigm based on the concept of "objects", which can contain data in the form of fields and code in the form of procedures.',
+        category: 'Programming',
+        tags: ['paradigms', 'fundamentals', 'code-structure'],
+    },
+    {
+        id: 'rest',
+        term: 'REST',
+        slug: 'rest',
+        definition: 'Representational State Transfer. An architectural style for designing networked applications, relying on a stateless, client-server, cacheable communications protocol (typically HTTP).',
+        category: 'Web Development',
+        tags: ['apis', 'web-standards', 'protocols'],
+    },
+    {
+        id: 'https',
+        term: 'HTTPS',
+        slug: 'https',
+        definition: 'HyperText Transfer Protocol Secure. An extension of the Hypertext Transfer Protocol (HTTP) used for secure communication over a computer network, encrypted using Transport Layer Security (TLS/SSL).',
+        category: 'Networking',
+        tags: ['security', 'encryption', 'protocols'],
     },
 ];
 

@@ -1,4 +1,3 @@
-import { Header } from '@/components/Header';
 import { getFlashcardsByCategory } from '@/lib/flashcards';
 import { getCategoriesFromContent } from '@/lib/flashcard-categories';
 import { FlashcardsClient } from './FlashcardsClient';
@@ -17,9 +16,6 @@ export default function FlashcardsPage() {
 
     return (
         <div className="min-h-screen bg-background">
-            {/* Header */}
-            <Header githubHidden={true} />
-
             <FlashcardsClient
                 categories={categories}
                 cardCounts={cardCounts}

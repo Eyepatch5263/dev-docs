@@ -8,7 +8,6 @@ import UserDocumentCard from "@/components/profile/UserDocumentCard";
 import UserStats from "@/components/profile/UserStats";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Loader2, User, FileText } from "lucide-react";
-import { Header } from "@/components/Header";
 import { useQuery } from "@tanstack/react-query";
 import { profileBgColor } from "@/constants/admin";
 
@@ -91,7 +90,6 @@ export default function ProfilePage() {
 
     return (
         <div className="min-h-screen bg-background">
-            <Header githubHidden={true} />
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
                 {/* Header */}
                 <div className="mb-6">

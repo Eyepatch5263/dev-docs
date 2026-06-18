@@ -1,7 +1,6 @@
 import { notFound } from 'next/navigation';
 import Link from 'next/link';
 import { ArrowLeft, BookOpen } from 'lucide-react';
-import { Header } from '@/components/Header';
 import { Badge } from '@/components/ui/badge';
 import { getTermBySlug, getRelatedTerms } from '@/lib/elasticsearch';
 import { sampleTerms } from '../../../../data/sample-terms';
@@ -59,7 +58,6 @@ export default async function TermDetailPage({ params }: PageProps) {
 
     return (
         <div className="min-h-screen bg-background">
-            <Header />
 
             <main className="container mx-auto px-4 py-12">
                 {/* Back link */}
