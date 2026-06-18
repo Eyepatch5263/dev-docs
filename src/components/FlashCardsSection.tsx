@@ -271,7 +271,7 @@ export function FlashCardsSection() {
 
     return (
         <section 
-            className="relative w-full h-full flex items-center justify-center overflow-hidden bg-slate-50 dark:bg-slate-950 px-4 transition-colors duration-500"
+            className="relative w-full min-h-screen lg:h-full flex items-center justify-center overflow-visible lg:overflow-hidden bg-slate-50 dark:bg-slate-950 px-4 py-12 lg:py-0 transition-colors duration-500"
         >
             {/* Gradient Background */}
             <div className="absolute inset-0 bg-linear-to-br from-primary/5 via-background to-accent/5 dark:from-primary/15 dark:via-background dark:to-accent/15 pointer-events-none" />

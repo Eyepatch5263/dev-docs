@@ -17,7 +17,7 @@ export function Hero() {
     }, []);
 
     return (
-        <section className="relative h-full w-full flex items-center justify-center overflow-hidden px-4 sm:px-6 lg:px-8 bg-slate-50 dark:bg-slate-950 transition-colors duration-500">
+        <section className="relative min-h-screen lg:h-full w-full flex items-center justify-center overflow-visible lg:overflow-hidden px-4 sm:px-6 lg:px-8 bg-slate-50 dark:bg-slate-950 transition-colors duration-500">
             {/* Gradient Background */}
             <div className="absolute inset-0 bg-linear-to-br from-primary/5 via-background to-accent/5 dark:from-primary/15 dark:via-background dark:to-accent/15" />
 

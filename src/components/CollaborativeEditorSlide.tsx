@@ -37,12 +37,12 @@ const statusStyle: Record<string, string> = {
 
 export function CollaborativeEditorSlide() {
     return (
-        <section className="relative w-full h-screen flex flex-col overflow-hidden bg-slate-50 dark:bg-slate-950 transition-colors duration-500">
+        <section className="relative w-full min-h-screen lg:h-screen flex flex-col overflow-visible lg:overflow-hidden bg-slate-50 dark:bg-slate-950 transition-colors duration-500">
             {/* Subtle gradient */}
             <div className="absolute inset-0 bg-linear-to-b from-slate-100/50 via-transparent to-slate-100/30 dark:from-slate-900/50 dark:via-transparent dark:to-slate-900/30 pointer-events-none" />
 
             {/* Content */}
-            <div className="relative z-10 w-full h-full mx-auto px-8 lg:px-16 xl:px-24 flex flex-col justify-between py-10 lg:py-12 overflow-hidden">
+            <div className="relative z-10 w-full min-h-inherit lg:h-full mx-auto px-8 lg:px-16 xl:px-24 flex flex-col justify-between py-10 lg:py-12 overflow-visible lg:overflow-hidden">
 
                 {/* ─── Top Row: Hero Text + How It Works ─── */}
                 <motion.div

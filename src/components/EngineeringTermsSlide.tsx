@@ -105,7 +105,7 @@ export function EngineeringTermsSlide() {
     });
 
     return (
-        <section className="relative w-full h-screen flex flex-col items-center overflow-hidden bg-slate-50 dark:bg-slate-950 transition-colors duration-500">
+        <section className="relative w-full min-h-screen lg:h-screen flex flex-col items-center overflow-visible lg:overflow-hidden bg-slate-50 dark:bg-slate-950 transition-colors duration-500">
             {/* Subtle gradient overlay */}
             <div className="absolute inset-0 bg-linear-to-b from-primary/2 via-transparent to-primary/3 dark:from-amber-500/2 dark:via-transparent dark:to-primary/4 pointer-events-none" />
 
@@ -136,7 +136,7 @@ export function EngineeringTermsSlide() {
             </div>
 
             {/* Main content */}
-            <div className="relative z-20 w-full max-w-5xl h-full mx-auto px-6 flex flex-col items-center justify-between py-10 lg:py-12 overflow-hidden">
+            <div className="relative z-20 w-full max-w-5xl min-h-inherit lg:h-full mx-auto px-6 flex flex-col items-center justify-between py-10 lg:py-12 overflow-visible lg:overflow-hidden">
 
                 {/* Heading */}
                 <motion.div
@@ -177,11 +177,10 @@ export function EngineeringTermsSlide() {
                 >
                     <Link href="/engineering-terms" className="block">
                         <div
-                            className={`flex items-center gap-3 px-5 py-3.5 rounded-xl border transition-all duration-300 cursor-text ${
-                                searchFocused
+                            className={`flex items-center gap-3 px-5 py-3.5 rounded-xl border transition-all duration-300 cursor-text ${searchFocused
                                     ? 'border-primary/40 shadow-lg shadow-primary/5 bg-white dark:bg-slate-900/80'
                                     : 'border-slate-200 dark:border-slate-800/60 bg-white/80 dark:bg-slate-900/40 hover:border-slate-300 dark:hover:border-slate-700'
-                            }`}
+                                }`}
                             onMouseEnter={() => setSearchFocused(true)}
                             onMouseLeave={() => setSearchFocused(false)}
                         >
@@ -338,7 +337,7 @@ export function EngineeringTermsSlide() {
                             const Icon = stat.icon;
                             return (
                                 <div key={stat.label} className="flex items-center gap-3 px-4 first:pl-0 last:pr-0">
-                                    <Icon className="w-5 h-5 text-slate-400 dark:text-slate-500 shrink-0" />
+                                    <Icon className="w-5 h-5 hidden sm:block text-slate-400 dark:text-slate-500 shrink-0" />
                                     <div>
                                         <span className="text-sm font-bold text-slate-800 dark:text-slate-200 block leading-tight">
                                             {stat.value} {stat.label}

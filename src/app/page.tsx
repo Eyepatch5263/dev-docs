@@ -12,11 +12,23 @@ import { Footer } from '@/components/Footer';
 
 export default function Home() {
   const [index, setIndex] = useState(0);
+  const [isMobile, setIsMobile] = useState(false);
   const totalSections = 6;
   const isAnimating = useRef(false);
   const touchStartY = useRef(0);
 
   useEffect(() => {
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth < 1024);
+    };
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+    return () => window.removeEventListener('resize', checkMobile);
+  }, []);
+
+  useEffect(() => {
+    if (isMobile) return;
+
     const handleWheel = (e: WheelEvent) => {
       e.preventDefault();
       if (isAnimating.current) return;
@@ -125,80 +137,82 @@ export default function Home() {
       window.removeEventListener('touchend', handleTouchEnd);
       window.removeEventListener('keydown', handleKeyDown);
     };
-  }, [index]);
+  }, [index, isMobile]);
 
   return (
-    <main className="h-screen w-screen overflow-hidden relative bg-background">
-      {/* Sidebar Pagination Dots */}
-      <div className="fixed right-4 sm:right-6 top-1/2 -translate-y-1/2 z-50 flex flex-col gap-4">
-        {Array.from({ length: totalSections }).map((_, i) => (
-          <button
-            key={i}
-            onClick={() => {
-              if (isAnimating.current || index === i) return;
-              isAnimating.current = true;
-              setIndex(i);
-              setTimeout(() => {
-                isAnimating.current = false;
-              }, 950);
-            }}
-            className="group relative flex items-center justify-center w-8 h-8 rounded-full focus:outline-none cursor-pointer"
-            aria-label={`Navigate to section ${i + 1}`}
-          >
-            {/* Inner Dot */}
-            <div
-              className={`w-2.5 h-2.5 rounded-full transition-all duration-300 ${
-                index === i 
-                  ? 'bg-primary scale-125 ring-4 ring-primary/20' 
-                  : 'bg-slate-300 dark:bg-slate-700 group-hover:bg-slate-400 dark:group-hover:bg-slate-500'
-              }`}
-            />
-            {/* Tooltip */}
-            <span className="absolute right-10 opacity-0 pointer-events-none group-hover:opacity-100 transition-opacity duration-200 px-2.5 py-1 rounded-md text-[11px] font-medium bg-white/90 dark:bg-slate-900/90 border border-slate-200/50 dark:border-slate-800/50 backdrop-blur-xs text-slate-600 dark:text-slate-400 shadow-xs whitespace-nowrap">
-              {i === 0 && 'Intro'}
-              {i === 1 && 'Flash Docs'}
-              {i === 2 && 'Flash Cards'}
-              {i === 3 && 'Engineering Terms'}
-              {i === 4 && 'Collaborative'}
-              {i === 5 && 'Newsletter'}
-            </span>
-          </button>
-        ))}
-      </div>
+    <main className={`w-full relative bg-background ${isMobile ? 'min-h-screen overflow-y-auto overflow-x-hidden' : 'h-screen w-screen overflow-hidden'}`}>
+      {/* Sidebar Pagination Dots - Desktop Only */}
+      {!isMobile && (
+        <div className="fixed right-4 sm:right-6 top-1/2 -translate-y-1/2 z-50 flex-col gap-4 hidden lg:flex">
+          {Array.from({ length: totalSections }).map((_, i) => (
+            <button
+              key={i}
+              onClick={() => {
+                if (isAnimating.current || index === i) return;
+                isAnimating.current = true;
+                setIndex(i);
+                setTimeout(() => {
+                  isAnimating.current = false;
+                }, 950);
+              }}
+              className="group relative flex items-center justify-center w-8 h-8 rounded-full focus:outline-none cursor-pointer"
+              aria-label={`Navigate to section ${i + 1}`}
+            >
+              {/* Inner Dot */}
+              <div
+                className={`w-2.5 h-2.5 rounded-full transition-all duration-300 ${
+                  index === i 
+                    ? 'bg-primary scale-125 ring-4 ring-primary/20' 
+                    : 'bg-slate-300 dark:bg-slate-700 group-hover:bg-slate-400 dark:group-hover:bg-slate-500'
+                }`}
+              />
+              {/* Tooltip */}
+              <span className="absolute right-10 opacity-0 pointer-events-none group-hover:opacity-100 transition-opacity duration-200 px-2.5 py-1 rounded-md text-[11px] font-medium bg-white/90 dark:bg-slate-900/90 border border-slate-200/50 dark:border-slate-800/50 backdrop-blur-xs text-slate-600 dark:text-slate-400 shadow-xs whitespace-nowrap">
+                {i === 0 && 'Intro'}
+                {i === 1 && 'Flash Docs'}
+                {i === 2 && 'Flash Cards'}
+                {i === 3 && 'Engineering Terms'}
+                {i === 4 && 'Collaborative'}
+                {i === 5 && 'Newsletter'}
+              </span>
+            </button>
+          ))}
+        </div>
+      )}
 
       {/* Main Snap Slides Wrapper */}
       <motion.div
         className="w-full h-full"
-        animate={{ y: `-${index * 100}vh` }}
-        transition={{ duration: 0.85, ease: [0.16, 1, 0.3, 1] }} // smooth easeOutExpo
+        animate={isMobile ? { y: 0 } : { y: `-${index * 100}vh` }}
+        transition={isMobile ? { duration: 0 } : { duration: 0.85, ease: [0.16, 1, 0.3, 1] }} // smooth easeOutExpo
       >
         {/* Slide 1: Hero */}
-        <div className="h-screen w-full shrink-0">
+        <div className="min-h-screen lg:h-screen w-full shrink-0">
           <Hero />
         </div>
 
         {/* Slide 2: Flash Docs */}
-        <div className="h-screen w-full shrink-0 flex items-center justify-center">
+        <div className="min-h-screen lg:h-screen w-full shrink-0 flex items-center justify-center">
           <FlashDocsSection />
         </div>
 
         {/* Slide 3: Flash Cards */}
-        <div className="h-screen w-full shrink-0 flex items-center justify-center">
+        <div className="min-h-screen lg:h-screen w-full shrink-0 flex items-center justify-center">
           <FlashCardsSection />
         </div>
 
         {/* Slide 4: Engineering Terms */}
-        <div className="h-screen w-full shrink-0">
+        <div className="min-h-screen lg:h-screen w-full shrink-0">
           <EngineeringTermsSlide />
         </div>
 
         {/* Slide 5: Collaborative Editor */}
-        <div className="h-screen w-full shrink-0">
+        <div className="min-h-screen lg:h-screen w-full shrink-0">
           <CollaborativeEditorSlide />
         </div>
 
         {/* Slide 6: Newsletter & Footer Combined */}
-        <div className="h-screen w-full shrink-0 flex flex-col justify-between bg-slate-50 dark:bg-slate-950 transition-colors duration-500">
+        <div className="min-h-screen lg:h-screen w-full shrink-0 flex flex-col justify-between bg-slate-50 dark:bg-slate-950 transition-colors duration-500">
           <div className="flex-1 flex items-center justify-center w-full">
             <NewsletterForm />
           </div>
