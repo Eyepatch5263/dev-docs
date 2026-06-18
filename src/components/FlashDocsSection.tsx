@@ -106,15 +106,14 @@ export function FlashDocsSection() {
 
   return (
     <section className="relative w-full min-h-screen lg:h-full flex items-center justify-center overflow-visible lg:overflow-hidden bg-slate-50 dark:bg-slate-950 px-4 sm:px-8 lg:px-16 py-12 lg:py-16 transition-colors duration-500">
-      {/* Gradient Background */}
-      <div className="absolute inset-0 bg-linear-to-br from-primary/5 via-background to-accent/5 dark:from-primary/15 dark:via-background dark:to-accent/15 pointer-events-none" />
+      {/* Subtle gradient overlay */}
+      <div className="absolute inset-0 bg-linear-to-b from-primary/2 via-transparent to-primary/3 dark:from-amber-500/2 dark:via-transparent dark:to-primary/4 pointer-events-none" />
 
-      {/* Ambient Background Glows */}
-      <div className="absolute top-1/4 left-1/4 w-[500px] h-[500px] bg-primary/5 rounded-full blur-3xl pointer-events-none" />
-      <div className="absolute bottom-1/4 right-1/4 w-[500px] h-[500px] bg-indigo-500/5 rounded-full blur-3xl pointer-events-none" />
+      {/* Faint radial glow */}
+      <div className="absolute top-[15%] left-1/2 -translate-x-1/2 w-[800px] h-[400px] bg-primary/3 dark:bg-amber-500/4 rounded-full blur-3xl pointer-events-none" />
 
-      {/* Faint Grid Background */}
-      <div className="absolute inset-0 bg-[linear-gradient(to_right,#e2e8f0_1px,transparent_1px),linear-gradient(to_bottom,#e2e8f0_1px,transparent_1px)] dark:bg-[linear-gradient(to_right,#0f172a_1px,transparent_1px),linear-gradient(to_bottom,#0f172a_1px,transparent_1px)] bg-size-[4rem_4rem] mask-[radial-gradient(ellipse_60%_50%_at_50%_50%,#000_70%,transparent_100%)] opacity-35" />
+      {/* Faint grid background */}
+      <div className="absolute inset-0 bg-[linear-gradient(to_right,#e2e8f0_1px,transparent_1px),linear-gradient(to_bottom,#e2e8f0_1px,transparent_1px)] dark:bg-[linear-gradient(to_right,#0f172a_1px,transparent_1px),linear-gradient(to_bottom,#0f172a_1px,transparent_1px)] bg-size-[4rem_4rem] mask-[radial-gradient(ellipse_60%_50%_at_50%_50%,#000_70%,transparent_100%)] opacity-25 pointer-events-none" />
 
       {/* Scattered Wireframe Shapes */}
       <motion.div
