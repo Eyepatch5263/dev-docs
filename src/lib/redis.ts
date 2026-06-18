@@ -8,7 +8,7 @@ import Redis from 'ioredis';
 
 //For local development use docker based redis container
 const redisClient = new Redis({
-    host: process.env.REDIS_HOST || 'localhost',
+    host: process.env.REDIS_PROD_HOST || 'localhost',
     port: parseInt(process.env.REDIS_PROD_PORT || '6379', 10),
     maxRetriesPerRequest: 3,
     retryStrategy(times) {

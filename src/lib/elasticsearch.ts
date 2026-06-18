@@ -11,9 +11,9 @@ interface SearchResult {
 
 // configure elasticsearch client
 const client = new Client({
-    node: process.env.ELASTICSEARCH_URL,
+    node: process.env.ELASTICSEARCH_PROD_URL || 'http://localhost:9200',
     auth: {
-        apiKey: process.env.ELASTICSEARCH_API_KEY || '',
+        apiKey: process.env.ELASTICSEARCH_PROD_API_KEY || '',
     },
     tls: {
         rejectUnauthorized: false,
@@ -109,7 +109,7 @@ export async function searchTerms(query: string): Promise<SearchResult> {
     // Check if Elasticsearch is configured
     const isElasticsearchConfigured = !!(
         process.env.ELASTICSEARCH_URL &&
-        process.env.ELASTICSEARCH_API_KEY
+        process.env.ELASTICSEARCH_PROD_API_KEY
     );
 
     if (!isElasticsearchConfigured) {
@@ -230,7 +230,7 @@ export async function getTermBySlug(slug: string): Promise<EngineeringTerm | nul
     // check if elasticsearch is configured
     const isElasticsearchConfigured = !!(
         process.env.ELASTICSEARCH_URL &&
-        process.env.ELASTICSEARCH_API_KEY
+        process.env.ELASTICSEARCH_PROD_API_KEY
     );
 
     // if elasticsearch is not configured, use local fallback means get the searches from local file
@@ -320,7 +320,7 @@ export async function getRelatedTerms(
 
     const isElasticsearchConfigured = !!(
         process.env.ELASTICSEARCH_URL &&
-        process.env.ELASTICSEARCH_API_KEY
+        process.env.ELASTICSEARCH_PROD_API_KEY
     );
 
     if (!isElasticsearchConfigured) {
