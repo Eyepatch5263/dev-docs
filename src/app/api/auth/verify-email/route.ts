@@ -6,10 +6,11 @@ const resend = new Resend(process.env.RESEND_API_KEY);
 
 // Generate beautiful HTML welcome email template
 function getWelcomeEmailHtml(userName: string): string {
-    const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://explainbytes.tech";
-    const logoUrl = `${siteUrl}/explain.png`;
+  const siteUrl =
+    process.env.NEXT_PUBLIC_SITE_URL || "https://explainbytes.tech";
+  const logoUrl = `${siteUrl}/explain.png`;
 
-    return `
+  return `
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -164,101 +165,101 @@ function getWelcomeEmailHtml(userName: string): string {
 
 // Send welcome email to newly verified user
 async function sendWelcomeEmail(email: string, name: string): Promise<void> {
-    try {
-        const emailResult = await resend.emails.send({
-            from: "ExplainBytes <welcome@news.explainbytes.tech>",
-            to: email,
-            subject: "Welcome to ExplainBytes! 🎉",
-            html: getWelcomeEmailHtml(name),
-        });
-        console.log("Welcome email sent:", JSON.stringify(emailResult, null, 2));
-    } catch (error) {
-        console.error("Failed to send welcome email:", error);
-        // Don't throw - welcome email failure shouldn't break verification
-    }
+  try {
+    const emailResult = await resend.emails.send({
+      from: "ExplainBytes <welcome@news.explainbytes.tech>",
+      to: email,
+      subject: "Welcome to ExplainBytes! 🎉",
+      html: getWelcomeEmailHtml(name),
+    });
+    console.log("Welcome email sent:", JSON.stringify(emailResult, null, 2));
+  } catch (error) {
+    console.error("Failed to send welcome email:", error);
+    // Don't throw - welcome email failure shouldn't break verification
+  }
 }
 
 export async function GET(request: NextRequest) {
-    try {
-        const { searchParams } = new URL(request.url);
-        const token = searchParams.get("token");
-        console.log("token:", token);
+  try {
+    const { searchParams } = new URL(request.url);
+    const token = searchParams.get("token");
+    console.log("token:", token);
 
-        if (!token) {
-            return NextResponse.json(
-                { error: "Verification token is required" },
-                { status: 400 }
-            );
-        }
+    if (!token) {
+      return NextResponse.json(
+        { error: "Verification token is required" },
+        { status: 400 },
+      );
+    }
 
-        // Find user with this verification token
-        const findRes = await db.query<any>(
-            "SELECT id, email, name, verification_token_expires, email_verified FROM users WHERE verification_token = $1 LIMIT 1",
-            [token]
+    // Find user with this verification token
+    const findRes = await db.query<any>(
+      "SELECT id, email, name, verification_token_expires, email_verified FROM users WHERE verification_token = $1 LIMIT 1",
+      [token],
+    );
+    const user = findRes.rows[0];
+
+    if (!user) {
+      return NextResponse.json(
+        { error: "Invalid or expired verification link" },
+        { status: 400 },
+      );
+    }
+
+    // Check if already verified
+    if (user.email_verified) {
+      return NextResponse.json(
+        { message: "Email already verified", alreadyVerified: true },
+        { status: 200 },
+      );
+    }
+
+    // Check if token has expired
+    if (user.verification_token_expires) {
+      const expiresAt = new Date(user.verification_token_expires);
+      if (expiresAt < new Date()) {
+        return NextResponse.json(
+          { error: "Verification link has expired. Please request a new one." },
+          { status: 400 },
         );
-        const user = findRes.rows[0];
+      }
+    }
 
-        if (!user) {
-            return NextResponse.json(
-                { error: "Invalid or expired verification link" },
-                { status: 400 }
-            );
-        }
-
-        // Check if already verified
-        if (user.email_verified) {
-            return NextResponse.json(
-                { message: "Email already verified", alreadyVerified: true },
-                { status: 200 }
-            );
-        }
-
-        // Check if token has expired
-        if (user.verification_token_expires) {
-            const expiresAt = new Date(user.verification_token_expires);
-            if (expiresAt < new Date()) {
-                return NextResponse.json(
-                    { error: "Verification link has expired. Please request a new one." },
-                    { status: 400 }
-                );
-            }
-        }
-
-        // Update user as verified and clear token
-        try {
-            await db.query(
-                `UPDATE users 
+    // Update user as verified and clear token
+    try {
+      await db.query(
+        `UPDATE users 
                  SET email_verified = true, verification_token = null, verification_token_expires = null, updated_at = NOW() 
                  WHERE id = $1`,
-                [user.id]
-            );
-        } catch (updateError) {
-            console.error("Error verifying user:", updateError);
-            return NextResponse.json(
-                { error: "Failed to verify email. Please try again." },
-                { status: 500 }
-            );
-        }
-
-        // Send welcome email after successful verification
-        await sendWelcomeEmail(user.email, user.name);
-
-        return NextResponse.json(
-            {
-                message: "Email verified successfully!",
-                verified: true,
-                user: {
-                    email: user.email,
-                    name: user.name,
-                },
-            },
-            { status: 200 }
-        );
-    } catch (error) {
-        console.error("Verification error:", error);
-        return NextResponse.json(
-            { error: "An unexpected error occurred" },
-            { status: 500 }
-        );
+        [user.id],
+      );
+    } catch (updateError) {
+      console.error("Error verifying user:", updateError);
+      return NextResponse.json(
+        { error: "Failed to verify email. Please try again." },
+        { status: 500 },
+      );
     }
+
+    // Send welcome email after successful verification
+    await sendWelcomeEmail(user.email, user.name);
+
+    return NextResponse.json(
+      {
+        message: "Email verified successfully!",
+        verified: true,
+        user: {
+          email: user.email,
+          name: user.name,
+        },
+      },
+      { status: 200 },
+    );
+  } catch (error) {
+    console.error("Verification error:", error);
+    return NextResponse.json(
+      { error: "An unexpected error occurred" },
+      { status: 500 },
+    );
+  }
 }

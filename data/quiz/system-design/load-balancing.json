@@ -1,0 +1,57 @@
+[
+  {
+    "question": "What is the primary technical trade-off between Layer 4 (L4) and Layer 7 (L7) load balancing in high-throughput architectures?",
+    "options": [
+      "L4 load balancing requires TLS certificates to route requests, causing higher memory overhead, whereas L7 operates entirely in user-space with zero copy buffers.",
+      "L4 operates at the transport layer, routing raw TCP streams with minimal CPU overhead, while L7 decrypts SSL/TLS and inspects HTTP headers/cookies, requiring significantly more CPU resource per request.",
+      "L4 is limited to handling UDP traffic and cannot maintain session state, while L7 supports TCP state tracking and Anycast IP routing.",
+      "L4 only supports static routing protocols like Weighted Round Robin, whereas L7 allows dynamic routing using client IP hashing."
+    ],
+    "correctIndex": 1,
+    "explanation": "Layer 4 load balancing works at the transport layer (TCP/UDP) and routes packets based on the 5-tuple without opening or decrypting the application payload, making it extremely fast and lightweight. Layer 7 load balancing inspects HTTP/HTTPS headers, paths, and cookies, requiring TLS termination and decryption, which demands much higher CPU resources but enables rich, content-aware routing."
+  },
+  {
+    "question": "In Direct Server Return (DSR) architectures, how do the backend servers respond directly to the client without the client rejecting the packets as spam or invalid traffic?",
+    "options": [
+      "The servers change their outbound gateway to route through a dedicated DNS Anycast proxy that hides their actual source IP address.",
+      "The servers use a custom UDP protocol that bypasses the client's TCP handshake verification entirely.",
+      "The servers share the load balancer's Virtual IP (VIP) address on a loopback interface and use it as the source IP when sending response packets directly to the client.",
+      "The load balancer encapsulates the response packets in a VXLAN tunnel and spoof-signs the packets using the client's MAC address."
+    ],
+    "correctIndex": 2,
+    "explanation": "In DSR, the backend servers configure the load balancer's Virtual IP (VIP) on their loopback interface (and suppress ARP responses for it). When a server replies directly to the client, it uses the VIP as the source IP in the packet headers. This ensures the client's OS accepts the packet, unaware that the load balancer was bypassed on the return path."
+  },
+  {
+    "question": "Why is Least Connections generally preferred over Round Robin or Weighted Round Robin when backend servers process long-lived requests with variable execution times?",
+    "options": [
+      "Round Robin requires persistent connection state synchronized across all backend nodes, leading to lock contention.",
+      "Least Connections uses less CPU because it does not have to perform hashing operations on incoming request URLs.",
+      "Round Robin can route new requests to a server that is already choked with slow/long-lived connections, whereas Least Connections dynamically identifies and routes traffic away from saturated nodes.",
+      "Least Connections forces the backend servers to scale down their CPU frequency dynamically during periods of low activity."
+    ],
+    "correctIndex": 2,
+    "explanation": "Round Robin distributes requests blindly in a fixed sequence. If a backend server receives multiple slow requests (e.g., database reports), it will become overloaded while other servers remain idle. Least Connections keeps track of active connection counts and routes new traffic to servers with the lightest connection load, protecting degraded or slow servers."
+  },
+  {
+    "question": "What is a major operational risk of using simple IP Hash load balancing when routing traffic from corporate environments or university campuses?",
+    "options": [
+      "IP Hash requires clients to periodically update their DNS records, causing significant connection latency.",
+      "Clients behind a single NAT gateway will share a single public IP address, causing the load balancer to route all of their requests to the same backend server, creating a severe hotspot.",
+      "IP Hash cannot be used with HTTPS/TLS traffic because the IP headers are encrypted inside the packet body.",
+      "If any backend server fails, IP Hash forces all active connections across the entire pool to be terminated and rebuilt."
+    ],
+    "correctIndex": 1,
+    "explanation": "Simple IP Hash relies on the client's source IP address to choose a server. When many clients access the service behind a corporate NAT gateway or proxy, they all present the same public IP address to the load balancer. This can lead to a highly uneven distribution (hotspotting), where one server gets overloaded with all the NAT'ed traffic."
+  },
+  {
+    "question": "During backend server scaling events, why is Consistent Hashing preferred over a simple modulo hashing algorithm (e.g., hash(IP) % N) for stateful applications?",
+    "options": [
+      "Consistent Hashing allows servers to share memory state directly over UDP multicast.",
+      "Modulo hashing requires a centralized database to map client IPs, whereas Consistent Hashing is stateless.",
+      "When the number of servers (N) changes in modulo hashing, almost all keys remap to new locations, whereas Consistent Hashing minimizes cache misses by only remapping a fraction of the keys (1/N on average).",
+      "Consistent Hashing automatically encrypts the client's session state before routing to protect against cross-site scripting."
+    ],
+    "correctIndex": 2,
+    "explanation": "In simple modulo hashing, changing the number of servers (e.g., from N to N+1 during auto-scaling) shifts the hash results for almost every single input key, invalidating cached sessions or data across the entire pool. Consistent Hashing maps both keys and servers to a logical ring, ensuring that adding or removing a node only redistributes a small portion of the keys, maintaining cache stability."
+  }
+]

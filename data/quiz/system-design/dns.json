@@ -1,0 +1,57 @@
+[
+  {
+    "question": "Why can't a standard CNAME record be used at the root apex domain (e.g., example.com), and how is this limitation resolved for CDN or Load Balancer routing?",
+    "options": [
+      "CNAME records require an IP address rather than a domain name, so an ALIAS/ANAME record is used to map to the load balancer's IP directly.",
+      "A CNAME record cannot coexist with other record types (like MX or NS) which are required at the root domain. An ALIAS/ANAME record solves this by resolving the target domain server-side and returning an A record.",
+      "CNAME records introduce too much DNS resolution latency for root domains, whereas ALIAS/ANAME records bypass recursive resolvers entirely.",
+      "Root name servers do not support CNAME resolutions due to security policies, so ALIAS/ANAME is used for cryptographic signing."
+    ],
+    "correctIndex": 1,
+    "explanation": "A CNAME record cannot coexist with other records for the same domain name. Since root domains must have NS and SOA records, a CNAME at the root apex is invalid. An ALIAS or ANAME record solves this by resolving to the target domain's IP addresses server-side and returning them as standard A/AAAA records."
+  },
+  {
+    "question": "Why is it considered an architectural anti-pattern to rely solely on updating DNS records for instantaneous failover of a dead application server in production?",
+    "options": [
+      "DNS updates are limited to once per 24 hours globally, preventing any fast failovers.",
+      "Authoritative name servers refuse to publish new records if a server is determined to be offline by NTP.",
+      "Downstream caches, routers, and web browsers often enforce minimum TTLs or ignore TTL updates completely, leading to clients hitting the dead server long after the update.",
+      "DNS resolvers only fetch IP addresses during the initial installation of the operating system and cache them permanently."
+    ],
+    "correctIndex": 2,
+    "explanation": "DNS propagation is slow and unreliable for active failover because recursive resolvers, operating systems, and browsers often ignore low TTL values or enforce their own minimum caching times. Instead, you should point DNS to an Anycast-backed Load Balancer that performs sub-second health-checks."
+  },
+  {
+    "question": "If a user in Tokyo resolves a website's IP address using a public DNS resolver located in the United States, how does EDNS Client Subnet (ECS) ensure they are still routed to a Tokyo data center?",
+    "options": [
+      "ECS forces the browser to establish a direct connection to the authoritative name server, bypassing the US recursive resolver.",
+      "ECS forwards the first few octets of the client's actual IP address to the authoritative server, allowing it to perform accurate geolocation routing.",
+      "ECS uses BGP Anycast to automatically clone the US resolver's database onto a Tokyo-based resolver.",
+      "ECS encrypts the DNS query and sends it over HTTPS to verify the physical location of the user's router."
+    ],
+    "correctIndex": 1,
+    "explanation": "Traditional DNS hides the user's IP from the authoritative server (which only sees the resolver's IP). ECS (RFC 7871) solves this by appending the client's subnet (e.g. /24) to the DNS query, enabling the authoritative server to return a geographically close IP address."
+  },
+  {
+    "question": "How does DNSSEC protect recursive resolvers from DNS Cache Poisoning attacks?",
+    "options": [
+      "It encrypts all queries inside a TLS tunnel (DoT) to prevent any intermediaries from sniffing the traffic.",
+      "It blocks all open recursive resolvers from accepting incoming UDP packets from untrusted subnets.",
+      "It appends cryptographic digital signatures to DNS records, allowing resolvers to verify authenticity against a chain of trust starting at the Root Zone.",
+      "It periodically flushes resolver caches automatically every 60 seconds to purge unauthorized records."
+    ],
+    "correctIndex": 2,
+    "explanation": "DNSSEC prevents cache poisoning by adding cryptographic digital signatures to DNS records. Resolvers can verify these signatures using public keys in a chain of trust back to the DNS root, ensuring the records have not been forged or tampered with."
+  },
+  {
+    "question": "In Anycast routing used by DNS providers like Cloudflare, what happens if one of the physical servers sharing the DNS IP address goes offline?",
+    "options": [
+      "The entire DNS network goes down until the IP address is manually reassigned to another server.",
+      "The BGP routing path automatically updates to direct user traffic to the next topologically closest healthy server.",
+      "The DNS resolver falls back to using Unicast A records to contact the authoritative server.",
+      "A synchronization mechanism copies the database onto the user's local operating system cache."
+    ],
+    "correctIndex": 1,
+    "explanation": "Anycast allows multiple physical servers to share the same IP address. BGP routing automatically routes traffic to the closest node. If that node goes down, BGP withdraws the route, and traffic is automatically rerouted to the next closest healthy server."
+  }
+]

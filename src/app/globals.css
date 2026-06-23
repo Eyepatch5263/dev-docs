@@ -143,7 +143,8 @@ html {
   @apply bg-gray-100 dark:bg-gray-800;
 }
 
-.prose td, .prose th {
+.prose td,
+.prose th {
   @apply border border-gray-200 dark:border-gray-700 px-4 py-2;
 }
 
@@ -313,7 +314,8 @@ html {
   padding: 1rem;
   overflow-x: auto;
   margin: 1rem 0;
-  font-family: ui-monospace, SFMono-Regular, 'SF Mono', Menlo, Consolas, monospace;
+  font-family:
+    ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, monospace;
 }
 
 .dark .tiptap pre {

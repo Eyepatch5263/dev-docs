@@ -11,255 +11,273 @@ import { Button } from "@/components/ui/button";
 
 // Type for editor content methods
 interface EditorContent {
-    getHTML: () => string;
-    getJSON: () => Record<string, unknown>;
+  getHTML: () => string;
+  getJSON: () => Record<string, unknown>;
 }
 
 // Dynamically import the editor to avoid SSR issues with Yjs
 const CollaborativeEditor = dynamic(
-    () => import("@/components/editor/CollaborativeEditor").then((mod) => mod.CollaborativeEditor),
-    {
-        ssr: false,
-        loading: () => (
-            <div className="animate-pulse p-4">
-                <div className="h-12 bg-muted rounded-lg mb-4" />
-                <div className="h-[500px] bg-muted rounded-lg" />
-            </div>
-        ),
-    }
+  () =>
+    import("@/components/editor/CollaborativeEditor").then(
+      (mod) => mod.CollaborativeEditor,
+    ),
+  {
+    ssr: false,
+    loading: () => (
+      <div className="animate-pulse p-4">
+        <div className="h-12 bg-muted rounded-lg mb-4" />
+        <div className="h-[500px] bg-muted rounded-lg" />
+      </div>
+    ),
+  },
 );
 
 interface EditorWrapperProps {
-    documentId: string;
-    userName: string;
-    userId: string;
+  documentId: string;
+  userName: string;
+  userId: string;
 }
 
-export function EditorWrapper({ documentId, userName, userId }: EditorWrapperProps) {
-    const [isNewDocument, setIsNewDocument] = useState(false);
-    const [isOwner, setIsOwner] = useState(false);
-    const [isLoading, setIsLoading] = useState(true);
-    const [documentTitle, setDocumentTitle] = useState("Untitled Document");
-    const [showPreview, setShowPreview] = useState(true);
-    const [mdxContent, setMdxContent] = useState("");
-    const [activeTab, setActiveTab] = useState<"editor" | "preview">("editor"); // For mobile tabs
+export function EditorWrapper({
+  documentId,
+  userName,
+  userId,
+}: EditorWrapperProps) {
+  const [isNewDocument, setIsNewDocument] = useState(false);
+  const [isOwner, setIsOwner] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
+  const [documentTitle, setDocumentTitle] = useState("Untitled Document");
+  const [showPreview, setShowPreview] = useState(true);
+  const [mdxContent, setMdxContent] = useState("");
+  const [activeTab, setActiveTab] = useState<"editor" | "preview">("editor"); // For mobile tabs
 
-    // Ref to store editor content methods
-    const getContentRef = useRef<EditorContent | null>(null);
+  // Ref to store editor content methods
+  const getContentRef = useRef<EditorContent | null>(null);
 
-    useEffect(() => {
-        // Read URL params and set in localStorage (for shared links)
-        if (typeof window !== 'undefined') {
-            const params = new URLSearchParams(window.location.search);
-            const urlTopic = params.get('topic');
-            const urlCategory = params.get('category');
-            const urlTitle = params.get('title');
-            const urlDescription = params.get('description');
-            const loadFromDb = params.get('loadFromDb');
+  useEffect(() => {
+    // Read URL params and set in localStorage (for shared links)
+    if (typeof window !== "undefined") {
+      const params = new URLSearchParams(window.location.search);
+      const urlTopic = params.get("topic");
+      const urlCategory = params.get("category");
+      const urlTitle = params.get("title");
+      const urlDescription = params.get("description");
+      const loadFromDb = params.get("loadFromDb");
 
-            if (urlTopic) {
-                localStorage.setItem(`doc_topic_${documentId}`, urlTopic);
-            }
-            if (urlCategory) {
-                localStorage.setItem(`doc_category_${documentId}`, urlCategory);
-            }
-            if (urlTitle) {
-                localStorage.setItem(`doc_title_${documentId}`, urlTitle);
-            }
-            if (urlDescription) {
-                localStorage.setItem(`doc_description_${documentId}`, urlDescription);
-            }
-            // If loadFromDb flag is present, store it for the editor to load content
-            if (loadFromDb === 'true') {
-                localStorage.setItem(`loadFromDb_${documentId}`, 'true');
-            }
+      if (urlTopic) {
+        localStorage.setItem(`doc_topic_${documentId}`, urlTopic);
+      }
+      if (urlCategory) {
+        localStorage.setItem(`doc_category_${documentId}`, urlCategory);
+      }
+      if (urlTitle) {
+        localStorage.setItem(`doc_title_${documentId}`, urlTitle);
+      }
+      if (urlDescription) {
+        localStorage.setItem(`doc_description_${documentId}`, urlDescription);
+      }
+      // If loadFromDb flag is present, store it for the editor to load content
+      if (loadFromDb === "true") {
+        localStorage.setItem(`loadFromDb_${documentId}`, "true");
+      }
+    }
+
+    // Check if this document was just created (set by NewDocumentButton)
+    const isNew = localStorage.getItem("inNewDocument") === "true";
+
+    if (isNew) {
+      setIsNewDocument(true);
+      setIsOwner(true);
+      setIsLoading(false);
+      // Store ownership for this document (persists across double-renders)
+      localStorage.setItem(`doc_owner_${documentId}`, "true");
+      // Clear the global flag after reading
+      localStorage.removeItem("inNewDocument");
+      return;
+    }
+
+    // Check if we already know they're the owner (from previous render or page visit)
+    const cachedOwnership = localStorage.getItem(`doc_owner_${documentId}`);
+    if (cachedOwnership === "true") {
+      setIsOwner(true);
+      setIsLoading(false);
+      return;
+    }
+
+    // Check document ownership from API (only for existing documents)
+    const checkOwnership = async () => {
+      try {
+        const response = await fetch(
+          `/api/documents/${encodeURIComponent(documentId)}`,
+        );
+        const data = await response.json();
+
+        if (data.document) {
+          setIsOwner(data.isOwner);
+          // Cache the ownership result
+          if (data.isOwner) {
+            localStorage.setItem(`doc_owner_${documentId}`, "true");
+          }
+          if (data.document.title) {
+            setDocumentTitle(data.document.title);
+          }
+        } else {
+          setIsOwner(false);
         }
+      } catch (error) {
+        setIsOwner(false);
+      } finally {
+        setIsLoading(false);
+      }
+    };
 
+    checkOwnership();
+  }, [documentId]);
 
-        // Check if this document was just created (set by NewDocumentButton)
-        const isNew = localStorage.getItem("inNewDocument") === "true";
-
-        if (isNew) {
-            setIsNewDocument(true);
-            setIsOwner(true);
-            setIsLoading(false);
-            // Store ownership for this document (persists across double-renders)
-            localStorage.setItem(`doc_owner_${documentId}`, 'true');
-            // Clear the global flag after reading
-            localStorage.removeItem("inNewDocument");
-            return;
-        }
-
-        // Check if we already know they're the owner (from previous render or page visit)
-        const cachedOwnership = localStorage.getItem(`doc_owner_${documentId}`);
-        if (cachedOwnership === 'true') {
-            setIsOwner(true);
-            setIsLoading(false);
-            return;
-        }
-
-        // Check document ownership from API (only for existing documents)
-        const checkOwnership = async () => {
-            try {
-                const response = await fetch(`/api/documents/${encodeURIComponent(documentId)}`);
-                const data = await response.json();
-
-                if (data.document) {
-                    setIsOwner(data.isOwner);
-                    // Cache the ownership result
-                    if (data.isOwner) {
-                        localStorage.setItem(`doc_owner_${documentId}`, 'true');
-                    }
-                    if (data.document.title) {
-                        setDocumentTitle(data.document.title);
-                    }
-                } else {
-                    setIsOwner(false);
-                }
-            } catch (error) {
-                setIsOwner(false);
-            } finally {
-                setIsLoading(false);
-            }
-        };
-
-        checkOwnership();
-    }, [documentId]);
-
-    // Callback to receive editor methods
-    const handleEditorReady = useCallback((content: EditorContent) => {
-        getContentRef.current = content;
-        // Get initial content for preview
-        const json = content.getJSON();
-        setMdxContent(convertToMDX(json as unknown as Parameters<typeof convertToMDX>[0]));
-    }, []);
-
-    // Handle content changes for live preview
-    const handleContentChange = useCallback((json: Record<string, unknown>) => {
-        const mdx = convertToMDX(json as unknown as Parameters<typeof convertToMDX>[0]);
-        setMdxContent(mdx);
-    }, []);
-
-    // Get content as MDX for saving to database
-    const getContent = useCallback(() => {
-        if (!getContentRef.current) return "";
-        const json = getContentRef.current.getJSON();
-        // Convert ProseMirror JSON to MDX (cast through unknown for type safety)
-        return convertToMDX(json as unknown as Parameters<typeof convertToMDX>[0]);
-    }, []);
-
-    // Get topic from localStorage
-    const getTopic = useCallback(() => {
-        return localStorage.getItem(`doc_topic_${documentId}`) || "system-design";
-    }, [documentId]);
-
-    // Get title from localStorage
-    const getTitle = useCallback(() => {
-        return localStorage.getItem(`doc_title_${documentId}`) || documentTitle;
-    }, [documentId, documentTitle]);
-
-    // Get description from localStorage
-    const getDescription = useCallback(() => {
-        return localStorage.getItem(`doc_description_${documentId}`) || "";
-    }, [documentId]);
-
-    // Get category from localStorage
-    const getCategory = useCallback(() => {
-        return localStorage.getItem(`doc_category_${documentId}`) || "introduction";
-    }, [documentId]);
-
-    return (
-        <div className="flex flex-col h-full">
-            {/* Document Actions Bar - show when loaded */}
-            {!isLoading && (
-                <div className="flex justify-between items-center px-4 py-2 border-b border-border bg-background/50">
-                    {/* Document Title Input */}
-                    <DocumentTitleInput documentId={documentId} />
-
-                    <div className="flex items-center gap-2">
-                        {/* Preview Toggle - Desktop only */}
-                        <Button
-                            variant="ghost"
-                            size="sm"
-                            onClick={() => setShowPreview(!showPreview)}
-                            className="gap-2 hidden lg:flex"
-                        >
-                            {showPreview ? (
-                                <>
-                                    <EyeOff className="h-4 w-4" />
-                                    Hide Preview
-                                </>
-                            ) : (
-                                <>
-                                    <Eye className="h-4 w-4" />
-                                    Show Preview
-                                </>
-                            )}
-                        </Button>
-
-                        <DocumentActions
-                            documentId={documentId}
-                            isOwner={isOwner}
-                            getContent={getContent}
-                            getTopic={getTopic}
-                            getTitle={getTitle}
-                            getDescription={getDescription}
-                            getCategory={getCategory}
-                        />
-                    </div>
-                </div>
-            )}
-
-            {/* Mobile Tabs - shown only on mobile */}
-            <div className="lg:hidden flex border-b border-border bg-muted/30">
-                <button
-                    onClick={() => setActiveTab("editor")}
-                    className={`flex-1 px-4 py-2 text-sm font-medium transition-colors ${activeTab === "editor"
-                        ? "text-foreground border-b-2 border-primary bg-background"
-                        : "text-muted-foreground hover:text-foreground"
-                        }`}
-                >
-                    Editor
-                </button>
-                <button
-                    onClick={() => setActiveTab("preview")}
-                    className={`flex-1 px-4 py-2 text-sm font-medium transition-colors ${activeTab === "preview"
-                        ? "text-foreground border-b-2 border-primary bg-background"
-                        : "text-muted-foreground hover:text-foreground"
-                        }`}
-                >
-                    Preview
-                </button>
-            </div>
-
-            {/* Editor and Preview Split View */}
-            <div className="flex-1 flex overflow-hidden">
-                {/* Editor - Desktop: side-by-side, Mobile: tab-based */}
-                <div className={`
-                    ${showPreview ? 'lg:w-1/2' : 'w-full'} 
-                    ${activeTab === "editor" ? 'block' : 'hidden lg:block'}
-                    overflow-auto border-r border-border transition-all
-                `}>
-                    <CollaborativeEditor
-                        documentId={documentId}
-                        userName={userName}
-                        isNewDocument={isNewDocument}
-                        onEditorReady={handleEditorReady}
-                        onContentChange={handleContentChange}
-                    />
-                </div>
-
-                {/* Preview Panel - Desktop: side-by-side, Mobile: tab-based */}
-                {showPreview && (
-                    <div className={`
-                        lg:w-1/2 w-full
-                        ${activeTab === "preview" ? 'block' : 'hidden lg:block'}
-                        overflow-hidden bg-background
-                    `}>
-                        <MDXPreview content={mdxContent} className="h-full" />
-                    </div>
-                )}
-            </div>
-        </div>
+  // Callback to receive editor methods
+  const handleEditorReady = useCallback((content: EditorContent) => {
+    getContentRef.current = content;
+    // Get initial content for preview
+    const json = content.getJSON();
+    setMdxContent(
+      convertToMDX(json as unknown as Parameters<typeof convertToMDX>[0]),
     );
+  }, []);
+
+  // Handle content changes for live preview
+  const handleContentChange = useCallback((json: Record<string, unknown>) => {
+    const mdx = convertToMDX(
+      json as unknown as Parameters<typeof convertToMDX>[0],
+    );
+    setMdxContent(mdx);
+  }, []);
+
+  // Get content as MDX for saving to database
+  const getContent = useCallback(() => {
+    if (!getContentRef.current) return "";
+    const json = getContentRef.current.getJSON();
+    // Convert ProseMirror JSON to MDX (cast through unknown for type safety)
+    return convertToMDX(json as unknown as Parameters<typeof convertToMDX>[0]);
+  }, []);
+
+  // Get topic from localStorage
+  const getTopic = useCallback(() => {
+    return localStorage.getItem(`doc_topic_${documentId}`) || "system-design";
+  }, [documentId]);
+
+  // Get title from localStorage
+  const getTitle = useCallback(() => {
+    return localStorage.getItem(`doc_title_${documentId}`) || documentTitle;
+  }, [documentId, documentTitle]);
+
+  // Get description from localStorage
+  const getDescription = useCallback(() => {
+    return localStorage.getItem(`doc_description_${documentId}`) || "";
+  }, [documentId]);
+
+  // Get category from localStorage
+  const getCategory = useCallback(() => {
+    return localStorage.getItem(`doc_category_${documentId}`) || "introduction";
+  }, [documentId]);
+
+  return (
+    <div className="flex flex-col h-full">
+      {/* Document Actions Bar - show when loaded */}
+      {!isLoading && (
+        <div className="flex justify-between items-center px-4 py-2 border-b border-border bg-background/50">
+          {/* Document Title Input */}
+          <DocumentTitleInput documentId={documentId} />
+
+          <div className="flex items-center gap-2">
+            {/* Preview Toggle - Desktop only */}
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => setShowPreview(!showPreview)}
+              className="gap-2 hidden lg:flex"
+            >
+              {showPreview ? (
+                <>
+                  <EyeOff className="h-4 w-4" />
+                  Hide Preview
+                </>
+              ) : (
+                <>
+                  <Eye className="h-4 w-4" />
+                  Show Preview
+                </>
+              )}
+            </Button>
+
+            <DocumentActions
+              documentId={documentId}
+              isOwner={isOwner}
+              getContent={getContent}
+              getTopic={getTopic}
+              getTitle={getTitle}
+              getDescription={getDescription}
+              getCategory={getCategory}
+            />
+          </div>
+        </div>
+      )}
+
+      {/* Mobile Tabs - shown only on mobile */}
+      <div className="lg:hidden flex border-b border-border bg-muted/30">
+        <button
+          onClick={() => setActiveTab("editor")}
+          className={`flex-1 px-4 py-2 text-sm font-medium transition-colors ${
+            activeTab === "editor"
+              ? "text-foreground border-b-2 border-primary bg-background"
+              : "text-muted-foreground hover:text-foreground"
+          }`}
+        >
+          Editor
+        </button>
+        <button
+          onClick={() => setActiveTab("preview")}
+          className={`flex-1 px-4 py-2 text-sm font-medium transition-colors ${
+            activeTab === "preview"
+              ? "text-foreground border-b-2 border-primary bg-background"
+              : "text-muted-foreground hover:text-foreground"
+          }`}
+        >
+          Preview
+        </button>
+      </div>
+
+      {/* Editor and Preview Split View */}
+      <div className="flex-1 flex overflow-hidden">
+        {/* Editor - Desktop: side-by-side, Mobile: tab-based */}
+        <div
+          className={`
+                    ${showPreview ? "lg:w-1/2" : "w-full"} 
+                    ${activeTab === "editor" ? "block" : "hidden lg:block"}
+                    overflow-auto border-r border-border transition-all
+                `}
+        >
+          <CollaborativeEditor
+            documentId={documentId}
+            userName={userName}
+            isNewDocument={isNewDocument}
+            onEditorReady={handleEditorReady}
+            onContentChange={handleContentChange}
+          />
+        </div>
+
+        {/* Preview Panel - Desktop: side-by-side, Mobile: tab-based */}
+        {showPreview && (
+          <div
+            className={`
+                        lg:w-1/2 w-full
+                        ${activeTab === "preview" ? "block" : "hidden lg:block"}
+                        overflow-hidden bg-background
+                    `}
+          >
+            <MDXPreview content={mdxContent} className="h-full" />
+          </div>
+        )}
+      </div>
+    </div>
+  );
 }

@@ -23,12 +23,7 @@
   },
   {
     "question": "If a system has a Mean Time Between Failures (MTBF) of 99 hours and a Mean Time to Repair/Restore (MTTR) of 1 hour, what is the system's availability percentage?",
-    "options": [
-      "90%",
-      "99%",
-      "99.9%",
-      "99.99%"
-    ],
+    "options": ["90%", "99%", "99.9%", "99.99%"],
     "correctIndex": 1,
     "explanation": "Using the formula: Availability = MTBF / (MTBF + MTTR) = 99 / (99 + 1) = 99 / 100 = 99%."
   },

@@ -69,10 +69,13 @@ The authoritative database stores DNS records in specific formats:
 | **A** | Host to IPv4 | `example.com ──► 93.184.216.34` | Maps domain directly to an IPv4 address. |
 | **AAAA** | Host to IPv6 | `example.com ──► 2606:2800:220::1` | Maps domain to a 128-bit IPv6 address. |
 | **CNAME** | Alias to another domain | `www.example.com ──► example.com` | Redirects a subdomain to another domain. Cannot coexist with other records. |
+| **ALIAS / ANAME** | Root Domain Alias | `example.com ──► my-alb.aws.com` | Solves the CNAME limitation at the apex root. Resolves server-side to return an A record. |
 | **MX** | Mail Exchange | `example.com ──► mail.example.com` | Specifies mail servers responsible for receiving email. |
-| **NS** | Name Server | `example.com ──► ns1.dns provider.com` | Delegates a DNS zone to use a specific authoritative server. |
+| **NS** | Name Server | `example.com ──► ns1.provider.com` | Delegates a DNS zone to use a specific authoritative server. |
 | **TXT** | Text Metadata | `example.com ──► v=spf1 include:...` | Holds arbitrary text; used for domain verification and security (SPF, DKIM). |
-
+| **SRV** | Service Discovery | `_sip._tcp ──► 5060 server.com` | Defines the specific IP, port, and protocol for a service. Crucial for K8s/microservices. |
+| **CAA** | Cert Authority | `example.com ──► letsencrypt.org` | Restricts exactly which Certificate Authorities can issue SSL/TLS certificates for the domain. |
+| **PTR** | Pointer (Reverse) | `34.216.184.93 ──► example.com` | The reverse of an A record (IP to Domain). Vital for logging and email spam verification. |
 ---
 
 ## 4. DNS Caching & TTL (Time-To-Live)
@@ -154,7 +157,23 @@ Because the original DNS design (RFC 1034/1035) prioritized speed over security,
 
 ---
 
-## 8. Best Practices for System Designers
+## 8. Advanced Engineering Considerations
+
+System designers must understand the limitations of DNS at scale, particularly regarding routing precision and cache staleness.
+
+### EDNS Client Subnet (ECS) & Geolocation
+Traditional DNS masks user IPs because the Authoritative Server only sees the Recursive Resolver's IP. If a user in Tokyo uses a public resolver located in the US, standard Geolocation DNS will mistakenly route them to a US data center.
+
+* **The Fix:** **ECS (RFC 7871)** allows recursive resolvers to forward the first few octets of the user’s IP address (e.g., `192.168.1.0/24`) to the authoritative server. This ensures localized routing accuracy for Geolocation DNS without violating user privacy.
+
+### The Failover Limitation (Sticky Cache)
+DNS is a slow-moving control plane. If an active server dies, updating a DNS record to point to a backup server introduces a propagation delay dictated by the TTL. Because downstream ISPs, browsers, and routers ignore TTLs or enforce minimums, a significant percentage of users will continue to hit the dead server long after you update your records.
+
+> **Architectural Law:** Never rely on DNS for zero-downtime, instantaneous application failover. Instead, use DNS to point to an Anycast-backed Layer 4/7 Load Balancer or Reverse Proxy fleet, which handles sub-second health-checks and routes traffic dynamically away from dead compute instances.
+
+---
+
+## 9. Best Practices for System Designers
 
 1.  **Dual-DNS Provider Strategy**: Avoid absolute dependence on a single provider (e.g., Dyn DNS outage in 2016). Use two independent authoritative DNS providers.
 2.  **Graceful TTL Transition**: When preparing for server migrations, reduce the record's TTL to 5 minutes at least 24 hours in advance. Once the migration is complete, restore the TTL to 24 hours.

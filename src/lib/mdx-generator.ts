@@ -7,10 +7,10 @@ import { CATEGORY_ORDER } from "@/constants/docs";
 import { CATEGORY_LABELS } from "@/constants/editor";
 
 interface DocumentMetadata {
-    description: string;
-    topic: string;
-    category: string;
-    content: string;
+  description: string;
+  topic: string;
+  category: string;
+  content: string;
 }
 
 // ---
@@ -26,27 +26,27 @@ interface DocumentMetadata {
  * @returns Complete MDX file content ready to commit
  */
 export function generateMDXFile(metadata: DocumentMetadata): string {
-    const { description, topic, category, content } = metadata;
+  const { description, topic, category, content } = metadata;
 
-    // Get category display label
-    const categoryLabel = CATEGORY_LABELS[category] || category;
+  // Get category display label
+  const categoryLabel = CATEGORY_LABELS[category] || category;
 
-    // Get order from CATEGORY_ORDER mapping
-    const order = CATEGORY_ORDER[categoryLabel] || 999;
+  // Get order from CATEGORY_ORDER mapping
+  const order = CATEGORY_ORDER[categoryLabel] || 999;
 
-    // Generate frontmatter
-    const frontmatter = [
-        "---",
-        `title: ${topic}`,
-        `description: ${description}`,
-        `order: ${order}`,
-        `category: ${categoryLabel}`,
-        "---",
-        "",
-    ].join("\n");
+  // Generate frontmatter
+  const frontmatter = [
+    "---",
+    `title: ${topic}`,
+    `description: ${description}`,
+    `order: ${order}`,
+    `category: ${categoryLabel}`,
+    "---",
+    "",
+  ].join("\n");
 
-    // Combine frontmatter and content
-    return frontmatter + content;
+  // Combine frontmatter and content
+  return frontmatter + content;
 }
 
 /**
@@ -56,5 +56,5 @@ export function generateMDXFile(metadata: DocumentMetadata): string {
  * @returns File path (e.g., "content/system-design/introduction.mdx")
  */
 export function generateFilePath(topic: string, slug: string): string {
-    return `content/${topic}/${slug}.mdx`;
+  return `content/${topic}/${slug}.mdx`;
 }

@@ -7,11 +7,14 @@ import { Resend } from "resend";
 const resend = new Resend(process.env.RESEND_API_KEY);
 
 // Generate beautiful HTML verify email template
-function getVerificationEmailHtml(userName: string, verificationUrl: string): string {
-    const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000";
-    const logoUrl = `${siteUrl}/explain.png`;
+function getVerificationEmailHtml(
+  userName: string,
+  verificationUrl: string,
+): string {
+  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000";
+  const logoUrl = `${siteUrl}/explain.png`;
 
-    return `
+  return `
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -111,178 +114,197 @@ function getVerificationEmailHtml(userName: string, verificationUrl: string): st
 
 // Password validation regex patterns
 const PASSWORD_REQUIREMENTS = {
-    minLength: 8,
-    hasUppercase: /[A-Z]/,
-    hasLowercase: /[a-z]/,
-    hasNumber: /[0-9]/,
+  minLength: 8,
+  hasUppercase: /[A-Z]/,
+  hasLowercase: /[a-z]/,
+  hasNumber: /[0-9]/,
 };
 
-function validatePassword(password: string): { valid: boolean; errors: string[] } {
-    const errors: string[] = [];
+function validatePassword(password: string): {
+  valid: boolean;
+  errors: string[];
+} {
+  const errors: string[] = [];
 
-    if (password.length < PASSWORD_REQUIREMENTS.minLength) {
-        errors.push("Password must be at least 8 characters long");
-    }
-    if (!PASSWORD_REQUIREMENTS.hasUppercase.test(password)) {
-        errors.push("Password must contain at least one uppercase letter");
-    }
-    if (!PASSWORD_REQUIREMENTS.hasLowercase.test(password)) {
-        errors.push("Password must contain at least one lowercase letter");
-    }
-    if (!PASSWORD_REQUIREMENTS.hasNumber.test(password)) {
-        errors.push("Password must contain at least one number");
-    }
+  if (password.length < PASSWORD_REQUIREMENTS.minLength) {
+    errors.push("Password must be at least 8 characters long");
+  }
+  if (!PASSWORD_REQUIREMENTS.hasUppercase.test(password)) {
+    errors.push("Password must contain at least one uppercase letter");
+  }
+  if (!PASSWORD_REQUIREMENTS.hasLowercase.test(password)) {
+    errors.push("Password must contain at least one lowercase letter");
+  }
+  if (!PASSWORD_REQUIREMENTS.hasNumber.test(password)) {
+    errors.push("Password must contain at least one number");
+  }
 
-    return { valid: errors.length === 0, errors };
+  return { valid: errors.length === 0, errors };
 }
 
 function validateEmail(email: string): boolean {
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    return emailRegex.test(email);
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  return emailRegex.test(email);
 }
 
 // Generate a secure verification token
 function generateVerificationToken(): string {
-    return crypto.randomBytes(32).toString("hex");
+  return crypto.randomBytes(32).toString("hex");
 }
 
 export async function POST(request: NextRequest) {
-    console.log("=== SIGNUP API CALLED ===");
-    try {
-        const body = await request.json();
-        const { email, password, name } = body;
-        console.log("Signup request for:", email);
+  console.log("=== SIGNUP API CALLED ===");
+  try {
+    const body = await request.json();
+    const { email, password, name } = body;
+    console.log("Signup request for:", email);
 
-        // Validate required fields
-        if (!email || !password || !name) {
-            return NextResponse.json(
-                { error: "Name, email, and password are required" },
-                { status: 400 }
-            );
-        }
+    // Validate required fields
+    if (!email || !password || !name) {
+      return NextResponse.json(
+        { error: "Name, email, and password are required" },
+        { status: 400 },
+      );
+    }
 
-        // Validate email format
-        if (!validateEmail(email)) {
-            return NextResponse.json(
-                { error: "Invalid email format" },
-                { status: 400 }
-            );
-        }
+    // Validate email format
+    if (!validateEmail(email)) {
+      return NextResponse.json(
+        { error: "Invalid email format" },
+        { status: 400 },
+      );
+    }
 
-        // Validate password strength
-        const passwordValidation = validatePassword(password);
-        if (!passwordValidation.valid) {
-            return NextResponse.json(
-                { error: passwordValidation.errors[0], errors: passwordValidation.errors },
-                { status: 400 }
-            );
-        }
+    // Validate password strength
+    const passwordValidation = validatePassword(password);
+    if (!passwordValidation.valid) {
+      return NextResponse.json(
+        {
+          error: passwordValidation.errors[0],
+          errors: passwordValidation.errors,
+        },
+        { status: 400 },
+      );
+    }
 
-        // Check if user already exists
-        const existingUserRes = await db.query<{ id: string; email_verified: boolean }>(
-            "SELECT id, email_verified FROM users WHERE email = $1 LIMIT 1",
-            [email.toLowerCase()]
-        );
-        const existingUser = existingUserRes.rows[0];
+    // Check if user already exists
+    const existingUserRes = await db.query<{
+      id: string;
+      email_verified: boolean;
+    }>("SELECT id, email_verified FROM users WHERE email = $1 LIMIT 1", [
+      email.toLowerCase(),
+    ]);
+    const existingUser = existingUserRes.rows[0];
 
-        if (existingUser) {
-            // If user exists but not verified, resend verification email
-            if (!existingUser.email_verified) {
-                const verificationToken = generateVerificationToken();
-                const tokenExpires = new Date(Date.now() + 24 * 60 * 60 * 1000); // 24 hours
-
-                // Update token
-                await db.query(
-                    "UPDATE users SET verification_token = $1, verification_token_expires = $2 WHERE id = $3",
-                    [verificationToken, tokenExpires.toISOString(), existingUser.id]
-                );
-
-                // Send verification email
-                const verificationUrl = `${process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000"}/verify-email?token=${verificationToken}`;
-
-                await resend.emails.send({
-                    from: "ExplainBytes <verify@news.explainbytes.tech>",
-                    to: email.toLowerCase(),
-                    subject: "Verify your email - ExplainBytes",
-                    html: getVerificationEmailHtml(name.trim(), verificationUrl),
-                });
-
-                return NextResponse.json(
-                    {
-                        message: "Verification email resent. Please check your inbox.",
-                        requiresVerification: true,
-                    },
-                    { status: 200 }
-                );
-            }
-
-            return NextResponse.json(
-                { error: "An account with this email already exists" },
-                { status: 409 }
-            );
-        }
-
-        // Hash password with bcrypt (12 rounds for security)
-        const passwordHash = await bcrypt.hash(password, 12);
-
-        // Generate verification token
+    if (existingUser) {
+      // If user exists but not verified, resend verification email
+      if (!existingUser.email_verified) {
         const verificationToken = generateVerificationToken();
         const tokenExpires = new Date(Date.now() + 24 * 60 * 60 * 1000); // 24 hours
 
-        // Create user in Postgres
-        let newUser;
-        try {
-            const insertRes = await db.query<{ id: string; email: string; name: string }>(
-                `INSERT INTO users (email, password_hash, name, email_verified, verification_token, verification_token_expires)
-                 VALUES ($1, $2, $3, false, $4, $5)
-                 RETURNING id, email, name`,
-                [email.toLowerCase(), passwordHash, name.trim(), verificationToken, tokenExpires.toISOString()]
-            );
-            newUser = insertRes.rows[0];
-        } catch (createError) {
-            console.error("Error creating user:", createError);
-            return NextResponse.json(
-                { error: "Failed to create account. Please try again." },
-                { status: 500 }
-            );
-        }
+        // Update token
+        await db.query(
+          "UPDATE users SET verification_token = $1, verification_token_expires = $2 WHERE id = $3",
+          [verificationToken, tokenExpires.toISOString(), existingUser.id],
+        );
 
         // Send verification email
         const verificationUrl = `${process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000"}/verify-email?token=${verificationToken}`;
-        console.log("Verification URL:", verificationUrl);
-        console.log("Sending email to:", email.toLowerCase());
-        console.log("RESEND_API_KEY exists:", !!process.env.RESEND_API_KEY);
 
-        try {
-            const emailResult = await resend.emails.send({
-                from: "ExplainBytes <verify@news.explainbytes.tech>",
-                to: email.toLowerCase(),
-                subject: "Verify your email - ExplainBytes",
-                html: getVerificationEmailHtml(name.trim(), verificationUrl),
-            });
-            console.log("Email sent result:", JSON.stringify(emailResult, null, 2));
-        } catch (emailError) {
-            console.error("=== EMAIL SENDING FAILED ===");
-            console.error("Error:", emailError);
-        }
+        await resend.emails.send({
+          from: "ExplainBytes <verify@news.explainbytes.tech>",
+          to: email.toLowerCase(),
+          subject: "Verify your email - ExplainBytes",
+          html: getVerificationEmailHtml(name.trim(), verificationUrl),
+        });
 
         return NextResponse.json(
-            {
-                message: "Account created! Please check your email to verify your account.",
-                requiresVerification: true,
-                user: {
-                    id: newUser.id,
-                    email: newUser.email,
-                    name: newUser.name,
-                },
-            },
-            { status: 201 }
+          {
+            message: "Verification email resent. Please check your inbox.",
+            requiresVerification: true,
+          },
+          { status: 200 },
         );
-    } catch (error) {
-        console.error("Signup error:", error);
-        return NextResponse.json(
-            { error: "An unexpected error occurred" },
-            { status: 500 }
-        );
+      }
+
+      return NextResponse.json(
+        { error: "An account with this email already exists" },
+        { status: 409 },
+      );
     }
+
+    // Hash password with bcrypt (12 rounds for security)
+    const passwordHash = await bcrypt.hash(password, 12);
+
+    // Generate verification token
+    const verificationToken = generateVerificationToken();
+    const tokenExpires = new Date(Date.now() + 24 * 60 * 60 * 1000); // 24 hours
+
+    // Create user in Postgres
+    let newUser;
+    try {
+      const insertRes = await db.query<{
+        id: string;
+        email: string;
+        name: string;
+      }>(
+        `INSERT INTO users (email, password_hash, name, email_verified, verification_token, verification_token_expires)
+                 VALUES ($1, $2, $3, false, $4, $5)
+                 RETURNING id, email, name`,
+        [
+          email.toLowerCase(),
+          passwordHash,
+          name.trim(),
+          verificationToken,
+          tokenExpires.toISOString(),
+        ],
+      );
+      newUser = insertRes.rows[0];
+    } catch (createError) {
+      console.error("Error creating user:", createError);
+      return NextResponse.json(
+        { error: "Failed to create account. Please try again." },
+        { status: 500 },
+      );
+    }
+
+    // Send verification email
+    const verificationUrl = `${process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000"}/verify-email?token=${verificationToken}`;
+    console.log("Verification URL:", verificationUrl);
+    console.log("Sending email to:", email.toLowerCase());
+    console.log("RESEND_API_KEY exists:", !!process.env.RESEND_API_KEY);
+
+    try {
+      const emailResult = await resend.emails.send({
+        from: "ExplainBytes <verify@news.explainbytes.tech>",
+        to: email.toLowerCase(),
+        subject: "Verify your email - ExplainBytes",
+        html: getVerificationEmailHtml(name.trim(), verificationUrl),
+      });
+      console.log("Email sent result:", JSON.stringify(emailResult, null, 2));
+    } catch (emailError) {
+      console.error("=== EMAIL SENDING FAILED ===");
+      console.error("Error:", emailError);
+    }
+
+    return NextResponse.json(
+      {
+        message:
+          "Account created! Please check your email to verify your account.",
+        requiresVerification: true,
+        user: {
+          id: newUser.id,
+          email: newUser.email,
+          name: newUser.name,
+        },
+      },
+      { status: 201 },
+    );
+  } catch (error) {
+    console.error("Signup error:", error);
+    return NextResponse.json(
+      { error: "An unexpected error occurred" },
+      { status: 500 },
+    );
+  }
 }

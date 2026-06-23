@@ -4,7 +4,6 @@ import { ThemeProvider } from "@/components/ThemeProvider";
 import { AuthProvider } from "@/components/auth/AuthProvider";
 import { QueryProvider } from "@/components/providers/QueryProvider";
 import { Toaster } from "sonner";
-import { Header } from "@/components/Header";
 import "./globals.css";
 
 const Inria_Serif_Font = Inria_Serif({
@@ -78,28 +77,24 @@ export default function RootLayout({
                 {
                   "@type": "Organization",
                   "@id": `${siteUrl}#org`,
-                  "name": "Explainbytes",
-                  "url": siteUrl,
-                  "logo": `${siteUrl}/logo.svg`,
-                  "sameAs": [
-                    "https://github.com/Eyepatch5263"
-                  ]
+                  name: "Explainbytes",
+                  url: siteUrl,
+                  logo: `${siteUrl}/logo.svg`,
+                  sameAs: ["https://github.com/Eyepatch5263"],
                 },
                 {
                   "@type": "WebSite",
                   "@id": `${siteUrl}#website`,
-                  "url": siteUrl,
-                  "name": "Explainbytes",
-                  "publisher": { "@id": `${siteUrl}#org` },
-                }
-              ]
+                  url: siteUrl,
+                  name: "Explainbytes",
+                  publisher: { "@id": `${siteUrl}#org` },
+                },
+              ],
             }),
           }}
         />
       </head>
-      <body
-        className={`${Inria_Serif_Font.className}`}
-      >
+      <body className={`${Inria_Serif_Font.className}`}>
         <QueryProvider>
           <AuthProvider>
             <ThemeProvider
@@ -108,9 +103,12 @@ export default function RootLayout({
               enableSystem
               disableTransitionOnChange
             >
-              <Header />
               {children}
-              <Toaster style={{fontFamily:"ui-serif"}} richColors position="top-right" />
+              <Toaster
+                style={{ fontFamily: "ui-serif" }}
+                richColors
+                position="top-right"
+              />
             </ThemeProvider>
           </AuthProvider>
         </QueryProvider>

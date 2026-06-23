@@ -34,12 +34,7 @@
   },
   {
     "question": "If your application's calculated egress bandwidth requirements are 50 Gbps, and you choose cloud server instances equipped with a standard 10 Gbps Network Interface Card (NIC), what is the minimum number of application servers needed to handle the traffic?",
-    "options": [
-      "2 servers",
-      "5 servers",
-      "10 servers",
-      "50 servers"
-    ],
+    "options": ["2 servers", "5 servers", "10 servers", "50 servers"],
     "correctIndex": 1,
     "explanation": "The minimum server count is calculated by dividing total bandwidth requirements by the maximum network throughput per instance: 50 Gbps / 10 Gbps = 5 servers."
   },

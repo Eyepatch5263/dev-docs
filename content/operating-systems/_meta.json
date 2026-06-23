@@ -1,9 +1,8 @@
 {
-    "id": "operating-systems",
-        "title": "Operating Systems",
-        "description":
-            "Explore process management, memory management, file systems, and how operating systems work under the hood.",
-        "icon": "HardDrive",
-        "color": "oklch(0.6 0.2 140)",
-        "articles": 1
+  "id": "operating-systems",
+  "title": "Operating Systems",
+  "description": "Explore process management, memory management, file systems, and how operating systems work under the hood.",
+  "icon": "HardDrive",
+  "color": "oklch(0.6 0.2 140)",
+  "articles": 1
 }
