@@ -7,9 +7,9 @@ import NetworkSimulationWrapper from "./network-simulation-wrapper";
 import SslSimulationWrapper from "./ssl-simulation-wrapper";
 
 export default function SimulationDashboard() {
-  const [activeTab, setActiveTab] = useState<"multi_tier" | "algorithms" | "ssl_tls">(
-    "multi_tier",
-  );
+  const [activeTab, setActiveTab] = useState<
+    "multi_tier" | "algorithms" | "ssl_tls"
+  >("multi_tier");
 
   return (
     <div className="w-full flex flex-col gap-6">

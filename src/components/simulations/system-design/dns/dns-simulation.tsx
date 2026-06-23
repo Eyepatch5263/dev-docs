@@ -2,8 +2,8 @@
 
 import {
   Activity,
-  Compass ,
-   Database,
+  Compass,
+  Database,
   Globe,
   HelpCircle,
   RotateCcw,
@@ -104,112 +104,127 @@ export default function DnsSimulation() {
   const [isPaused, setIsPaused] = useState(false);
 
   // Cache stores
-  const [resolverCache, setResolverCache] = useState<Record<string, string>>({});
+  const [resolverCache, setResolverCache] = useState<Record<string, string>>(
+    {},
+  );
 
   const logsEndRef = useRef<HTMLDivElement>(null);
 
   // Add event log helper
-  const addLog = useCallback((source: string, target: string, message: string) => {
-    const now = new Date();
-    const timeStr = now.toTimeString().split(" ")[0];
-    setLogs((prev) => [{ timestamp: timeStr, source, target, message }, ...prev]);
-  }, []);
+  const addLog = useCallback(
+    (source: string, target: string, message: string) => {
+      const now = new Date();
+      const timeStr = now.toTimeString().split(" ")[0];
+      setLogs((prev) => [
+        { timestamp: timeStr, source, target, message },
+        ...prev,
+      ]);
+    },
+    [],
+  );
 
   useEffect(() => {
     logsEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [logs]);
 
   // Full Cold Cache Resolution Steps:
-  const getColdSteps = useCallback(() => [
-    {
-      source: "client" as const,
-      target: "resolver" as const,
-      color: "#3b82f6", // Blue
-      message: `Browser sends query: "Resolve ${domain}" to Recursive Resolver.`,
-    },
-    {
-      source: "resolver" as const,
-      target: "root" as const,
-      color: "#a855f7", // Purple
-      message: `Resolver queries Root Server: "Where is ${domain}?"`,
-    },
-    {
-      source: "root" as const,
-      target: "resolver" as const,
-      color: "#eab308", // Yellow
-      message: 'Root Server replies: "I do not know, but here is the IP for the .com TLD Server."',
-    },
-    {
-      source: "resolver" as const,
-      target: "tld" as const,
-      color: "#a855f7", // Purple
-      message: `Resolver queries .com TLD Server: "Where is ${domain}?"`,
-    },
-    {
-      source: "tld" as const,
-      target: "resolver" as const,
-      color: "#eab308", // Yellow
-      message: `TLD Server replies: "Refer to Authoritative Name Server for example.com."`,
-    },
-    {
-      source: "resolver" as const,
-      target: "auth" as const,
-      color: "#a855f7", // Purple
-      message: `Resolver queries Authoritative Name Server: "What is the record for ${domain}?"`,
-    },
-    {
-      source: "auth" as const,
-      target: "resolver" as const,
-      color: "#eab308", // Yellow
-      message: `Authoritative Server answers with record: ${
-        domain === "api.example.com"
-          ? "A 93.184.216.34"
-          : domain === "blog.example.com"
-            ? "CNAME cdn.cloudflare.net"
-            : "MX 10 mail.protonmail.ch"
-      }.`,
-    },
-    {
-      source: "resolver" as const,
-      target: "client" as const,
-      color: "#10b981", // Emerald
-      message: `Resolver returns the IP / Record back to the Browser, caching the result.`,
-    },
-    {
-      source: "client" as const,
-      target: "web" as const,
-      color: "#ec4899", // Pink
-      message: `Browser establishes TCP connection to Web Server at 93.184.216.34 and requests page.`,
-    },
-  ], [domain]);
+  const getColdSteps = useCallback(
+    () => [
+      {
+        source: "client" as const,
+        target: "resolver" as const,
+        color: "#3b82f6", // Blue
+        message: `Browser sends query: "Resolve ${domain}" to Recursive Resolver.`,
+      },
+      {
+        source: "resolver" as const,
+        target: "root" as const,
+        color: "#a855f7", // Purple
+        message: `Resolver queries Root Server: "Where is ${domain}?"`,
+      },
+      {
+        source: "root" as const,
+        target: "resolver" as const,
+        color: "#eab308", // Yellow
+        message:
+          'Root Server replies: "I do not know, but here is the IP for the .com TLD Server."',
+      },
+      {
+        source: "resolver" as const,
+        target: "tld" as const,
+        color: "#a855f7", // Purple
+        message: `Resolver queries .com TLD Server: "Where is ${domain}?"`,
+      },
+      {
+        source: "tld" as const,
+        target: "resolver" as const,
+        color: "#eab308", // Yellow
+        message: `TLD Server replies: "Refer to Authoritative Name Server for example.com."`,
+      },
+      {
+        source: "resolver" as const,
+        target: "auth" as const,
+        color: "#a855f7", // Purple
+        message: `Resolver queries Authoritative Name Server: "What is the record for ${domain}?"`,
+      },
+      {
+        source: "auth" as const,
+        target: "resolver" as const,
+        color: "#eab308", // Yellow
+        message: `Authoritative Server answers with record: ${
+          domain === "api.example.com"
+            ? "A 93.184.216.34"
+            : domain === "blog.example.com"
+              ? "CNAME cdn.cloudflare.net"
+              : "MX 10 mail.protonmail.ch"
+        }.`,
+      },
+      {
+        source: "resolver" as const,
+        target: "client" as const,
+        color: "#10b981", // Emerald
+        message: `Resolver returns the IP / Record back to the Browser, caching the result.`,
+      },
+      {
+        source: "client" as const,
+        target: "web" as const,
+        color: "#ec4899", // Pink
+        message: `Browser establishes TCP connection to Web Server at 93.184.216.34 and requests page.`,
+      },
+    ],
+    [domain],
+  );
 
   // Warm Cache (Hit) Resolution Steps:
-  const getWarmSteps = useCallback(() => [
-    {
-      source: "client" as const,
-      target: "resolver" as const,
-      color: "#3b82f6",
-      message: `Browser queries: "Resolve ${domain}" to Recursive Resolver.`,
-    },
-    {
-      source: "resolver" as const,
-      target: "client" as const,
-      color: "#10b981",
-      message: `Resolver CACHE HIT! Instantly returns cached record: ${
-        domain === "api.example.com"
-          ? "A 93.184.216.34"
-          : domain === "blog.example.com"
-            ? "CNAME cdn.cloudflare.net"
-            : "MX 10 mail.protonmail.ch"
-      } (TTL Remaining: 2985s).`,
-    },
-    {
-      source: "client" as const,
-      target: "web" as const,
-      color: "#ec4899",
-      message: `Browser establishes connection to Web Server using cached address.`,
-    },
-  ], [domain]);
+  const getWarmSteps = useCallback(
+    () => [
+      {
+        source: "client" as const,
+        target: "resolver" as const,
+        color: "#3b82f6",
+        message: `Browser queries: "Resolve ${domain}" to Recursive Resolver.`,
+      },
+      {
+        source: "resolver" as const,
+        target: "client" as const,
+        color: "#10b981",
+        message: `Resolver CACHE HIT! Instantly returns cached record: ${
+          domain === "api.example.com"
+            ? "A 93.184.216.34"
+            : domain === "blog.example.com"
+              ? "CNAME cdn.cloudflare.net"
+              : "MX 10 mail.protonmail.ch"
+        } (TTL Remaining: 2985s).`,
+      },
+      {
+        source: "client" as const,
+        target: "web" as const,
+        color: "#ec4899",
+        message: `Browser establishes connection to Web Server using cached address.`,
+      },
+    ],
+    [domain],
+  );
 
   const steps = useCache ? getWarmSteps() : getColdSteps();
 
@@ -219,7 +234,11 @@ export default function DnsSimulation() {
     setIsPaused(false);
     setStepIndex(-1);
     setLogs([]);
-    addLog("system", "system", "Simulation sandbox reset. Ready for domain queries.");
+    addLog(
+      "system",
+      "system",
+      "Simulation sandbox reset. Ready for domain queries.",
+    );
   };
 
   const startSimulation = () => {
@@ -246,7 +265,9 @@ export default function DnsSimulation() {
     const timer = setTimeout(() => {
       if (activePacket.progress < 100) {
         // Increment progress along the wire based on chosen speed
-        setActivePacket((prev) => prev ? { ...prev, progress: prev.progress + 6 * speed } : null);
+        setActivePacket((prev) =>
+          prev ? { ...prev, progress: prev.progress + 6 * speed } : null,
+        );
       } else {
         // Move to the next step
         const nextIdx = stepIndex + 1;
@@ -265,7 +286,8 @@ export default function DnsSimulation() {
           if (!useCache && nextIdx === 7) {
             setResolverCache((prev) => ({
               ...prev,
-              [domain]: domain === "api.example.com" ? "93.184.216.34" : "CNAME / MX",
+              [domain]:
+                domain === "api.example.com" ? "93.184.216.34" : "CNAME / MX",
             }));
           }
         } else {
@@ -279,7 +301,16 @@ export default function DnsSimulation() {
     }, 40);
 
     return () => clearTimeout(timer);
-  }, [activePacket, stepIndex, steps, addLog, useCache, domain, speed, isPaused]);
+  }, [
+    activePacket,
+    stepIndex,
+    steps,
+    addLog,
+    useCache,
+    domain,
+    speed,
+    isPaused,
+  ]);
 
   // Coordinate mapping for nodes (scaled relative to container size)
   const NODE_COORDINATES = {
@@ -293,7 +324,6 @@ export default function DnsSimulation() {
 
   return (
     <div className="w-full my-8 p-6 rounded-2xl border border-zinc-200 dark:border-zinc-800/80 bg-white dark:bg-zinc-950/85 backdrop-blur-md shadow-2xl flex flex-col gap-6 select-none text-zinc-900 dark:text-zinc-100">
-      
       {/* Title Header */}
       <div className="flex flex-col md:flex-row items-start md:items-center justify-between border-b border-zinc-200 dark:border-zinc-800/60 pb-4 gap-4">
         <div>
@@ -301,7 +331,8 @@ export default function DnsSimulation() {
             Recursive vs. Iterative DNS Simulation
           </h3>
           <p className="text-xs text-zinc-600 dark:text-zinc-400">
-            Visualize the full path of recursive lookups traversing the DNS Root, TLD, and Authoritative servers.
+            Visualize the full path of recursive lookups traversing the DNS
+            Root, TLD, and Authoritative servers.
           </p>
         </div>
         <div className="flex items-center gap-2">
@@ -323,7 +354,13 @@ export default function DnsSimulation() {
             Query Domain
           </span>
           <div className="flex bg-zinc-100 dark:bg-zinc-950 p-1 rounded-lg border border-zinc-200 dark:border-zinc-850">
-            {(["api.example.com", "blog.example.com", "mail.example.com"] as DnsDomain[]).map((d) => (
+            {(
+              [
+                "api.example.com",
+                "blog.example.com",
+                "mail.example.com",
+              ] as DnsDomain[]
+            ).map((d) => (
               <button
                 key={d}
                 type="button"
@@ -352,7 +389,9 @@ export default function DnsSimulation() {
               disabled={isProcessing}
               onClick={() => setUseCache(false)}
               className={`px-3 py-1.5 rounded-md text-[10.5px] font-bold transition-all cursor-pointer ${
-                !useCache ? "bg-red-500/15 text-red-650 dark:text-red-400 border border-red-500/20" : "bg-transparent text-zinc-500 dark:text-zinc-400"
+                !useCache
+                  ? "bg-red-500/15 text-red-650 dark:text-red-400 border border-red-500/20"
+                  : "bg-transparent text-zinc-500 dark:text-zinc-400"
               }`}
             >
               Cold Cache (Query All)
@@ -362,7 +401,9 @@ export default function DnsSimulation() {
               disabled={isProcessing}
               onClick={() => setUseCache(true)}
               className={`px-3 py-1.5 rounded-md text-[10.5px] font-bold transition-all cursor-pointer ${
-                useCache ? "bg-emerald-500/15 text-emerald-650 dark:text-emerald-400 border border-emerald-500/20" : "bg-transparent text-zinc-500 dark:text-zinc-400"
+                useCache
+                  ? "bg-emerald-500/15 text-emerald-650 dark:text-emerald-400 border border-emerald-500/20"
+                  : "bg-transparent text-zinc-500 dark:text-zinc-400"
               }`}
             >
               Warm Cache (Hit)
@@ -423,13 +464,10 @@ export default function DnsSimulation() {
 
       {/* Grid Container */}
       <div className="flex flex-col lg:flex-row gap-6">
-        
         {/* Left Column: Visual Canvas & Logs */}
         <div className="flex-1 flex flex-col gap-4">
-          
-           {/* Canvas */}
+          {/* Canvas */}
           <div className="relative h-[600px] w-full rounded-xl border border-zinc-200 dark:border-zinc-800 bg-zinc-50/20 dark:bg-black/60 overflow-hidden">
-            
             {/* Grid Mask */}
             <div className="absolute inset-0 bg-[linear-gradient(to_right,#e4e4e7_1px,transparent_1px),linear-gradient(to_bottom,#e4e4e7_1px,transparent_1px)] dark:bg-[linear-gradient(to_right,#18181b_1px,transparent_1px),linear-gradient(to_bottom,#18181b_1px,transparent_1px)] bg-size-[16px_16px] mask-[radial-gradient(ellipse_60%_50%_at_50%_50%,#000_70%,transparent_100%)] opacity-35 pointer-events-none" />
 
@@ -437,15 +475,51 @@ export default function DnsSimulation() {
             <svg className="absolute inset-0 w-full h-full pointer-events-none">
               <title>DNS Wire Connections</title>
               {/* Client - Resolver */}
-              <line x1="15%" y1="18%" x2="15%" y2="68%" className="stroke-zinc-200 dark:stroke-zinc-800" strokeWidth={2} />
+              <line
+                x1="15%"
+                y1="18%"
+                x2="15%"
+                y2="68%"
+                className="stroke-zinc-200 dark:stroke-zinc-800"
+                strokeWidth={2}
+              />
               {/* Resolver - Root */}
-              <line x1="15%" y1="68%" x2="80%" y2="18%" className="stroke-zinc-200 dark:stroke-zinc-800" strokeWidth={2} />
+              <line
+                x1="15%"
+                y1="68%"
+                x2="80%"
+                y2="18%"
+                className="stroke-zinc-200 dark:stroke-zinc-800"
+                strokeWidth={2}
+              />
               {/* Resolver - TLD */}
-              <line x1="15%" y1="68%" x2="80%" y2="50%" className="stroke-zinc-200 dark:stroke-zinc-800" strokeWidth={2} />
+              <line
+                x1="15%"
+                y1="68%"
+                x2="80%"
+                y2="50%"
+                className="stroke-zinc-200 dark:stroke-zinc-800"
+                strokeWidth={2}
+              />
               {/* Resolver - Auth */}
-              <line x1="15%" y1="68%" x2="80%" y2="82%" className="stroke-zinc-200 dark:stroke-zinc-800" strokeWidth={2} />
+              <line
+                x1="15%"
+                y1="68%"
+                x2="80%"
+                y2="82%"
+                className="stroke-zinc-200 dark:stroke-zinc-800"
+                strokeWidth={2}
+              />
               {/* Client - Web */}
-              <line x1="15%" y1="18%" x2="45%" y2="68%" className="stroke-zinc-300 dark:stroke-zinc-800" strokeWidth={1.5} strokeDasharray="4 4" />
+              <line
+                x1="15%"
+                y1="18%"
+                x2="45%"
+                y2="68%"
+                className="stroke-zinc-300 dark:stroke-zinc-800"
+                strokeWidth={1.5}
+                strokeDasharray="4 4"
+              />
             </svg>
 
             {/* Active Packet Animation */}
@@ -466,8 +540,11 @@ export default function DnsSimulation() {
 
             {/* Render Actors */}
             {Object.entries(NODE_COORDINATES).map(([id, coord]) => {
-              const info = DNS_ACTOR_INFO[id as keyof typeof DNS_ACTOR_INFO] || { title: "Web Server", desc: "" };
-              const isActive = activePacket?.source === id || activePacket?.target === id;
+              const info = DNS_ACTOR_INFO[
+                id as keyof typeof DNS_ACTOR_INFO
+              ] || { title: "Web Server", desc: "" };
+              const isActive =
+                activePacket?.source === id || activePacket?.target === id;
 
               return (
                 <div
@@ -504,7 +581,6 @@ export default function DnsSimulation() {
                 </div>
               );
             })}
-
           </div>
 
           {/* Decisions & Logs Console */}
@@ -521,8 +597,13 @@ export default function DnsSimulation() {
                 </div>
               ) : (
                 logs.map((log, index) => (
-                  <div key={index} className="flex gap-2 text-zinc-700 dark:text-zinc-400">
-                    <span className="text-zinc-400 dark:text-zinc-600">{log.timestamp}</span>
+                  <div
+                    key={index}
+                    className="flex gap-2 text-zinc-700 dark:text-zinc-400"
+                  >
+                    <span className="text-zinc-400 dark:text-zinc-600">
+                      {log.timestamp}
+                    </span>
                     <span className="text-purple-650 dark:text-purple-400 font-extrabold uppercase tracking-wide text-[8px] border border-purple-200 dark:border-purple-900/30 px-1 rounded bg-purple-50 dark:bg-purple-950/15">
                       {log.source.toUpperCase()} ➔ {log.target.toUpperCase()}
                     </span>
@@ -533,12 +614,10 @@ export default function DnsSimulation() {
               <div ref={logsEndRef} />
             </div>
           </div>
-
         </div>
 
         {/* Right Column: Zone File & Concept Details */}
         <div className="w-full lg:w-[360px] shrink-0 flex flex-col gap-4 bg-zinc-50 dark:bg-zinc-900/30 border border-zinc-200 dark:border-zinc-800/80 p-5 rounded-xl">
-          
           {/* Zone File Preview */}
           <div className="flex-1 flex flex-col bg-zinc-50 dark:bg-zinc-950 rounded-xl border border-zinc-200 dark:border-zinc-850 overflow-hidden min-h-[220px]">
             <div className="bg-zinc-100 dark:bg-zinc-900 px-3 py-1.5 border-b border-zinc-200 dark:border-zinc-850 flex items-center justify-between">
@@ -557,13 +636,17 @@ export default function DnsSimulation() {
           {/* Actor Info Card */}
           <div className="p-4 rounded-xl bg-white dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-850 space-y-2">
             <div className="flex items-center gap-2">
-              <span className="text-xs font-bold text-zinc-800 dark:text-zinc-200">DNS Resolution Rules</span>
+              <span className="text-xs font-bold text-zinc-800 dark:text-zinc-200">
+                DNS Resolution Rules
+              </span>
             </div>
             <p className="text-[10px] text-zinc-600 dark:text-zinc-400 leading-relaxed">
-              Standard resolutions perform **Iterative Queries** (Resolver asks servers, gets a referral, queries the next server). The link from Client to Resolver is a **Recursive Query** (client asks once, waits for the final answer).
+              Standard resolutions perform **Iterative Queries** (Resolver asks
+              servers, gets a referral, queries the next server). The link from
+              Client to Resolver is a **Recursive Query** (client asks once,
+              waits for the final answer).
             </p>
           </div>
-
         </div>
       </div>
     </div>

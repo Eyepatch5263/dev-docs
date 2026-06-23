@@ -10,6 +10,7 @@ import { Quiz } from "@/components/Quiz";
 import DnsSimulationWrapper from "@/components/simulations/system-design/dns/dns-simulation-wrapper";
 import SimulationDashboard from "@/components/simulations/system-design/load-balancing/simulation-dashboard";
 import { TableOfContents } from "@/components/TableOfContents";
+import { TTSPlayer } from "@/components/TTSPlayer";
 import { Separator } from "@/components/ui/separator";
 import {
   discoverTopics,
@@ -259,16 +260,27 @@ export default async function DocPage({ params }: DocPageProps) {
             <h1 className="text-2xl md:text-3xl font-bold tracking-tight">
               {doc.title}
             </h1>
-            {hasSimulation && (
-              <Link 
-                href={`/docs/${topic}/${slugPath}/simulation`}
-                className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl text-black bg-purple-650 dark:bg-black dark:text-white hover:bg-white dark:hover:bg-white dark:hover:text-black hover:text-black text-xs font-bold shadow-lg shadow-purple-900/10 transition-all shrink-0 w-fit cursor-pointer"
-              >
-                <Activity className="w-3.5 h-3.5" />
-                <span>View Sandbox Simulation</span>
-              </Link>
-            )}
+            <div className="flex gap-4">
+              {hasSimulation && (
+                <Link
+                  href={`/docs/${topic}/${slugPath}/simulation`}
+                  className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl text-black bg-purple-650 dark:bg-black dark:text-white hover:bg-white dark:hover:bg-white dark:hover:text-black hover:text-black text-xs font-bold shadow-lg shadow-purple-900/10 transition-all shrink-0 w-fit cursor-pointer"
+                >
+                  <Activity className="w-3.5 h-3.5" />
+                  <span>View Sandbox Simulation</span>
+                </Link>
+              )}
+
+              <div className="flex flex-wrap items-center gap-3">
+                <TTSPlayer topic={topic} slug={slugPath} title={doc.title} />
+              </div>
+            </div>
+
+
+
           </div>
+
+
           {doc.description && (
             <p className="text-base md:text-lg text-muted-foreground">
               {doc.description}

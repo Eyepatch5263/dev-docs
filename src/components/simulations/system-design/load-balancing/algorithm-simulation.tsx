@@ -1,12 +1,6 @@
 "use client";
 
-import {
-  Pause,
-  Play,
-  RotateCcw,
-  Server,
-  User,
-} from "lucide-react";
+import { Pause, Play, RotateCcw, Server, User } from "lucide-react";
 import { useCallback, useEffect, useRef, useState } from "react";
 
 interface Packet {
@@ -458,7 +452,7 @@ export default function AlgorithmSimulation() {
           <p className="text-xs text-zinc-650 dark:text-zinc-400">
             Compare routing logic across Server pools in real-time. Trigger
             bursts to inspect pattern distribution.
-          </p>  
+          </p>
         </div>
         <div className="flex justify-end items-center gap-2">
           <button
@@ -602,8 +596,7 @@ export default function AlgorithmSimulation() {
 
             {/* Render Clients */}
             {CLIENTS.map((client, idx) => {
-              const yPos =
-                idx === 0 ? "25%" : idx === 1 ? "50%" : "75%";
+              const yPos = idx === 0 ? "25%" : idx === 1 ? "50%" : "75%";
               const isActive = activeClientId === client.id;
               return (
                 <div
@@ -646,8 +639,7 @@ export default function AlgorithmSimulation() {
 
             {/* Render Servers */}
             {servers.map((s, idx) => {
-              const yPos =
-                idx === 0 ? "25%" : idx === 1 ? "50%" : "75%";
+              const yPos = idx === 0 ? "25%" : idx === 1 ? "50%" : "75%";
               return (
                 <div
                   key={s.id}
@@ -680,7 +672,9 @@ export default function AlgorithmSimulation() {
                     </div>
                     <div className="flex justify-between text-zinc-550 dark:text-zinc-500">
                       <span>CPU:</span>
-                      <span className="text-zinc-605 dark:text-zinc-400 font-mono">{s.cpu}%</span>
+                      <span className="text-zinc-605 dark:text-zinc-400 font-mono">
+                        {s.cpu}%
+                      </span>
                     </div>
                   </div>
                 </div>
@@ -796,8 +790,13 @@ export default function AlgorithmSimulation() {
                 </div>
               ) : (
                 logs.map((log, index) => (
-                  <div key={index} className="flex gap-1.5 text-zinc-700 dark:text-zinc-400">
-                    <span className="text-zinc-400 dark:text-zinc-600">{log.timestamp}</span>
+                  <div
+                    key={index}
+                    className="flex gap-1.5 text-zinc-700 dark:text-zinc-400"
+                  >
+                    <span className="text-zinc-400 dark:text-zinc-600">
+                      {log.timestamp}
+                    </span>
                     <span
                       className={`font-bold shrink-0 ${
                         log.type === "info"
@@ -829,12 +828,20 @@ export default function AlgorithmSimulation() {
             </p>
             <div className="grid grid-cols-1 gap-1 text-[10.5px] pt-1">
               <div>
-                <span className="font-bold text-green-600 dark:text-green-400 block uppercase tracking-wider text-[8px] mb-0.5">Pros</span>
-                <span className="text-zinc-700 dark:text-zinc-300">{activeAlgoDesc.pros}</span>
+                <span className="font-bold text-green-600 dark:text-green-400 block uppercase tracking-wider text-[8px] mb-0.5">
+                  Pros
+                </span>
+                <span className="text-zinc-700 dark:text-zinc-300">
+                  {activeAlgoDesc.pros}
+                </span>
               </div>
               <div className="mt-1">
-                <span className="font-bold text-red-600 dark:text-red-400 block uppercase tracking-wider text-[8px] mb-0.5">Cons</span>
-                <span className="text-zinc-700 dark:text-zinc-300">{activeAlgoDesc.cons}</span>
+                <span className="font-bold text-red-600 dark:text-red-400 block uppercase tracking-wider text-[8px] mb-0.5">
+                  Cons
+                </span>
+                <span className="text-zinc-700 dark:text-zinc-300">
+                  {activeAlgoDesc.cons}
+                </span>
               </div>
             </div>
           </div>

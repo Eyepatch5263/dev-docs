@@ -74,7 +74,9 @@ const ClientNode = () => (
       </span>
     </div>
     <div className="space-y-1">
-      <div className="text-xs font-bold text-zinc-800 dark:text-zinc-100">Web Browser</div>
+      <div className="text-xs font-bold text-zinc-800 dark:text-zinc-100">
+        Web Browser
+      </div>
       <div className="text-[9px] font-mono text-zinc-500">
         IP: 198.51.100.42
       </div>
@@ -104,7 +106,9 @@ const DnsNode = () => (
       </span>
     </div>
     <div className="space-y-1">
-      <div className="text-xs font-bold text-zinc-800 dark:text-zinc-100">Anycast Routing</div>
+      <div className="text-xs font-bold text-zinc-800 dark:text-zinc-100">
+        Anycast Routing
+      </div>
       <div className="text-[9px] font-mono text-zinc-500">
         Resolves: 192.0.2.1
       </div>
@@ -128,10 +132,14 @@ const L4Node = ({ data }: L4NodeProps) => (
       </span>
     </div>
     <div className="space-y-1 text-left">
-      <div className="text-xs font-bold text-zinc-800 dark:text-zinc-100">IP/Port Level</div>
+      <div className="text-xs font-bold text-zinc-800 dark:text-zinc-100">
+        IP/Port Level
+      </div>
       <div className="flex justify-between text-[9px] text-zinc-500 font-mono">
         <span>Conns:</span>
-        <span className="text-amber-600 dark:text-amber-500 font-bold">{data.connections}</span>
+        <span className="text-amber-600 dark:text-amber-500 font-bold">
+          {data.connections}
+        </span>
       </div>
     </div>
     <Handle type="target" position={Position.Left} style={{ opacity: 0 }} />
@@ -153,7 +161,9 @@ const L7Node = ({ data }: L7NodeProps) => (
       </span>
     </div>
     <div className="space-y-1 text-left">
-      <div className="text-xs font-bold text-zinc-800 dark:text-zinc-100">{data.type} Proxy</div>
+      <div className="text-xs font-bold text-zinc-800 dark:text-zinc-100">
+        {data.type} Proxy
+      </div>
       <div className="text-[9px] text-zinc-500 flex items-center gap-1">
         <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
         <span>SSL Terminated</span>
@@ -183,7 +193,9 @@ const AppNode = ({ data }: AppNodeProps) => (
       </div>
     </div>
     <div className="space-y-1 text-left">
-      <div className="text-xs font-bold text-zinc-800 dark:text-zinc-100">{data.label}</div>
+      <div className="text-xs font-bold text-zinc-800 dark:text-zinc-100">
+        {data.label}
+      </div>
       <div className="space-y-0.5">
         <div className="flex items-center justify-between text-[9px] text-zinc-500">
           <span className="flex items-center gap-1">
@@ -199,7 +211,9 @@ const AppNode = ({ data }: AppNodeProps) => (
           <span className="flex items-center gap-1">
             <Database className="w-2.5 h-2.5" /> Requests:
           </span>
-          <span className="font-mono text-zinc-700 dark:text-zinc-300">{data.requests}</span>
+          <span className="font-mono text-zinc-700 dark:text-zinc-300">
+            {data.requests}
+          </span>
         </div>
       </div>
     </div>
@@ -1195,7 +1209,9 @@ export default function NetworkSimulation() {
                       key={index}
                       className="flex gap-2 text-zinc-700 dark:text-zinc-400 border-b border-zinc-100 dark:border-zinc-900 pb-1.5"
                     >
-                      <span className="text-zinc-400 dark:text-zinc-600">{log.timestamp}</span>
+                      <span className="text-zinc-400 dark:text-zinc-600">
+                        {log.timestamp}
+                      </span>
                       <span
                         className={`font-bold shrink-0 ${
                           log.tier === "Client"
