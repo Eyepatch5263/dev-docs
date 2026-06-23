@@ -53,7 +53,7 @@ export function Header({
       {/* Responsive SVG Curved Background & Border */}
       <div className="absolute inset-0 z-[-1] pointer-events-none">
         <svg
-          className="w-full h-full text-zinc-800/60 fill-black/95 filter drop-shadow-[0_4px_16px_rgba(0,0,0,0.6)]"
+          className="w-full h-full text-zinc-200 dark:text-zinc-800/60 fill-white dark:fill-black/95 filter drop-shadow-[0_4px_12px_rgba(0,0,0,0.05)] dark:drop-shadow-[0_4px_16px_rgba(0,0,0,0.6)]"
           viewBox="0 0 1440 64"
           preserveAspectRatio="none"
         >
@@ -75,11 +75,11 @@ export function Header({
             href="/"
             className="flex items-center gap-2.5 group transition-opacity hover:opacity-90"
           >
-            {/* Custom 4-pointed Sparkle/Star SVG Logo */}
+            {/* Custom Logo with Invert support in light mode */}
             <img
               src="/explain.png"
               alt="Logo"
-              className="h-5.5 w-10 filter drop-shadow-[0_0_4px_rgba(255,255,255,0.15)]"
+              className="h-5.5 w-10 filter invert dark:invert-0 drop-shadow-[0_0_4px_rgba(0,0,0,0.1)] dark:drop-shadow-[0_0_4px_rgba(255,255,255,0.15)]"
             />
           </Link>
         </div>
@@ -95,12 +95,14 @@ export function Header({
                 key={link.label}
                 href={link.href}
                 className={`relative flex items-center h-full text-[13px] font-semibold transition-colors ${
-                  isActive ? "text-white" : "text-zinc-400 hover:text-white"
+                  isActive
+                    ? "text-zinc-950 dark:text-white"
+                    : "text-zinc-500 dark:text-zinc-400 hover:text-zinc-950 dark:hover:text-white"
                 }`}
               >
                 <span>{link.label}</span>
                 {isActive && (
-                  <span className="absolute bottom-2 left-0 right-0 h-[2.5px] bg-zinc-200 rounded-full shadow-[0_0_8px_rgba(255,255,255,0.35)]" />
+                  <span className="absolute bottom-2 left-0 right-0 h-[2.5px] bg-zinc-800 dark:bg-zinc-200 rounded-full shadow-[0_0_8px_rgba(0,0,0,0.12)] dark:shadow-[0_0_8px_rgba(255,255,255,0.35)]" />
                 )}
               </Link>
             );
