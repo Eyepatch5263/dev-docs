@@ -260,9 +260,9 @@ export default async function DocPage({ params }: DocPageProps) {
               {doc.title}
             </h1>
             {hasSimulation && (
-              <Link
+              <Link 
                 href={`/docs/${topic}/${slugPath}/simulation`}
-                className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-purple-650 hover:bg-white hover:text-black text-white text-xs font-bold shadow-lg shadow-purple-900/10 transition-all shrink-0 w-fit cursor-pointer"
+                className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl text-black bg-purple-650 dark:bg-black dark:text-white hover:bg-white dark:hover:bg-white dark:hover:text-black hover:text-black text-xs font-bold shadow-lg shadow-purple-900/10 transition-all shrink-0 w-fit cursor-pointer"
               >
                 <Activity className="w-3.5 h-3.5" />
                 <span>View Sandbox Simulation</span>

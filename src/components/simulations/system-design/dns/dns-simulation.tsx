@@ -292,15 +292,15 @@ export default function DnsSimulation() {
   };
 
   return (
-    <div className="w-full my-8 p-6 rounded-2xl border border-zinc-800/80 bg-zinc-950/85 backdrop-blur-md shadow-2xl flex flex-col gap-6 select-none text-zinc-100">
+    <div className="w-full my-8 p-6 rounded-2xl border border-zinc-200 dark:border-zinc-800/80 bg-white dark:bg-zinc-950/85 backdrop-blur-md shadow-2xl flex flex-col gap-6 select-none text-zinc-900 dark:text-zinc-100">
       
       {/* Title Header */}
-      <div className="flex flex-col md:flex-row items-start md:items-center justify-between border-b border-zinc-800/60 pb-4 gap-4">
+      <div className="flex flex-col md:flex-row items-start md:items-center justify-between border-b border-zinc-200 dark:border-zinc-800/60 pb-4 gap-4">
         <div>
-          <h3 className="font-bold text-lg text-zinc-100 flex items-center gap-2">
+          <h3 className="font-bold text-lg text-zinc-900 dark:text-zinc-100 flex items-center gap-2">
             Recursive vs. Iterative DNS Simulation
           </h3>
-          <p className="text-xs text-zinc-400">
+          <p className="text-xs text-zinc-600 dark:text-zinc-400">
             Visualize the full path of recursive lookups traversing the DNS Root, TLD, and Authoritative servers.
           </p>
         </div>
@@ -308,7 +308,7 @@ export default function DnsSimulation() {
           <button
             type="button"
             onClick={resetSimulation}
-            className="flex items-center gap-1 px-3 py-1.5 rounded-xl border border-zinc-800 hover:border-zinc-700 bg-zinc-900/60 hover:bg-zinc-900 text-zinc-300 text-xs font-bold transition-all cursor-pointer"
+            className="flex items-center gap-1 px-3 py-1.5 rounded-xl border border-zinc-200 dark:border-zinc-800 hover:bg-zinc-50 dark:hover:bg-zinc-900/80 bg-zinc-50 dark:bg-zinc-900/60 text-zinc-700 dark:text-zinc-300 text-xs font-bold transition-all cursor-pointer"
           >
             <RotateCcw className="w-3.5 h-3.5" /> Reset
           </button>
@@ -316,13 +316,13 @@ export default function DnsSimulation() {
       </div>
 
       {/* Controller Controls */}
-      <div className="flex flex-wrap items-center gap-4 bg-zinc-900/30 border border-zinc-800/80 p-4 rounded-xl">
+      <div className="flex flex-wrap items-center gap-4 bg-zinc-50 dark:bg-zinc-900/30 border border-zinc-200 dark:border-zinc-800/80 p-4 rounded-xl">
         {/* Domain Selector */}
         <div className="flex flex-col gap-1.5">
-          <span className="text-[10px] font-bold text-zinc-500 uppercase tracking-wider">
+          <span className="text-[10px] font-bold text-zinc-550 dark:text-zinc-500 uppercase tracking-wider">
             Query Domain
           </span>
-          <div className="flex bg-zinc-950 p-1 rounded-lg border border-zinc-850">
+          <div className="flex bg-zinc-100 dark:bg-zinc-950 p-1 rounded-lg border border-zinc-200 dark:border-zinc-850">
             {(["api.example.com", "blog.example.com", "mail.example.com"] as DnsDomain[]).map((d) => (
               <button
                 key={d}
@@ -331,8 +331,8 @@ export default function DnsSimulation() {
                 onClick={() => setDomain(d)}
                 className={`px-3 py-1.5 rounded-md text-[10.5px] font-bold transition-all cursor-pointer ${
                   domain === d
-                    ? "bg-zinc-100 text-zinc-950"
-                    : "bg-transparent text-zinc-400 hover:text-zinc-200 disabled:opacity-50"
+                    ? "bg-white dark:bg-zinc-100 text-zinc-950 shadow-sm"
+                    : "bg-transparent text-zinc-500 hover:text-zinc-800 dark:text-zinc-400 dark:hover:text-zinc-200 disabled:opacity-50"
                 }`}
               >
                 {d}
@@ -343,16 +343,16 @@ export default function DnsSimulation() {
 
         {/* Cache Mode Toggle */}
         <div className="flex flex-col gap-1.5">
-          <span className="text-[10px] font-bold text-zinc-500 uppercase tracking-wider">
+          <span className="text-[10px] font-bold text-zinc-550 dark:text-zinc-500 uppercase tracking-wider">
             Resolver Cache Tactic
           </span>
-          <div className="flex bg-zinc-950 p-1 rounded-lg border border-zinc-850">
+          <div className="flex bg-zinc-100 dark:bg-zinc-950 p-1 rounded-lg border border-zinc-200 dark:border-zinc-850">
             <button
               type="button"
               disabled={isProcessing}
               onClick={() => setUseCache(false)}
               className={`px-3 py-1.5 rounded-md text-[10.5px] font-bold transition-all cursor-pointer ${
-                !useCache ? "bg-red-500/15 text-red-400 border border-red-500/20" : "bg-transparent text-zinc-400"
+                !useCache ? "bg-red-500/15 text-red-650 dark:text-red-400 border border-red-500/20" : "bg-transparent text-zinc-500 dark:text-zinc-400"
               }`}
             >
               Cold Cache (Query All)
@@ -362,7 +362,7 @@ export default function DnsSimulation() {
               disabled={isProcessing}
               onClick={() => setUseCache(true)}
               className={`px-3 py-1.5 rounded-md text-[10.5px] font-bold transition-all cursor-pointer ${
-                useCache ? "bg-emerald-500/15 text-emerald-400 border border-emerald-500/20" : "bg-transparent text-zinc-400"
+                useCache ? "bg-emerald-500/15 text-emerald-650 dark:text-emerald-400 border border-emerald-500/20" : "bg-transparent text-zinc-500 dark:text-zinc-400"
               }`}
             >
               Warm Cache (Hit)
@@ -372,10 +372,10 @@ export default function DnsSimulation() {
 
         {/* Speed Control */}
         <div className="flex flex-col gap-1.5">
-          <span className="text-[10px] font-bold text-zinc-500 uppercase tracking-wider">
+          <span className="text-[10px] font-bold text-zinc-550 dark:text-zinc-500 uppercase tracking-wider">
             Simulation Speed
           </span>
-          <div className="flex bg-zinc-950 p-1 rounded-lg border border-zinc-850">
+          <div className="flex bg-zinc-100 dark:bg-zinc-950 p-1 rounded-lg border border-zinc-200 dark:border-zinc-850">
             {([0.5, 1, 2] as const).map((s) => (
               <button
                 key={s}
@@ -383,8 +383,8 @@ export default function DnsSimulation() {
                 onClick={() => setSpeed(s)}
                 className={`px-3 py-1.5 rounded-md text-[10.5px] font-bold transition-all cursor-pointer ${
                   speed === s
-                    ? "bg-zinc-100 text-zinc-950"
-                    : "bg-transparent text-zinc-400 hover:text-zinc-200"
+                    ? "bg-white dark:bg-zinc-100 text-zinc-950 shadow-sm"
+                    : "bg-transparent text-zinc-500 hover:text-zinc-800 dark:text-zinc-400 dark:hover:text-zinc-200"
                 }`}
               >
                 {s}x
@@ -403,7 +403,7 @@ export default function DnsSimulation() {
             className={`py-2.5 px-4 rounded-xl border font-semibold text-xs transition-all flex items-center gap-1.5 cursor-pointer ${
               isPaused
                 ? "bg-amber-650 hover:bg-amber-500 border-amber-600 text-white shadow-lg shadow-amber-900/15"
-                : "bg-zinc-900 hover:bg-zinc-850 border-zinc-800 text-zinc-300"
+                : "bg-white border-zinc-200 hover:bg-zinc-50 dark:bg-zinc-900 dark:hover:bg-zinc-850 dark:border-zinc-800 text-zinc-700 dark:text-zinc-300"
             }`}
           >
             {isPaused ? "Resume" : "Pause"}
@@ -415,7 +415,7 @@ export default function DnsSimulation() {
           type="button"
           onClick={startSimulation}
           disabled={isProcessing}
-          className="py-2.5 px-5 rounded-xl bg-white hover:bg-black hover:text-white disabled:bg-zinc-850 disabled:text-zinc-650 font-semibold text-xs text-zinc-900 transition-all flex items-center gap-2 shadow-lg shadow-purple-900/15 cursor-pointer disabled:cursor-not-allowed"
+          className="py-2.5 px-5 rounded-xl bg-zinc-950 dark:bg-white hover:bg-zinc-850 dark:hover:bg-zinc-100 disabled:bg-zinc-100 dark:disabled:bg-zinc-850 disabled:text-zinc-400 dark:disabled:text-zinc-650 font-semibold text-xs text-zinc-50 dark:text-zinc-950 transition-all flex items-center gap-2 shadow-lg shadow-purple-900/15 cursor-pointer disabled:cursor-not-allowed"
         >
           {isProcessing ? "Resolving DNS..." : "Trigger Query"}
         </button>
@@ -428,24 +428,24 @@ export default function DnsSimulation() {
         <div className="flex-1 flex flex-col gap-4">
           
            {/* Canvas */}
-          <div className="relative h-[600px] w-full rounded-xl border border-zinc-800 bg-black/60 overflow-hidden">
+          <div className="relative h-[600px] w-full rounded-xl border border-zinc-200 dark:border-zinc-800 bg-zinc-50/20 dark:bg-black/60 overflow-hidden">
             
             {/* Grid Mask */}
-            <div className="absolute inset-0 bg-[linear-gradient(to_right,#18181b_1px,transparent_1px),linear-gradient(to_bottom,#18181b_1px,transparent_1px)] bg-[size:16px_16px] [mask-image:radial-gradient(ellipse_60%_50%_at_50%_50%,#000_70%,transparent_100%)] opacity-35 pointer-events-none" />
+            <div className="absolute inset-0 bg-[linear-gradient(to_right,#e4e4e7_1px,transparent_1px),linear-gradient(to_bottom,#e4e4e7_1px,transparent_1px)] dark:bg-[linear-gradient(to_right,#18181b_1px,transparent_1px),linear-gradient(to_bottom,#18181b_1px,transparent_1px)] bg-size-[16px_16px] mask-[radial-gradient(ellipse_60%_50%_at_50%_50%,#000_70%,transparent_100%)] opacity-35 pointer-events-none" />
 
             {/* Static Connections (Wires) */}
             <svg className="absolute inset-0 w-full h-full pointer-events-none">
               <title>DNS Wire Connections</title>
               {/* Client - Resolver */}
-              <line x1="15%" y1="18%" x2="15%" y2="68%" stroke="#27272a" strokeWidth={2} />
+              <line x1="15%" y1="18%" x2="15%" y2="68%" className="stroke-zinc-200 dark:stroke-zinc-800" strokeWidth={2} />
               {/* Resolver - Root */}
-              <line x1="15%" y1="68%" x2="80%" y2="18%" stroke="#27272a" strokeWidth={2} />
+              <line x1="15%" y1="68%" x2="80%" y2="18%" className="stroke-zinc-200 dark:stroke-zinc-800" strokeWidth={2} />
               {/* Resolver - TLD */}
-              <line x1="15%" y1="68%" x2="80%" y2="50%" stroke="#27272a" strokeWidth={2} />
+              <line x1="15%" y1="68%" x2="80%" y2="50%" className="stroke-zinc-200 dark:stroke-zinc-800" strokeWidth={2} />
               {/* Resolver - Auth */}
-              <line x1="15%" y1="68%" x2="80%" y2="82%" stroke="#27272a" strokeWidth={2} />
+              <line x1="15%" y1="68%" x2="80%" y2="82%" className="stroke-zinc-200 dark:stroke-zinc-800" strokeWidth={2} />
               {/* Client - Web */}
-              <line x1="15%" y1="18%" x2="45%" y2="68%" stroke="#27272a" strokeWidth={1.5} strokeDasharray="4 4" />
+              <line x1="15%" y1="18%" x2="45%" y2="68%" className="stroke-zinc-300 dark:stroke-zinc-800" strokeWidth={1.5} strokeDasharray="4 4" />
             </svg>
 
             {/* Active Packet Animation */}
@@ -476,28 +476,28 @@ export default function DnsSimulation() {
                   style={{ left: coord.left, top: coord.top }}
                 >
                   <div
-                    className={`w-12 h-12 rounded-full flex items-center justify-center bg-zinc-950 border-2 transition-all shadow-md ${
+                    className={`w-12 h-12 rounded-full flex items-center justify-center bg-white dark:bg-zinc-950 border-2 transition-all shadow-md ${
                       isActive
                         ? "border-purple-400 shadow-purple-500/20 scale-105"
-                        : "border-zinc-800"
+                        : "border-zinc-200 dark:border-zinc-800"
                     }`}
                   >
                     {id === "client" ? (
-                      <User className="w-5 h-5 text-blue-400" />
+                      <User className="w-5 h-5 text-blue-500 dark:text-blue-400" />
                     ) : id === "resolver" ? (
-                      <Activity className="w-5 h-5 text-purple-400" />
+                      <Activity className="w-5 h-5 text-purple-500 dark:text-purple-400" />
                     ) : id === "root" ? (
                       <Globe className="w-5 h-5 text-amber-500" />
                     ) : id === "tld" ? (
                       <Compass className="w-5 h-5 text-yellow-500" />
                     ) : id === "auth" ? (
-                      <Database className="w-5 h-5 text-emerald-400" />
+                      <Database className="w-5 h-5 text-emerald-550 dark:text-emerald-400" />
                     ) : (
-                      <Server className="w-5 h-5 text-pink-400" />
+                      <Server className="w-5 h-5 text-pink-500 dark:text-pink-400" />
                     )}
                   </div>
-                  <div className="text-center bg-zinc-950/80 px-2 py-0.5 rounded border border-zinc-900">
-                    <span className="text-[8px] font-extrabold uppercase tracking-widest text-zinc-300">
+                  <div className="text-center bg-white/80 dark:bg-zinc-950/80 px-2 py-0.5 rounded border border-zinc-250 dark:border-zinc-900 shadow-sm">
+                    <span className="text-[8px] font-extrabold uppercase tracking-widest text-zinc-700 dark:text-zinc-300">
                       {info.title}
                     </span>
                   </div>
@@ -508,22 +508,22 @@ export default function DnsSimulation() {
           </div>
 
           {/* Decisions & Logs Console */}
-          <div className="h-[140px] bg-zinc-950 rounded-xl border border-zinc-850 flex flex-col overflow-hidden">
-            <div className="bg-zinc-900 px-3 py-1.5 border-b border-zinc-850">
-              <span className="text-[9px] font-bold text-zinc-500 uppercase tracking-widest">
+          <div className="h-[140px] bg-zinc-50 dark:bg-zinc-950 rounded-xl border border-zinc-200 dark:border-zinc-850 flex flex-col overflow-hidden">
+            <div className="bg-zinc-100 dark:bg-zinc-900 px-3 py-1.5 border-b border-zinc-200 dark:border-zinc-850">
+              <span className="text-[9px] font-bold text-zinc-550 dark:text-zinc-500 uppercase tracking-widest">
                 Resolution Events Logs
               </span>
             </div>
             <div className="p-2.5 flex-1 overflow-y-auto space-y-1 font-mono text-[9px] select-text">
               {logs.length === 0 ? (
-                <div className="text-zinc-650 text-center pt-8">
+                <div className="text-zinc-400 dark:text-zinc-650 text-center pt-8">
                   No logs recorded. Trigger a query to watch resolution steps.
                 </div>
               ) : (
                 logs.map((log, index) => (
-                  <div key={index} className="flex gap-2 text-zinc-400">
-                    <span className="text-zinc-600">{log.timestamp}</span>
-                    <span className="text-purple-400 font-extrabold uppercase tracking-wide text-[8px] border border-purple-900/30 px-1 rounded bg-purple-950/15">
+                  <div key={index} className="flex gap-2 text-zinc-700 dark:text-zinc-400">
+                    <span className="text-zinc-400 dark:text-zinc-600">{log.timestamp}</span>
+                    <span className="text-purple-650 dark:text-purple-400 font-extrabold uppercase tracking-wide text-[8px] border border-purple-200 dark:border-purple-900/30 px-1 rounded bg-purple-50 dark:bg-purple-950/15">
                       {log.source.toUpperCase()} ➔ {log.target.toUpperCase()}
                     </span>
                     <span className="truncate">{log.message}</span>
@@ -537,29 +537,29 @@ export default function DnsSimulation() {
         </div>
 
         {/* Right Column: Zone File & Concept Details */}
-        <div className="w-full lg:w-[360px] shrink-0 flex flex-col gap-4 bg-zinc-900/30 border border-zinc-800/80 p-5 rounded-xl">
+        <div className="w-full lg:w-[360px] shrink-0 flex flex-col gap-4 bg-zinc-50 dark:bg-zinc-900/30 border border-zinc-200 dark:border-zinc-800/80 p-5 rounded-xl">
           
           {/* Zone File Preview */}
-          <div className="flex-1 flex flex-col bg-zinc-950 rounded-xl border border-zinc-850 overflow-hidden min-h-[220px]">
-            <div className="bg-zinc-900 px-3 py-1.5 border-b border-zinc-850 flex items-center justify-between">
-              <span className="text-[9px] font-bold text-zinc-500 uppercase tracking-widest">
+          <div className="flex-1 flex flex-col bg-zinc-50 dark:bg-zinc-950 rounded-xl border border-zinc-200 dark:border-zinc-850 overflow-hidden min-h-[220px]">
+            <div className="bg-zinc-100 dark:bg-zinc-900 px-3 py-1.5 border-b border-zinc-200 dark:border-zinc-850 flex items-center justify-between">
+              <span className="text-[9px] font-bold text-zinc-550 dark:text-zinc-500 uppercase tracking-widest">
                 Active Zone File (BIND)
               </span>
-              <span className="text-[8px] bg-emerald-500/25 text-emerald-300 px-1.5 py-0.5 rounded font-mono font-bold uppercase">
+              <span className="text-[8px] bg-emerald-500/25 text-emerald-600 dark:text-emerald-300 px-1.5 py-0.5 rounded font-mono font-bold uppercase">
                 truth
               </span>
             </div>
-            <div className="p-3 font-mono text-[9px] text-zinc-400 overflow-x-auto whitespace-pre leading-relaxed select-text flex-1">
+            <div className="p-3 font-mono text-[9px] text-zinc-700 dark:text-zinc-400 overflow-x-auto whitespace-pre leading-relaxed select-text flex-1">
               {ZONE_FILES[domain]}
             </div>
           </div>
 
           {/* Actor Info Card */}
-          <div className="p-4 rounded-xl bg-zinc-950 border border-zinc-850 space-y-2">
+          <div className="p-4 rounded-xl bg-white dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-850 space-y-2">
             <div className="flex items-center gap-2">
-              <span className="text-xs font-bold text-zinc-200">DNS Resolution Rules</span>
+              <span className="text-xs font-bold text-zinc-800 dark:text-zinc-200">DNS Resolution Rules</span>
             </div>
-            <p className="text-[10px] text-zinc-400 leading-relaxed">
+            <p className="text-[10px] text-zinc-600 dark:text-zinc-400 leading-relaxed">
               Standard resolutions perform **Iterative Queries** (Resolver asks servers, gets a referral, queries the next server). The link from Client to Resolver is a **Recursive Query** (client asks once, waits for the final answer).
             </p>
           </div>

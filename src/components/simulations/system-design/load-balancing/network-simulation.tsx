@@ -17,7 +17,6 @@ import "@xyflow/react/dist/style.css";
 import {
   Cpu,
   Database,
-  Info,
   Network,
   Pause,
   Play,
@@ -67,15 +66,15 @@ interface L7NodeProps {
 
 // Custom Node Components
 const ClientNode = () => (
-  <div className="relative w-[140px] p-3 rounded-xl border border-zinc-800 bg-black/90 text-white shadow-xl backdrop-blur-md hover:border-zinc-700 transition-colors">
-    <div className="flex items-center gap-1.5 border-b border-zinc-800 pb-1.5 mb-1.5">
+  <div className="relative w-[140px] p-3 rounded-xl border border-zinc-200 dark:border-zinc-800 bg-white/90 dark:bg-black/90 text-zinc-900 dark:text-white shadow-xl backdrop-blur-md hover:border-zinc-400 dark:hover:border-zinc-700 transition-colors">
+    <div className="flex items-center gap-1.5 border-b border-zinc-200 dark:border-zinc-800 pb-1.5 mb-1.5">
       <div className="w-2.5 h-2.5 rounded-full bg-red-500 animate-pulse" />
-      <span className="text-[11px] font-bold tracking-wider text-zinc-400 uppercase">
+      <span className="text-[11px] font-bold tracking-wider text-zinc-550 dark:text-zinc-400 uppercase">
         User Agent
       </span>
     </div>
     <div className="space-y-1">
-      <div className="text-xs font-bold text-zinc-100">Web Browser</div>
+      <div className="text-xs font-bold text-zinc-800 dark:text-zinc-100">Web Browser</div>
       <div className="text-[9px] font-mono text-zinc-500">
         IP: 198.51.100.42
       </div>
@@ -97,15 +96,15 @@ const ClientNode = () => (
 );
 
 const DnsNode = () => (
-  <div className="relative w-[140px] p-3 rounded-xl border border-zinc-800 bg-black/90 text-white shadow-xl backdrop-blur-md hover:border-zinc-700 transition-colors">
-    <div className="flex items-center gap-1.5 border-b border-zinc-800 pb-1.5 mb-1.5">
-      <Network className="w-3.5 h-3.5 text-blue-400" />
-      <span className="text-[11px] font-bold tracking-wider text-zinc-400 uppercase">
+  <div className="relative w-[140px] p-3 rounded-xl border border-zinc-200 dark:border-zinc-800 bg-white/90 dark:bg-black/90 text-zinc-900 dark:text-white shadow-xl backdrop-blur-md hover:border-zinc-400 dark:hover:border-zinc-700 transition-colors">
+    <div className="flex items-center gap-1.5 border-b border-zinc-200 dark:border-zinc-800 pb-1.5 mb-1.5">
+      <Network className="w-3.5 h-3.5 text-blue-500 dark:text-blue-400" />
+      <span className="text-[11px] font-bold tracking-wider text-zinc-550 dark:text-zinc-400 uppercase">
         DNS Tier
       </span>
     </div>
     <div className="space-y-1">
-      <div className="text-xs font-bold text-zinc-100">Anycast Routing</div>
+      <div className="text-xs font-bold text-zinc-800 dark:text-zinc-100">Anycast Routing</div>
       <div className="text-[9px] font-mono text-zinc-500">
         Resolves: 192.0.2.1
       </div>
@@ -116,23 +115,23 @@ const DnsNode = () => (
 );
 
 const L4Node = ({ data }: L4NodeProps) => (
-  <div className="relative w-[140px] p-3 rounded-xl border border-zinc-800 bg-black/90 text-white shadow-xl backdrop-blur-md hover:border-zinc-700 transition-colors">
-    <div className="flex items-center justify-between border-b border-zinc-800 pb-1.5 mb-1.5">
+  <div className="relative w-[140px] p-3 rounded-xl border border-zinc-200 dark:border-zinc-800 bg-white/90 dark:bg-black/90 text-zinc-900 dark:text-white shadow-xl backdrop-blur-md hover:border-zinc-400 dark:hover:border-zinc-700 transition-colors">
+    <div className="flex items-center justify-between border-b border-zinc-200 dark:border-zinc-800 pb-1.5 mb-1.5">
       <div className="flex items-center gap-1.5">
-        <Zap className="w-3.5 h-3.5 text-amber-500 animate-pulse" />
-        <span className="text-[11px] font-bold tracking-wider text-zinc-400 uppercase">
+        <Zap className="w-3.5 h-3.5 text-amber-505 dark:text-amber-500 animate-pulse" />
+        <span className="text-[11px] font-bold tracking-wider text-zinc-550 dark:text-zinc-400 uppercase">
           L4 Tier
         </span>
       </div>
-      <span className="text-[8px] bg-amber-500/10 text-amber-500 px-1 rounded font-mono">
+      <span className="text-[8px] bg-amber-500/10 text-amber-600 dark:text-amber-500 px-1 rounded font-mono">
         NLB/LVS
       </span>
     </div>
     <div className="space-y-1 text-left">
-      <div className="text-xs font-bold text-zinc-100">IP/Port Level</div>
+      <div className="text-xs font-bold text-zinc-800 dark:text-zinc-100">IP/Port Level</div>
       <div className="flex justify-between text-[9px] text-zinc-500 font-mono">
         <span>Conns:</span>
-        <span className="text-amber-500 font-bold">{data.connections}</span>
+        <span className="text-amber-600 dark:text-amber-500 font-bold">{data.connections}</span>
       </div>
     </div>
     <Handle type="target" position={Position.Left} style={{ opacity: 0 }} />
@@ -141,20 +140,20 @@ const L4Node = ({ data }: L4NodeProps) => (
 );
 
 const L7Node = ({ data }: L7NodeProps) => (
-  <div className="relative w-[140px] p-3 rounded-xl border border-zinc-800 bg-black/90 text-white shadow-xl backdrop-blur-md hover:border-zinc-700 transition-colors">
-    <div className="flex items-center justify-between border-b border-zinc-800 pb-1.5 mb-1.5">
+  <div className="relative w-[140px] p-3 rounded-xl border border-zinc-200 dark:border-zinc-800 bg-white/90 dark:bg-black/90 text-zinc-900 dark:text-white shadow-xl backdrop-blur-md hover:border-zinc-400 dark:hover:border-zinc-700 transition-colors">
+    <div className="flex items-center justify-between border-b border-zinc-200 dark:border-zinc-800 pb-1.5 mb-1.5">
       <div className="flex items-center gap-1.5">
-        <ShieldCheck className="w-3.5 h-3.5 text-emerald-400" />
-        <span className="text-[11px] font-bold tracking-wider text-zinc-400 uppercase">
+        <ShieldCheck className="w-3.5 h-3.5 text-emerald-550 dark:text-emerald-400" />
+        <span className="text-[11px] font-bold tracking-wider text-zinc-550 dark:text-zinc-400 uppercase">
           L7 Tier
         </span>
       </div>
-      <span className="text-[8px] bg-emerald-500/10 text-emerald-500 px-1 rounded font-mono">
+      <span className="text-[8px] bg-emerald-500/10 text-emerald-600 dark:text-emerald-500 px-1 rounded font-mono">
         NGINX
       </span>
     </div>
     <div className="space-y-1 text-left">
-      <div className="text-xs font-bold text-zinc-100">{data.type} Proxy</div>
+      <div className="text-xs font-bold text-zinc-800 dark:text-zinc-100">{data.type} Proxy</div>
       <div className="text-[9px] text-zinc-500 flex items-center gap-1">
         <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
         <span>SSL Terminated</span>
@@ -174,24 +173,24 @@ interface AppNodeProps {
 }
 
 const AppNode = ({ data }: AppNodeProps) => (
-  <div className="relative w-[140px] p-3 rounded-xl border border-zinc-800 bg-black/90 text-white shadow-xl backdrop-blur-md hover:border-zinc-700 transition-colors">
-    <div className="flex items-center justify-between border-b border-zinc-800 pb-1.5 mb-1.5">
+  <div className="relative w-[140px] p-3 rounded-xl border border-zinc-200 dark:border-zinc-800 bg-white/90 dark:bg-black/90 text-zinc-900 dark:text-white shadow-xl backdrop-blur-md hover:border-zinc-400 dark:hover:border-zinc-700 transition-colors">
+    <div className="flex items-center justify-between border-b border-zinc-200 dark:border-zinc-800 pb-1.5 mb-1.5">
       <div className="flex items-center gap-1.5">
-        <Server className="w-3.5 h-3.5 text-purple-400" />
-        <span className="text-[11px] font-bold tracking-wider text-zinc-400 uppercase">
+        <Server className="w-3.5 h-3.5 text-purple-550 dark:text-purple-400" />
+        <span className="text-[11px] font-bold tracking-wider text-zinc-550 dark:text-zinc-400 uppercase">
           App Tier
         </span>
       </div>
     </div>
     <div className="space-y-1 text-left">
-      <div className="text-xs font-bold text-zinc-100">{data.label}</div>
+      <div className="text-xs font-bold text-zinc-800 dark:text-zinc-100">{data.label}</div>
       <div className="space-y-0.5">
         <div className="flex items-center justify-between text-[9px] text-zinc-500">
           <span className="flex items-center gap-1">
             <Cpu className="w-2.5 h-2.5" /> CPU:
           </span>
           <span
-            className={`font-mono font-bold ${data.cpu > 70 ? "text-red-500" : "text-zinc-300"}`}
+            className={`font-mono font-bold ${data.cpu > 70 ? "text-red-500" : "text-zinc-700 dark:text-zinc-300"}`}
           >
             {data.cpu}%
           </span>
@@ -200,7 +199,7 @@ const AppNode = ({ data }: AppNodeProps) => (
           <span className="flex items-center gap-1">
             <Database className="w-2.5 h-2.5" /> Requests:
           </span>
-          <span className="font-mono text-zinc-300">{data.requests}</span>
+          <span className="font-mono text-zinc-700 dark:text-zinc-300">{data.requests}</span>
         </div>
       </div>
     </div>
@@ -911,14 +910,14 @@ export default function NetworkSimulation() {
   const selectedTier = TIER_INFO[selectedNodeId] || TIER_INFO.l4;
 
   return (
-    <div className="w-full my-8 p-6 rounded-2xl border border-zinc-800/80 bg-zinc-950/85 backdrop-blur-md shadow-2xl flex flex-col gap-6 select-none text-zinc-100">
+    <div className="w-full my-8 p-6 rounded-2xl border border-zinc-200 dark:border-zinc-800/80 bg-white dark:bg-zinc-950/85 backdrop-blur-md shadow-2xl flex flex-col gap-6 select-none text-zinc-900 dark:text-zinc-100">
       {/* Top Header Panel */}
-      <div className="flex flex-col md:flex-row items-start md:items-center justify-between border-b border-zinc-800/60 pb-4 gap-4">
+      <div className="flex flex-col md:flex-row items-start md:items-center justify-between border-b border-zinc-200 dark:border-zinc-800/60 pb-4 gap-4">
         <div>
-          <h3 className="font-bold text-lg text-zinc-100 flex items-center gap-2">
+          <h3 className="font-bold text-lg text-zinc-900 dark:text-zinc-100 flex items-center gap-2">
             Multi-Tier Load Balancing Sandbox
           </h3>
-          <p className="text-xs text-zinc-400">
+          <p className="text-xs text-zinc-650 dark:text-zinc-400">
             Visualize and inspect packet flow across infrastructure layers.
             Click components to inspect their system design details.
           </p>
@@ -929,7 +928,7 @@ export default function NetworkSimulation() {
           <button
             type="button"
             onClick={() => setIsPlaying(!isPlaying)}
-            className="p-2 rounded-xl bg-zinc-900 border border-zinc-800 hover:bg-zinc-850 hover:border-zinc-700 text-zinc-200 transition-all flex items-center justify-center cursor-pointer"
+            className="p-2 rounded-xl bg-zinc-50 border border-zinc-200 hover:bg-zinc-100 text-zinc-750 dark:bg-zinc-900 dark:border-zinc-800 dark:hover:bg-zinc-850 dark:hover:border-zinc-700 dark:text-zinc-205 transition-all flex items-center justify-center cursor-pointer"
             title={isPlaying ? "Pause Simulation" : "Start Simulation"}
           >
             {isPlaying ? (
@@ -942,18 +941,18 @@ export default function NetworkSimulation() {
           <button
             type="button"
             onClick={resetSimulation}
-            className="p-2 rounded-xl bg-zinc-900 border border-zinc-800 hover:bg-zinc-850 hover:border-zinc-700 text-zinc-200 transition-all flex items-center justify-center cursor-pointer"
+            className="p-2 rounded-xl bg-zinc-50 border border-zinc-200 hover:bg-zinc-100 text-zinc-750 dark:bg-zinc-900 dark:border-zinc-800 dark:hover:bg-zinc-850 dark:hover:border-zinc-700 dark:text-zinc-205 transition-all flex items-center justify-center cursor-pointer"
             title="Reset Stats & Packets"
           >
             <RotateCcw className="w-4 h-4" />
           </button>
 
-          <div className="h-6 w-px bg-zinc-850" />
+          <div className="h-6 w-px bg-zinc-200 dark:bg-zinc-850" />
 
           {/* DSR Toggle Switch */}
-          <div className="flex items-center gap-2 bg-zinc-900 border border-zinc-850 rounded-xl px-3 py-1.5">
+          <div className="flex items-center gap-2 bg-zinc-50 dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-850 rounded-xl px-3 py-1.5">
             <label
-              className="text-[11px] font-bold text-zinc-300 cursor-pointer"
+              className="text-[11px] font-bold text-zinc-700 dark:text-zinc-300 cursor-pointer"
               htmlFor="dsr-toggle"
             >
               Direct Server Return (DSR)
@@ -969,14 +968,14 @@ export default function NetworkSimulation() {
                   "Client",
                 );
               }}
-              className="w-3.5 h-3.5 text-purple-600 bg-zinc-950 border-zinc-800 rounded focus:ring-purple-500 focus:ring-offset-zinc-900 cursor-pointer"
+              className="w-3.5 h-3.5 text-purple-650 bg-white dark:bg-zinc-950 border-zinc-300 dark:border-zinc-800 rounded focus:ring-purple-500 focus:ring-offset-zinc-900 cursor-pointer"
             />
           </div>
         </div>
       </div>
 
       <div className="w-full flex flex-col gap-4">
-        <div className="relative h-[600px] w-full rounded-xl border border-zinc-800 bg-black/60 overflow-hidden">
+        <div className="relative h-[600px] w-full rounded-xl border border-zinc-200 dark:border-zinc-800 bg-zinc-50/20 dark:bg-black/60 overflow-hidden">
           <ReactFlow
             nodes={nodes}
             edges={edges}
@@ -995,21 +994,21 @@ export default function NetworkSimulation() {
             elementsSelectable={true}
             onNodeClick={(_event, node) => setSelectedNodeId(node.id)}
           >
-            <Background color="#18181b" gap={16} size={1} />
+            <Background color="#a1a1aa" gap={16} size={1} />
           </ReactFlow>
         </div>
 
         {/* Controller Triggers */}
-        <div className="flex flex-col sm:flex-row items-center gap-3.5 bg-zinc-900/30 border border-zinc-800/80 p-4 rounded-xl">
+        <div className="flex flex-col sm:flex-row items-center gap-3.5 bg-zinc-50 dark:bg-zinc-900/30 border border-zinc-200 dark:border-zinc-800/80 p-4 rounded-xl">
           <div className="flex-1 w-full flex flex-col gap-2">
-            <span className="text-[10px] font-bold text-zinc-500 uppercase tracking-wider block">
+            <span className="text-[10px] font-bold text-zinc-550 dark:text-zinc-500 uppercase tracking-wider block">
               Trigger HTTP Requests
             </span>
             <div className="grid grid-cols-2 gap-2">
               <button
                 type="button"
                 onClick={() => sendRequest("static")}
-                className="py-2.5 px-4 rounded-xl bg-blue-600 hover:bg-blue-500 font-semibold text-xs text-white transition-colors flex items-center justify-center gap-2 shadow-lg shadow-blue-900/20 cursor-pointer"
+                className="py-2.5 px-4 rounded-xl bg-blue-500 hover:bg-blue-600 font-semibold text-xs text-white transition-colors flex items-center justify-center gap-2 shadow-lg shadow-blue-900/20 cursor-pointer"
               >
                 <Server className="w-4 h-4" />
                 Get /static/logo.png
@@ -1017,7 +1016,7 @@ export default function NetworkSimulation() {
               <button
                 type="button"
                 onClick={() => sendRequest("api")}
-                className="py-2.5 px-4 rounded-xl bg-purple-600 hover:bg-purple-500 font-semibold text-xs text-white transition-colors flex items-center justify-center gap-2 shadow-lg shadow-purple-900/20 cursor-pointer"
+                className="py-2.5 px-4 rounded-xl bg-purple-500 hover:bg-purple-600 font-semibold text-xs text-white transition-colors flex items-center justify-center gap-2 shadow-lg shadow-purple-900/20 cursor-pointer"
               >
                 <Database className="w-4 h-4" />
                 POST /api/v1/payments
@@ -1025,10 +1024,10 @@ export default function NetworkSimulation() {
             </div>
           </div>
 
-          <div className="h-px sm:h-12 w-full sm:w-px bg-zinc-800" />
+          <div className="h-px sm:h-12 w-full sm:w-px bg-zinc-200 dark:bg-zinc-800" />
 
           <div className="w-full sm:w-auto flex flex-row sm:flex-col justify-between sm:justify-start gap-2">
-            <span className="text-[10px] font-bold text-zinc-500 uppercase tracking-wider block">
+            <span className="text-[10px] font-bold text-zinc-550 dark:text-zinc-500 uppercase tracking-wider block">
               Simulation Speed
             </span>
             <div className="flex items-center gap-1.5">
@@ -1039,8 +1038,8 @@ export default function NetworkSimulation() {
                   onClick={() => setSimulationSpeed(val)}
                   className={`px-2.5 py-1 rounded-lg text-[9px] font-bold transition-all border cursor-pointer ${
                     simulationSpeed === val
-                      ? "bg-zinc-100 text-zinc-950 border-zinc-100"
-                      : "bg-zinc-950 text-zinc-400 border-zinc-850 hover:text-zinc-250"
+                      ? "bg-zinc-950 dark:bg-zinc-100 text-zinc-50 dark:text-zinc-950 border-zinc-955 dark:border-zinc-100 font-bold"
+                      : "bg-white dark:bg-zinc-955 dark:bg-zinc-950 text-zinc-600 dark:text-zinc-400 border-zinc-202 dark:border-zinc-850 hover:text-zinc-800 dark:hover:text-zinc-250"
                   }`}
                 >
                   {idx === 0 ? "0.5x" : idx === 1 ? "1.0x" : "2.0x"}
@@ -1051,24 +1050,24 @@ export default function NetworkSimulation() {
         </div>
 
         {/* Infrastructure Inspector */}
-        <div className="w-full flex flex-col gap-4 bg-zinc-900/30 border border-zinc-800/80 p-5 rounded-xl">
-          <div className="flex items-center justify-between border-b border-zinc-800 pb-2.5">
-            <span className="text-[11px] font-bold tracking-wider text-purple-400 uppercase flex items-center gap-1">
+        <div className="w-full flex flex-col gap-4 bg-zinc-50 dark:bg-zinc-900/30 border border-zinc-200 dark:border-zinc-800/80 p-5 rounded-xl">
+          <div className="flex items-center justify-between border-b border-zinc-200 dark:border-zinc-800 pb-2.5">
+            <span className="text-[11px] font-bold tracking-wider text-purple-650 dark:text-purple-400 uppercase flex items-center gap-1">
               Infrastructure Inspector
             </span>
           </div>
 
           {/* Tab Selector inside Inspector */}
-          <div className="flex bg-zinc-950/60 p-1 rounded-lg border border-zinc-850">
+          <div className="flex bg-zinc-100 dark:bg-zinc-955 dark:bg-zinc-950/60 p-1 rounded-lg dark:border-zinc-850">
             {(["walkthrough", "dsr", "console"] as const).map((tab) => (
               <button
                 type="button"
                 key={tab}
                 onClick={() => setActiveTab(tab)}
-                className={`px-4 py-1.5 rounded-lg text-xs font-semibold transition-all cursor-pointer border ${
+                className={`px-4 py-1.5 rounded-lg text-xs font-semibold transition-all cursor-pointer ${
                   activeTab === tab
-                    ? "bg-zinc-100 text-zinc-950 border-zinc-100 font-bold"
-                    : "bg-transparent text-zinc-400 border-transparent hover:text-zinc-200"
+                    ? "bg-white dark:bg-zinc-100 text-zinc-955 dark:text-zinc-950  dark:border-zinc-100 font-bold shadow-sm"
+                    : "bg-transparent text-zinc-550 dark:text-zinc-400 border-transparent hover:text-zinc-800"
                 }`}
               >
                 {tab === "walkthrough"
@@ -1083,27 +1082,27 @@ export default function NetworkSimulation() {
           <div className="flex-1 overflow-y-auto min-h-[160px] max-h-[300px] pr-1">
             {activeTab === "walkthrough" && (
               <div className="space-y-4">
-                <div className="bg-zinc-950/40 p-3 rounded-lg border border-zinc-850">
-                  <h4 className="text-xs font-bold text-zinc-200 mb-1 flex items-center justify-between">
+                <div className="bg-white dark:bg-zinc-950/40 p-3 rounded-lg">
+                  <h4 className="text-xs font-bold text-zinc-850 dark:text-zinc-200 mb-1 flex items-center justify-between">
                     <span>{selectedTier.name}</span>
-                    <span className="text-[9px] text-purple-400 uppercase tracking-widest">
+                    <span className="text-[9px] text-purple-650 dark:text-purple-400 uppercase tracking-widest">
                       Active
                     </span>
                   </h4>
-                  <p className="text-[10px] text-zinc-400 leading-relaxed">
+                  <p className="text-[10px] text-zinc-650 dark:text-zinc-400 leading-relaxed">
                     {selectedTier.role}
                   </p>
                 </div>
 
                 <div className="space-y-2">
-                  <h4 className="text-[10px] font-bold text-zinc-500 uppercase tracking-wider">
+                  <h4 className="text-[10px] font-bold text-zinc-550 dark:text-zinc-500 uppercase tracking-wider">
                     Core Concepts
                   </h4>
                   <ul className="space-y-1.5">
                     {selectedTier.concepts.map((concept) => (
                       <li
                         key={concept}
-                        className="text-[10px] text-zinc-300 flex items-start gap-2"
+                        className="text-[10px] text-zinc-700 dark:text-zinc-300 flex items-start gap-2"
                       >
                         <span className="text-purple-500 font-bold shrink-0">
                           •
@@ -1115,17 +1114,17 @@ export default function NetworkSimulation() {
                 </div>
 
                 <div className="space-y-1.5">
-                  <h4 className="text-[10px] font-bold text-zinc-500 uppercase tracking-wider">
+                  <h4 className="text-[10px] font-bold text-zinc-550 dark:text-zinc-500 uppercase tracking-wider">
                     Real-World Implementation
                   </h4>
-                  <p className="text-[10px] font-medium text-zinc-300">
+                  <p className="text-[10px] font-medium text-zinc-700 dark:text-zinc-300">
                     {selectedTier.realWorld}
                   </p>
                   <div className="flex flex-wrap gap-1 pt-1">
                     {selectedTier.examples.map((ex) => (
                       <span
                         key={ex}
-                        className="text-[8px] bg-zinc-900 border border-zinc-800 text-zinc-400 px-1.5 py-0.5 rounded font-mono"
+                        className="text-[8px] bg-zinc-100 dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 text-zinc-600 dark:text-zinc-400 px-1.5 py-0.5 rounded font-mono"
                       >
                         {ex}
                       </span>
@@ -1137,11 +1136,11 @@ export default function NetworkSimulation() {
 
             {activeTab === "dsr" && (
               <div className="space-y-4 text-xs">
-                <div className="bg-zinc-950/40 p-3 rounded-lg border border-zinc-850">
-                  <h4 className="text-xs font-bold text-zinc-200 mb-1">
+                <div className="bg-white dark:bg-zinc-950/40 p-3 rounded-lg border  dark:border-zinc-850">
+                  <h4 className="text-xs font-bold text-zinc-850 dark:text-zinc-200 mb-1">
                     Understanding DSR (Direct Server Return)
                   </h4>
-                  <p className="text-[10.5px] text-zinc-400 leading-relaxed">
+                  <p className="text-[10.5px] text-zinc-650 dark:text-zinc-400 leading-relaxed">
                     In standard load balancing, the response packets go back
                     through the L4/L7 load balancers, causing outbound egress
                     network interface saturation.
@@ -1152,30 +1151,30 @@ export default function NetworkSimulation() {
                 </div>
 
                 <div className="space-y-2">
-                  <h4 className="text-[10px] font-bold text-zinc-500 uppercase tracking-wider">
+                  <h4 className="text-[10px] font-bold text-zinc-550 dark:text-zinc-500 uppercase tracking-wider">
                     Network Latency Benchmark (DSR vs. Normal)
                   </h4>
-                  <div className="space-y-3 bg-zinc-950/60 p-3 rounded-lg border border-zinc-850">
+                  <div className="space-y-3 bg-white dark:bg-zinc-950/60 p-3 rounded-lg border dark:border-zinc-850">
                     <div>
-                      <div className="flex justify-between text-[10px] text-zinc-400 mb-1">
+                      <div className="flex justify-between text-[10px] text-zinc-600 dark:text-zinc-400 mb-1">
                         <span>Standard Egress path latency:</span>
-                        <span className="font-bold font-mono text-red-400">
+                        <span className="font-bold font-mono text-red-500 dark:text-red-400">
                           ~125ms (Egress Saturated)
                         </span>
                       </div>
-                      <div className="w-full bg-zinc-900 h-1.5 rounded-full overflow-hidden">
+                      <div className="w-full bg-zinc-100 dark:bg-zinc-900 h-1.5 rounded-full overflow-hidden">
                         <div className="bg-red-500 h-full w-[90%]" />
                       </div>
                     </div>
 
                     <div>
-                      <div className="flex justify-between text-[10px] text-zinc-400 mb-1">
+                      <div className="flex justify-between text-[10px] text-zinc-600 dark:text-zinc-400 mb-1">
                         <span>DSR Egress path latency:</span>
-                        <span className="font-bold font-mono text-emerald-400">
+                        <span className="font-bold font-mono text-emerald-600 dark:text-emerald-400">
                           ~18ms (Direct Gateway)
                         </span>
                       </div>
-                      <div className="w-full bg-zinc-900 h-1.5 rounded-full overflow-hidden">
+                      <div className="w-full bg-zinc-100 dark:bg-zinc-900 h-1.5 rounded-full overflow-hidden">
                         <div className="bg-emerald-500 h-full w-[15%]" />
                       </div>
                     </div>
@@ -1187,27 +1186,27 @@ export default function NetworkSimulation() {
             {activeTab === "console" && (
               <div className="space-y-2 font-mono text-[9px] select-text">
                 {logs.length === 0 ? (
-                  <div className="text-zinc-650 text-center pt-8">
+                  <div className="text-zinc-400 dark:text-zinc-650 text-center pt-8">
                     No logs recorded. Trigger packets to populate.
                   </div>
                 ) : (
                   logs.map((log, index) => (
                     <div
                       key={index}
-                      className="flex gap-2 text-zinc-400 border-b border-zinc-900 pb-1.5"
+                      className="flex gap-2 text-zinc-700 dark:text-zinc-400 border-b border-zinc-100 dark:border-zinc-900 pb-1.5"
                     >
-                      <span className="text-zinc-600">{log.timestamp}</span>
+                      <span className="text-zinc-400 dark:text-zinc-600">{log.timestamp}</span>
                       <span
                         className={`font-bold shrink-0 ${
                           log.tier === "Client"
-                            ? "text-blue-400"
+                            ? "text-blue-550 dark:text-blue-400"
                             : log.tier === "DNS"
-                              ? "text-emerald-400"
+                              ? "text-emerald-555 dark:text-emerald-400"
                               : log.tier === "L4"
-                                ? "text-amber-500"
+                                ? "text-amber-550 dark:text-amber-500"
                                 : log.tier === "L7"
-                                  ? "text-purple-400"
-                                  : "text-red-400"
+                                  ? "text-purple-650 dark:text-purple-400"
+                                  : "text-red-500"
                         }`}
                       >
                         [{log.tier}]
