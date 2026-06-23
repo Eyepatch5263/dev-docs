@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { motion } from "framer-motion";
 import { iconMap } from "@/lib/icon-map";
-import { FileText, LucideIcon } from "lucide-react";
+import { FileText } from "lucide-react";
 
 interface TopicCardProps {
   id: string;
@@ -86,10 +86,9 @@ export function TopicCard({
             {count !== undefined && (
               <div className="flex items-center justify-between w-full pt-4 border-t border-border">
                 <span
-                  className="text-sm font-medium px-3 py-1 rounded-full"
+                  className="text-sm dark:text-white text-black font-medium px-3 py-1 rounded-full"
                   style={{
                     background: `${cardColor}15`,
-                    color: "white",
                   }}
                 >
                   {count} {countLabel}
