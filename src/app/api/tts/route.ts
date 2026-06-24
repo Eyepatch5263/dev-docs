@@ -215,10 +215,10 @@ export async function POST(request: Request) {
 
     for (const chunk of textChunks) {
       const pollyCommand = new SynthesizeSpeechCommand({
-        Engine: "neural",
+        Engine: "generative",
         OutputFormat: "mp3",
         Text: chunk,
-        VoiceId: "Joanna",
+        VoiceId: "Stephen",
       });
 
       const pollyResponse = await polly.send(pollyCommand);
