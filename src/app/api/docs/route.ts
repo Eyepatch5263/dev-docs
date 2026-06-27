@@ -1,6 +1,6 @@
-import { NextRequest, NextResponse } from "next/server";
-import { discoverTopics } from "@/lib/docs";
+import { type NextRequest, NextResponse } from "next/server";
 import { rateLimitMiddleware } from "@/app/middleware/rateLimit";
+import { discoverTopics } from "@/lib/docs";
 import { READ_RATE_LIMIT } from "@/lib/rate-limit-config";
 
 export async function GET(request: NextRequest) {

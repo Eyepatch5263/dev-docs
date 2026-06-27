@@ -1,16 +1,16 @@
 "use client";
 
-import { MDXRemote, MDXRemoteSerializeResult } from "next-mdx-remote";
+import { Code2, Eye } from "lucide-react";
+import { MDXRemote, type MDXRemoteSerializeResult } from "next-mdx-remote";
 import { serialize } from "next-mdx-remote/serialize";
-import { useEffect, useState, useCallback } from "react";
+import { useCallback, useEffect, useState } from "react";
 import remarkGfm from "remark-gfm";
-import { Eye, Code2 } from "lucide-react";
 
 // Import highlight.js styles
 import "highlight.js/styles/github-dark.css";
-import { mdxComponents } from "../mdx-components";
-import rehypeSlug from "rehype-slug";
 import rehypePrettyCode from "rehype-pretty-code";
+import rehypeSlug from "rehype-slug";
+import { mdxComponents } from "../mdx-components";
 
 interface MDXPreviewProps {
   content: string;

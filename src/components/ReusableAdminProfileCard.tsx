@@ -1,7 +1,7 @@
-import { formatRelativeTime } from "@/lib/admin";
 import { Calendar, FileText, Layers, Tag } from "lucide-react";
+import type { ReusableAdminProfileCardProps } from "@/app/types/reusablecard.type";
 import { Badge } from "@/components/ui/badge";
-import { ReusableAdminProfileCardProps } from "@/app/types/reusablecard.type";
+import { formatRelativeTime } from "@/lib/admin";
 
 const ReusableAdminProfileCard = ({
   document,

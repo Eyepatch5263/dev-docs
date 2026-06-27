@@ -1,4 +1,4 @@
-import { DocumentWithUser } from "./editor.type";
+import type { DocumentWithUser } from "./editor.type";
 
 export interface ReusableAdminProfileCardProps {
   document: DocumentWithUser;

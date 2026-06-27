@@ -1,21 +1,21 @@
 "use client";
 
-import { Document } from "@/app/types/editor.type";
-import { formatRelativeTime } from "@/lib/admin";
+import { Calendar, Eye, FileText, Layers, Tag } from "lucide-react";
+import { MDXRemote, type MDXRemoteSerializeResult } from "next-mdx-remote";
+import { serialize } from "next-mdx-remote/serialize";
+import { useEffect, useState } from "react";
+import rehypeHighlight from "rehype-highlight";
+import remarkGfm from "remark-gfm";
+import type { Document } from "@/app/types/editor.type";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Calendar, Tag, Layers, Eye, FileText } from "lucide-react";
-import { useState, useEffect } from "react";
-import { MDXRemote, MDXRemoteSerializeResult } from "next-mdx-remote";
-import { serialize } from "next-mdx-remote/serialize";
-import remarkGfm from "remark-gfm";
-import rehypeHighlight from "rehype-highlight";
 import {
   Dialog,
   DialogContent,
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+import { formatRelativeTime } from "@/lib/admin";
 
 // Import highlight.js styles
 import "highlight.js/styles/github-dark.css";

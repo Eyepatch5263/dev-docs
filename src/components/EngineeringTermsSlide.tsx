@@ -1,24 +1,24 @@
 "use client";
 
-import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import {
-  Search,
   ArrowRight,
-  Star,
-  Clock,
-  FileText,
-  Lightbulb,
-  Link2,
   ChevronRight,
+  Clock,
+  Container,
   Cpu,
   Database,
+  FileText,
   Globe,
   Layers,
+  Lightbulb,
+  Link2,
+  Search,
+  Star,
   Terminal,
-  Container,
 } from "lucide-react";
 import Link from "next/link";
+import { useEffect, useState } from "react";
 
 const categories = [
   { label: "System Design", icon: Layers },

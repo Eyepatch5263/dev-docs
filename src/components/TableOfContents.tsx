@@ -1,8 +1,8 @@
 "use client";
 
-import { cn } from "@/lib/utils";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import type { Heading } from "@/lib/toc";
+import { cn } from "@/lib/utils";
 
 interface TableOfContentsProps {
   headings: Heading[];

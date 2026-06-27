@@ -1,7 +1,7 @@
 "use client";
 
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { ReactNode, useState } from "react";
+import { type ReactNode, useState } from "react";
 
 export function QueryProvider({ children }: { children: ReactNode }) {
   // a client inside the component to ensure it's only created once per request

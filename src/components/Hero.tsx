@@ -1,16 +1,16 @@
 "use client";
 
-import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
-import { LeftConstellation } from "./LeftConstellation";
-import { RightConstellation } from "./RightConstellation";
+import { useEffect, useState } from "react";
 import { codeSnippets, techNodes } from "@/constants/hero";
 import {
   CubeWireframe,
   OctahedronWireframe,
   SphereWireframe,
 } from "./HeroWireframe";
+import { LeftConstellation } from "./LeftConstellation";
 import { OrbitPlanet, SolarSystemOrbits } from "./Orbit";
+import { RightConstellation } from "./RightConstellation";
 
 export function Hero() {
   const [mounted, setMounted] = useState(false);

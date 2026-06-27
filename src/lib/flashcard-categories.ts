@@ -1,5 +1,5 @@
+import type { CategoryInfo } from "@/app/types/flashcard.type";
 import { getAllTopics } from "@/lib/docs";
-import { CategoryInfo } from "@/app/types/flashcard.type";
 
 // Server-side function to get categories from content folders
 export function getCategoriesFromContent(): CategoryInfo[] {

@@ -1,6 +1,6 @@
 "use client";
+import { animate, motion, useMotionValue, useTransform } from "framer-motion";
 import { useEffect } from "react";
-import { motion, animate, useMotionValue, useTransform } from "framer-motion";
 
 interface OrbitPlanetProps {
   rx: number;

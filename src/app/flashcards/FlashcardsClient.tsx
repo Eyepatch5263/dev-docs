@@ -1,11 +1,11 @@
 "use client";
 
-import { CategorySelector } from "@/components/CategorySelector";
-import { useLocalStorage } from "@/hooks/useLocalStorage";
 import { motion } from "framer-motion";
 import { BookOpen, Flame, Trophy } from "lucide-react";
-import { CategoryInfo } from "@/app/types/flashcard.type";
+import type { CategoryInfo } from "@/app/types/flashcard.type";
+import { CategorySelector } from "@/components/CategorySelector";
 import HeroReusableComponent from "@/components/HeroReusableComponent";
+import { useLocalStorage } from "@/hooks/useLocalStorage";
 
 interface FlashcardsClientProps {
   categories: CategoryInfo[];

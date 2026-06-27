@@ -1,7 +1,7 @@
 "use client";
 
-import { ChevronLeft, ChevronRight, Shuffle } from "lucide-react";
 import { motion } from "framer-motion";
+import { ChevronLeft, ChevronRight, Shuffle } from "lucide-react";
 
 interface DeckNavigationProps {
   currentIndex: number;

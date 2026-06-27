@@ -1,7 +1,7 @@
-import { NextResponse } from "next/server";
-import { getAllDocs } from "@/lib/docs";
 import fs from "fs";
+import { NextResponse } from "next/server";
 import path from "path";
+import { getAllDocs } from "@/lib/docs";
 
 const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? "https://explainbytes.tech";
 
@@ -19,7 +19,7 @@ export async function GET() {
         parts[0],
         `${parts.slice(1).join("/")}.mdx`,
       );
-      let lastmod = undefined;
+      let lastmod;
 
       try {
         const stat = fs.statSync(filePath);

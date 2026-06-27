@@ -1,13 +1,13 @@
 "use client";
 
-import { useState } from "react";
+import { ChevronRight, Menu, X } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Menu, X, ChevronRight } from "lucide-react";
-import { cn } from "@/lib/utils";
+import { useState } from "react";
+import type { NavCategory } from "@/app/types/nav.type";
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { NavCategory } from "@/app/types/nav.type";
+import { cn } from "@/lib/utils";
 
 interface MobileSidebarProps {
   navigation: NavCategory[];

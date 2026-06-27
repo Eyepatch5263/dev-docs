@@ -1,13 +1,13 @@
 "use client";
 
+import { Eye, EyeOff } from "lucide-react";
 import dynamic from "next/dynamic";
-import { useEffect, useState, useRef, useCallback } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { DocumentActions } from "@/components/editor/DocumentActions";
-import { convertToMDX } from "@/lib/mdx-converter";
 import { DocumentTitleInput } from "@/components/editor/DocumentTitleInput";
 import { MDXPreview } from "@/components/editor/MDXPreview";
-import { Eye, EyeOff } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { convertToMDX } from "@/lib/mdx-converter";
 
 // Type for editor content methods
 interface EditorContent {

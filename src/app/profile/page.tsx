@@ -1,14 +1,14 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { useSession } from "next-auth/react";
+import { useQuery } from "@tanstack/react-query";
+import { FileText, Loader2, User } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { Document } from "@/app/types/editor.type";
+import { useSession } from "next-auth/react";
+import { useEffect, useState } from "react";
+import type { Document } from "@/app/types/editor.type";
 import UserDocumentCard from "@/components/profile/UserDocumentCard";
 import UserStats from "@/components/profile/UserStats";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Loader2, User, FileText } from "lucide-react";
-import { useQuery } from "@tanstack/react-query";
 import { profileBgColor } from "@/constants/admin";
 
 type TabType = "draft" | "review" | "approved" | "rejected";

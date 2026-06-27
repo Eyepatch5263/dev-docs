@@ -1,15 +1,15 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { useSession } from "next-auth/react";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { FileText, Loader2, ShieldAlert } from "lucide-react";
 import { useRouter } from "next/navigation";
-import SubmissionCard from "@/components/admin/SubmissionCard";
-import AdminStats from "@/components/admin/AdminStats";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Loader2, ShieldAlert, FileText } from "lucide-react";
+import { useSession } from "next-auth/react";
+import { useEffect, useState } from "react";
 import { toast } from "sonner";
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import AdminStats from "@/components/admin/AdminStats";
+import SubmissionCard from "@/components/admin/SubmissionCard";
 import { QueryProvider } from "@/components/providers/QueryProvider";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { adminBgColor } from "@/constants/admin";
 
 type TabType = "review" | "approved" | "rejected" | "all";

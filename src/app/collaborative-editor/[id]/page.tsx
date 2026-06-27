@@ -1,19 +1,19 @@
+import { ArrowLeft, Users } from "lucide-react";
+import Link from "next/link";
 import { redirect } from "next/navigation";
 import { getServerSession } from "next-auth";
-import { authOptions } from "@/lib/auth";
-import Link from "next/link";
-import { ArrowLeft, Users } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { ThemeToggle } from "@/components/ThemeToggle";
-import { EditorWrapper } from "./EditorWrapper";
 import { ShareButton } from "@/components/editor/ShareButton";
+import { ThemeToggle } from "@/components/ThemeToggle";
+import { Button } from "@/components/ui/button";
+import { authOptions } from "@/lib/auth";
+import { EditorWrapper } from "./EditorWrapper";
 
 interface DocumentPageProps {
   params: Promise<{ id: string }>;
 }
 
 export async function generateMetadata({ params }: DocumentPageProps) {
-  let { id } = await params;
+  const { id } = await params;
   return {
     title: `Editing Document - Explainbytes`,
     description: `Collaborative editing document ${id}`,

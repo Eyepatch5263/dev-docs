@@ -1,10 +1,9 @@
 "use client";
 
+import { ArrowRight, Award, Check, RotateCcw, X } from "lucide-react";
 import { useState } from "react";
-import { Check, X, ArrowRight, RotateCcw, Award } from "lucide-react";
+import type { Question } from "@/lib/quiz";
 import { cn } from "@/lib/utils";
-
-import { Question } from "@/lib/quiz";
 
 interface QuizProps {
   questions: Question[];

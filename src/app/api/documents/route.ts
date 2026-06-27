@@ -1,9 +1,9 @@
-import { NextRequest, NextResponse } from "next/server";
+import { type NextRequest, NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
+import { rateLimitMiddleware } from "@/app/middleware/rateLimit";
+import { formatCategoryName, formatTopicName } from "@/constants/editor";
 import { authOptions } from "@/lib/auth";
 import { db } from "@/lib/db";
-import { formatTopicName, formatCategoryName } from "@/constants/editor";
-import { rateLimitMiddleware } from "@/app/middleware/rateLimit";
 import { READ_RATE_LIMIT, WRITE_RATE_LIMIT } from "@/lib/rate-limit-config";
 
 export async function POST(request: NextRequest) {

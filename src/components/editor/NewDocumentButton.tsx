@@ -1,8 +1,8 @@
 "use client";
 
-import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { useSession } from "next-auth/react";
+import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -14,7 +14,7 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 
-import { TOPICS, CATEGORIES } from "@/constants/editor";
+import { CATEGORIES, TOPICS } from "@/constants/editor";
 
 // Generate a unique document ID from username and timestamp
 function generateDocumentId(userName: string): string {

@@ -1,5 +1,5 @@
+import type { NextRequest } from "next/server";
 import { SlidingWindowRateLimiter } from "@/lib/rate-limiter";
-import { NextRequest } from "next/server";
 
 export async function rateLimitMiddleware(
   req: NextRequest,

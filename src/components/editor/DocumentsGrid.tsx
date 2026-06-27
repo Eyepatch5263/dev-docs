@@ -1,10 +1,10 @@
 "use client";
 
-import { useState } from "react";
 import { FileText } from "lucide-react";
-import { NewDocumentButton } from "@/components/editor/NewDocumentButton";
+import { useState } from "react";
+import type { DocumentsGridProps } from "@/app/types/editor.type";
 import { DocumentCard } from "@/components/editor/DocumentCard";
-import { DocumentsGridProps } from "@/app/types/editor.type";
+import { NewDocumentButton } from "@/components/editor/NewDocumentButton";
 import { labels, styles } from "@/constants/editor";
 
 function formatDate(dateString: string) {

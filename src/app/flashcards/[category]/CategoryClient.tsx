@@ -1,21 +1,21 @@
 "use client";
 
-import { Flashcard } from "@/components/Flashcard";
-import { DeckNavigation } from "@/components/DeckNavigation";
-import { ProgressTracker } from "@/components/ProgressTracker";
-import { ThemeToggle } from "@/components/ThemeToggle";
-import { shuffleDeck } from "@/lib/flashcards";
-import { useKeyboardControls } from "@/hooks/useKeyboardControls";
-import { useLocalStorage } from "@/hooks/useLocalStorage";
-import { motion, AnimatePresence } from "framer-motion";
+import { AnimatePresence, motion } from "framer-motion";
 import { ArrowLeft, BookOpen } from "lucide-react";
 import Link from "next/link";
-import { useState, useEffect, useRef } from "react";
-import {
-  FlashcardCategory,
+import { useEffect, useRef, useState } from "react";
+import type {
   CategoryInfo,
+  FlashcardCategory,
   Flashcard as FlashcardType,
 } from "@/app/types/flashcard.type";
+import { DeckNavigation } from "@/components/DeckNavigation";
+import { Flashcard } from "@/components/Flashcard";
+import { ProgressTracker } from "@/components/ProgressTracker";
+import { ThemeToggle } from "@/components/ThemeToggle";
+import { useKeyboardControls } from "@/hooks/useKeyboardControls";
+import { useLocalStorage } from "@/hooks/useLocalStorage";
+import { shuffleDeck } from "@/lib/flashcards";
 import { iconMap } from "@/lib/icon-map";
 
 interface CategoryClientProps {

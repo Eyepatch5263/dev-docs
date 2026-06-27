@@ -1,8 +1,8 @@
-import { NextRequest, NextResponse } from "next/server";
 import bcrypt from "bcryptjs";
 import crypto from "crypto";
-import { db } from "@/lib/db";
+import { type NextRequest, NextResponse } from "next/server";
 import { Resend } from "resend";
+import { db } from "@/lib/db";
 
 const resend = new Resend(process.env.RESEND_API_KEY);
 

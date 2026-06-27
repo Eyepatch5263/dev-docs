@@ -1,16 +1,16 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
-import { useTheme } from "next-themes";
+import { DialogTitle } from "@radix-ui/react-dialog";
 import { Maximize2 } from "lucide-react";
+import { useTheme } from "next-themes";
+import { useEffect, useRef, useState } from "react";
 import {
   Dialog,
-  DialogContent,
-  DialogTrigger,
   DialogClose,
+  DialogContent,
   DialogHeader,
+  DialogTrigger,
 } from "@/components/ui/dialog";
-import { DialogTitle } from "@radix-ui/react-dialog";
 
 interface MermaidProps {
   chart: string;

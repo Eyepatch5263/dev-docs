@@ -1,17 +1,17 @@
 "use client";
 
-import { useState, type FormEvent } from "react";
 import { motion } from "framer-motion";
 import {
-  Mail,
-  Loader2,
-  CheckCircle2,
   AlertCircle,
-  Sparkles,
+  CheckCircle2,
+  Loader2,
+  Mail,
   Send,
+  Sparkles,
 } from "lucide-react";
+import { type FormEvent, useState } from "react";
 import { RateLimitError } from "@/components/ui/rate-limit-error";
-import { isRateLimited, getRateLimitInfo } from "@/lib/rate-limit-utils";
+import { getRateLimitInfo, isRateLimited } from "@/lib/rate-limit-utils";
 
 export function NewsletterForm() {
   const [email, setEmail] = useState("");

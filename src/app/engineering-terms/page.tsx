@@ -1,5 +1,5 @@
-import { EngineeringTermsClient } from "./EngineeringTermsClient";
 import type { Metadata } from "next";
+import { EngineeringTermsClient } from "./EngineeringTermsClient";
 
 export const metadata: Metadata = {
   title: "Engineering Terms - Explainbytes",

@@ -1,6 +1,6 @@
-import { ThemeProvider } from "@/components/ThemeProvider";
-import { AuthProvider } from "@/components/auth/AuthProvider";
 import Link from "next/link";
+import { AuthProvider } from "@/components/auth/AuthProvider";
+import { ThemeProvider } from "@/components/ThemeProvider";
 
 export default function AuthLayout({
   children,

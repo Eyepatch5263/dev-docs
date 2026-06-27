@@ -1,10 +1,9 @@
 "use client";
 
-import { motion } from "framer-motion";
-import { useInView } from "framer-motion";
-import { useRef, type ReactNode } from "react";
-import Link from "next/link";
+import { motion, useInView } from "framer-motion";
 import { ArrowRight } from "lucide-react";
+import Link from "next/link";
+import { type ReactNode, useRef } from "react";
 
 interface FeatureSectionProps {
   title: string;

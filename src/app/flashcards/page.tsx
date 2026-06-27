@@ -1,5 +1,5 @@
-import { getFlashcardsByCategory } from "@/lib/flashcards";
 import { getCategoriesFromContent } from "@/lib/flashcard-categories";
+import { getFlashcardsByCategory } from "@/lib/flashcards";
 import { FlashcardsClient } from "./FlashcardsClient";
 
 export default function FlashcardsPage() {

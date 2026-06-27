@@ -1,13 +1,13 @@
 "use client";
 
+import { Github } from "lucide-react";
+import { Inria_Sans } from "next/font/google";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Github } from "lucide-react";
-import { ThemeToggle } from "./ThemeToggle";
+import { UserButton } from "@/components/auth/UserButton";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
-import { UserButton } from "@/components/auth/UserButton";
-import { Inria_Sans } from "next/font/google";
+import { ThemeToggle } from "./ThemeToggle";
 
 interface HeaderProps {
   children?: React.ReactNode;
@@ -79,7 +79,7 @@ export function Header({
             <img
               src="/explain.png"
               alt="Logo"
-              className="h-5.5 w-10 filter invert dark:invert-0 drop-shadow-[0_0_4px_rgba(0,0,0,0.1)] dark:drop-shadow-[0_0_4px_rgba(255,255,255,0.15)]"
+              className="h-10 w-10 filter invert dark:invert-0 drop-shadow-[0_0_4px_rgba(0,0,0,0.1)] dark:drop-shadow-[0_0_4px_rgba(255,255,255,0.15)]"
             />
           </Link>
         </div>

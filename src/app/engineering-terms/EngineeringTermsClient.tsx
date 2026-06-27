@@ -1,30 +1,30 @@
 "use client";
 
-import { useState, useEffect, useRef, useCallback } from "react";
-import { motion, AnimatePresence } from "framer-motion";
+import { AnimatePresence, motion } from "framer-motion";
 import {
-  Search,
-  Loader2,
-  Zap,
-  Code2,
-  Globe,
-  Layers,
-  Database,
-  Infinity as InfinityIcon,
-  LayoutGrid,
-  Box,
-  Lock,
   ArrowLeft,
-  X,
+  Box,
   ChevronRight,
+  Code2,
+  Database,
+  Globe,
+  Infinity as InfinityIcon,
+  Layers,
+  LayoutGrid,
+  Loader2,
+  Lock,
+  Search,
+  X,
+  Zap,
 } from "lucide-react";
+import Link from "next/link";
+import { useCallback, useEffect, useRef, useState } from "react";
+import { TermCard } from "@/components/TermCard";
 import { Input } from "@/components/ui/input";
+import { RateLimitError } from "@/components/ui/rate-limit-error";
+import { getRateLimitInfo, isRateLimited } from "@/lib/rate-limit-utils";
 import type { EngineeringTerm } from "../../../data/sample-terms";
 import { sampleTerms } from "../../../data/sample-terms";
-import { TermCard } from "@/components/TermCard";
-import { RateLimitError } from "@/components/ui/rate-limit-error";
-import { isRateLimited, getRateLimitInfo } from "@/lib/rate-limit-utils";
-import Link from "next/link";
 
 interface SearchResponse {
   success: boolean;

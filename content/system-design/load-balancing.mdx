@@ -100,6 +100,8 @@ To see the absolute logic of this system in action, follow a single request from
 
 ## 2. Load Balancing Algorithms
 
+> Do watch the simulation of different [Load Balancing algorithms](/docs/system-design/load-balancing/simulation/) after reading this section for better understanding.
+
 Load balancers use specific strategies to choose which server receives the next request:
 
 ### 1. Round Robin
@@ -227,6 +229,8 @@ health_check:
 ---
 
 ## 5. SSL/TLS Management: Termination vs Passthrough
+
+> Do watch the detailed [SSL/TLS Management Strategies](/docs/system-design/load-balancing/simulation/) for better understanding.
 
 Establishing an **SSL/TLS** connection requires expensive cryptographic work such as certificate validation, key exchange, and session key generation. Under heavy traffic, repeatedly performing these operations can consume significant CPU. To optimize this, load balancers handle TLS using two common strategies: **SSL Termination** and **SSL Passthrough**.
 

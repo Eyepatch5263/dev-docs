@@ -1,8 +1,8 @@
 "use client";
 
-import Link from "next/link";
 import { motion } from "framer-motion";
-import { Home, ArrowLeft, Search, FileQuestion } from "lucide-react";
+import { ArrowLeft, FileQuestion, Home, Search } from "lucide-react";
+import Link from "next/link";
 
 export default function NotFound() {
   return (

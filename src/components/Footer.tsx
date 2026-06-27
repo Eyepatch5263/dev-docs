@@ -1,7 +1,7 @@
 "use client";
 
-import Link from "next/link";
 import { Github } from "lucide-react";
+import Link from "next/link";
 import { ThemeToggle } from "./ThemeToggle";
 
 export function Footer() {

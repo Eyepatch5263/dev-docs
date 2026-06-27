@@ -1,8 +1,8 @@
-import { NextRequest, NextResponse } from "next/server";
+import { type NextRequest, NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
+import { rateLimitMiddleware } from "@/app/middleware/rateLimit";
 import { authOptions } from "@/lib/auth";
 import { db } from "@/lib/db";
-import { rateLimitMiddleware } from "@/app/middleware/rateLimit";
 import { READ_RATE_LIMIT, WRITE_RATE_LIMIT } from "@/lib/rate-limit-config";
 
 interface RouteParams {

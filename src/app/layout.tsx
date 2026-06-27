@@ -1,9 +1,9 @@
 import type { Metadata } from "next";
 import { Inria_Serif } from "next/font/google";
-import { ThemeProvider } from "@/components/ThemeProvider";
+import { Toaster } from "sonner";
 import { AuthProvider } from "@/components/auth/AuthProvider";
 import { QueryProvider } from "@/components/providers/QueryProvider";
-import { Toaster } from "sonner";
+import { ThemeProvider } from "@/components/ThemeProvider";
 import "./globals.css";
 
 const Inria_Serif_Font = Inria_Serif({
@@ -33,7 +33,7 @@ export const metadata: Metadata = {
     siteName: "Explainbytes",
     images: [
       {
-        url: `${siteUrl}/logo.svg`,
+        url: `${siteUrl}/explain.png`,
         width: 1200,
         height: 630,
         alt: "Explainbytes logo",
@@ -44,12 +44,12 @@ export const metadata: Metadata = {
     card: "summary_large_image",
     title: "Explainbytes - Docs for Developers",
     description: "Comprehensive documentation for developers",
-    images: [`${siteUrl}/logo.svg`],
+    images: [`${siteUrl}/explain.png`],
   },
   icons: {
-    icon: "/logo.svg",
-    apple: "/logo.svg",
-    shortcut: "/logo.svg",
+    icon: "/explain.png",
+    apple: "/explain.png",
+    shortcut: "/explain.png",
   },
 };
 
@@ -61,8 +61,8 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning>
       <head>
-        <link rel="icon" href="/logo.svg" />
-        <link rel="apple-touch-icon" sizes="180x180" href="/logo.svg" />
+        <link rel="icon" href="/explain.png" />
+        <link rel="apple-touch-icon" sizes="180x180" href="/explain.png" />
         <meta name="theme-color" content="#0f172a" />
         <link rel="canonical" href={siteUrl} />
         <meta name="viewport" content="width=device-width,initial-scale=1" />
@@ -70,6 +70,7 @@ export default function RootLayout({
         {/* JSON-LD structured data (Organization + WebSite) */}
         <script
           type="application/ld+json"
+          // biome-ignore lint/security/noDangerouslySetInnerHtml: JSON-LD is static and safe
           dangerouslySetInnerHTML={{
             __html: JSON.stringify({
               "@context": "https://schema.org",
@@ -79,7 +80,7 @@ export default function RootLayout({
                   "@id": `${siteUrl}#org`,
                   name: "Explainbytes",
                   url: siteUrl,
-                  logo: `${siteUrl}/logo.svg`,
+                  logo: `${siteUrl}/explain.png`,
                   sameAs: ["https://github.com/Eyepatch5263"],
                 },
                 {

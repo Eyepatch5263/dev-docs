@@ -1,6 +1,6 @@
-import { getAllTopics } from "@/lib/docs";
-import { TopicCard } from "@/components/TopicCard";
 import HeroReusableComponent from "@/components/HeroReusableComponent";
+import { TopicCard } from "@/components/TopicCard";
+import { getAllTopics } from "@/lib/docs";
 
 export default function DocsLandingPage() {
   const topics = getAllTopics();

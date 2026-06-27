@@ -1,8 +1,8 @@
-import { Header } from "@/components/Header";
-import { Sidebar } from "@/components/Sidebar";
-import { MobileSidebar } from "@/components/MobileSidebar";
-import { getNavigationForTopic, getTopicMeta } from "@/lib/docs";
 import { notFound } from "next/navigation";
+import { Header } from "@/components/Header";
+import { MobileSidebar } from "@/components/MobileSidebar";
+import { Sidebar } from "@/components/Sidebar";
+import { getNavigationForTopic, getTopicMeta } from "@/lib/docs";
 
 interface TopicLayoutProps {
   children: React.ReactNode;

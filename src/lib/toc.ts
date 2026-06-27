@@ -19,16 +19,25 @@ function stripMarkdown(text: string): string {
 export function extractHeadings(content: string): Heading[] {
   const headingRegex = /^(#{2,3})\s+(.+)$/gm;
   const headings: Heading[] = [];
-  let match;
+  const idCounts = new Map<string, number>();
 
-  while ((match = headingRegex.exec(content)) !== null) {
+  for (const match of content.matchAll(headingRegex)) {
     const level = match[1].length;
     const rawText = match[2].trim();
     const text = stripMarkdown(rawText);
-    const id = text
+    const baseId = text
       .toLowerCase()
       .replace(/[^a-z0-9]+/g, "-")
       .replace(/(^-|-$)/g, "");
+
+    const count = idCounts.get(baseId) ?? 0;
+    let id = baseId;
+    if (count > 0) {
+      idCounts.set(baseId, count + 1);
+      id = `${baseId}-${count}`;
+    } else {
+      idCounts.set(baseId, 1);
+    }
 
     headings.push({ id, text, level });
   }

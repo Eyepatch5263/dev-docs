@@ -1,15 +1,15 @@
-import Link from "next/link";
 import { ArrowRight } from "lucide-react";
-import { getAllDocsForTopic, getTopicMeta, discoverTopics } from "@/lib/docs";
+import Link from "next/link";
 import { notFound } from "next/navigation";
+import type { DocMeta } from "@/app/types/docs.type";
 import {
   Card,
   CardDescription,
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { DocMeta } from "@/app/types/docs.type";
 import { CATEGORY_ORDER } from "@/constants/docs";
+import { discoverTopics, getAllDocsForTopic, getTopicMeta } from "@/lib/docs";
 
 interface TopicPageProps {
   params: Promise<{ topic: string }>;

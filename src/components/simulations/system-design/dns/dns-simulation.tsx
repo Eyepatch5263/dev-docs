@@ -347,13 +347,13 @@ export default function DnsSimulation() {
       </div>
 
       {/* Controller Controls */}
-      <div className="flex flex-wrap items-center gap-4 bg-zinc-50 dark:bg-zinc-900/30 border border-zinc-200 dark:border-zinc-800/80 p-4 rounded-xl">
+      <div className="flex flex-wrap items-center gap-4 bg-zinc-50 dark:bg-zinc-900/30 dark:border-zinc-800/80 p-4 rounded-xl">
         {/* Domain Selector */}
         <div className="flex flex-col gap-1.5">
           <span className="text-[10px] font-bold text-zinc-550 dark:text-zinc-500 uppercase tracking-wider">
             Query Domain
           </span>
-          <div className="flex bg-zinc-100 dark:bg-zinc-950 p-1 rounded-lg border border-zinc-200 dark:border-zinc-850">
+          <div className="flex bg-zinc-100 dark:bg-zinc-950 p-1 rounded-lg border border-zinc-200 dark:border-zinc-900">
             {(
               [
                 "api.example.com",
@@ -383,7 +383,7 @@ export default function DnsSimulation() {
           <span className="text-[10px] font-bold text-zinc-550 dark:text-zinc-500 uppercase tracking-wider">
             Resolver Cache Tactic
           </span>
-          <div className="flex bg-zinc-100 dark:bg-zinc-950 p-1 rounded-lg border border-zinc-200 dark:border-zinc-850">
+          <div className="flex bg-zinc-100 dark:bg-zinc-950 p-1 rounded-lg  dark:border-zinc-850">
             <button
               type="button"
               disabled={isProcessing}
@@ -416,7 +416,7 @@ export default function DnsSimulation() {
           <span className="text-[10px] font-bold text-zinc-550 dark:text-zinc-500 uppercase tracking-wider">
             Simulation Speed
           </span>
-          <div className="flex bg-zinc-100 dark:bg-zinc-950 p-1 rounded-lg border border-zinc-200 dark:border-zinc-850">
+          <div className="flex bg-zinc-100 dark:bg-zinc-950 p-1 rounded-lg  dark:border-zinc-850">
             {([0.5, 1, 2] as const).map((s) => (
               <button
                 key={s}
@@ -584,8 +584,8 @@ export default function DnsSimulation() {
           </div>
 
           {/* Decisions & Logs Console */}
-          <div className="h-[140px] bg-zinc-50 dark:bg-zinc-950 rounded-xl border border-zinc-200 dark:border-zinc-850 flex flex-col overflow-hidden">
-            <div className="bg-zinc-100 dark:bg-zinc-900 px-3 py-1.5 border-b border-zinc-200 dark:border-zinc-850">
+          <div className="h-[140px] bg-zinc-50 dark:bg-zinc-950 rounded-xl border border-zinc-300 dark:border-zinc-900 flex flex-col overflow-hidden">
+            <div className="bg-zinc-100 dark:bg-zinc-900 px-3 py-1.5 border-b border-zinc-300 dark:border-zinc-900">
               <span className="text-[9px] font-bold text-zinc-550 dark:text-zinc-500 uppercase tracking-widest">
                 Resolution Events Logs
               </span>
@@ -617,10 +617,10 @@ export default function DnsSimulation() {
         </div>
 
         {/* Right Column: Zone File & Concept Details */}
-        <div className="w-full lg:w-[360px] shrink-0 flex flex-col gap-4 bg-zinc-50 dark:bg-zinc-900/30 border border-zinc-200 dark:border-zinc-800/80 p-5 rounded-xl">
+        <div className="w-full lg:w-[360px] shrink-0 flex flex-col gap-4 bg-zinc-50 dark:bg-zinc-900/30 border border-zinc-900 dark:border-zinc-800/80 p-5 rounded-xl">
           {/* Zone File Preview */}
-          <div className="flex-1 flex flex-col bg-zinc-50 dark:bg-zinc-950 rounded-xl border border-zinc-200 dark:border-zinc-850 overflow-hidden min-h-[220px]">
-            <div className="bg-zinc-100 dark:bg-zinc-900 px-3 py-1.5 border-b border-zinc-200 dark:border-zinc-850 flex items-center justify-between">
+          <div className="flex-1 flex flex-col bg-zinc-50 dark:bg-zinc-950 rounded-xl border border-zinc-200 dark:border-zinc-900 overflow-hidden min-h-[220px]">
+            <div className="bg-zinc-100 dark:bg-zinc-900 px-3 py-1.5 border-b border-zinc-200 dark:border-zinc-900 flex items-center justify-between">
               <span className="text-[9px] font-bold text-zinc-550 dark:text-zinc-500 uppercase tracking-widest">
                 Active Zone File (BIND)
               </span>
@@ -634,7 +634,7 @@ export default function DnsSimulation() {
           </div>
 
           {/* Actor Info Card */}
-          <div className="p-4 rounded-xl bg-white dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-850 space-y-2">
+          <div className="p-4 rounded-xl bg-white dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-900 space-y-2">
             <div className="flex items-center gap-2">
               <span className="text-xs font-bold text-zinc-800 dark:text-zinc-200">
                 DNS Resolution Rules

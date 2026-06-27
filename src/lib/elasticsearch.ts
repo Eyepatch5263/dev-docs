@@ -1,10 +1,9 @@
-import {
-  searchTermsLocally,
-  type EngineeringTerm,
-} from "../../data/sample-terms";
-
 import { Client } from "@elastic/elasticsearch";
-import { getFromCache, setInCache, CACHE_KEYS, DEFAULT_TTL } from "./redis";
+import {
+  type EngineeringTerm,
+  searchTermsLocally,
+} from "../../data/sample-terms";
+import { CACHE_KEYS, DEFAULT_TTL, getFromCache, setInCache } from "./redis";
 
 interface SearchResult {
   terms: EngineeringTerm[];

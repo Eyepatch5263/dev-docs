@@ -1,7 +1,7 @@
-import { NextRequest, NextResponse } from "next/server";
-import { resend } from "@/lib/resend";
+import { type NextRequest, NextResponse } from "next/server";
 import { rateLimitMiddleware } from "@/app/middleware/rateLimit";
 import { WRITE_RATE_LIMIT } from "@/lib/rate-limit-config";
+import { resend } from "@/lib/resend";
 
 export async function POST(request: NextRequest) {
   try {

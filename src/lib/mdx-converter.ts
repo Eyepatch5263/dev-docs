@@ -252,9 +252,10 @@ function applyMark(text: string, mark: ProseMirrorMark): string {
       return `~~${text}~~`;
     case "highlight":
       return `<mark>${text}</mark>`;
-    case "link":
+    case "link": {
       const href = (mark.attrs?.href as string) || "#";
       return `[${text}](${href})`;
+    }
     default:
       return text;
   }

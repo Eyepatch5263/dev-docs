@@ -1,8 +1,8 @@
 import { redirect } from "next/navigation";
 import { getServerSession } from "next-auth";
+import { DocumentsGrid } from "@/components/editor/DocumentsGrid";
 import { authOptions } from "@/lib/auth";
 import { db } from "@/lib/db";
-import { DocumentsGrid } from "@/components/editor/DocumentsGrid";
 
 export const metadata = {
   title: "Collaborative Editor - Explainbytes",

@@ -1,4 +1,4 @@
-import { Pool, QueryResult } from "pg";
+import { Pool, type QueryResult } from "pg";
 
 const connectionString =
   process.env.DATABASE_URL ||

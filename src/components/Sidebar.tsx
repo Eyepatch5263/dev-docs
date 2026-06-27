@@ -1,12 +1,12 @@
 "use client";
 
+import { ChevronRight } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useState } from "react";
-import { ChevronRight } from "lucide-react";
-import { cn } from "@/lib/utils";
+import type { NavCategory } from "@/app/types/nav.type";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { NavCategory } from "@/app/types/nav.type";
+import { cn } from "@/lib/utils";
 
 interface SidebarProps {
   navigation: NavCategory[];

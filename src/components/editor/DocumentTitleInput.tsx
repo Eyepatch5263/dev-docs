@@ -1,7 +1,7 @@
 "use client";
 
+import { useEffect, useRef, useState } from "react";
 import { CATEGORY_LABELS, TOPIC_LABELS } from "@/constants/editor";
-import { useEffect, useState, useRef } from "react";
 
 interface DocumentTitleInputProps {
   documentId: string;

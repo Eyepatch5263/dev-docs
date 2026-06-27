@@ -1,6 +1,6 @@
 "use client";
 
-import { CategoryInfo } from "@/app/types/flashcard.type";
+import type { CategoryInfo } from "@/app/types/flashcard.type";
 import { TopicCard } from "./TopicCard";
 
 interface CategorySelectorProps {

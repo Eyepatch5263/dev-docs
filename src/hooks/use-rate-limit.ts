@@ -1,10 +1,10 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useCallback, useEffect, useState } from "react";
 import {
-  RateLimitInfo,
-  parseRateLimitHeaders,
   getTimeUntilReset,
+  parseRateLimitHeaders,
+  type RateLimitInfo,
 } from "@/lib/rate-limit-utils";
 
 interface UseRateLimitOptions {

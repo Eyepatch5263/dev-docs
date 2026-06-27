@@ -2,11 +2,15 @@ import { Activity, ArrowLeft, ArrowRight } from "lucide-react";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { MDXRemote } from "next-mdx-remote/rsc";
+import rehypeKatex from "rehype-katex";
 import rehypePrettyCode from "rehype-pretty-code";
 import rehypeSlug from "rehype-slug";
 import remarkGfm from "remark-gfm";
+import remarkMath from "remark-math";
+import "katex/dist/katex.min.css";
 import { mdxComponents } from "@/components/mdx-components";
 import { Quiz } from "@/components/Quiz";
+import DatabaseSimulationWrapper from "@/components/simulations/system-design/database/database-simulation-wrapper";
 import DnsSimulationWrapper from "@/components/simulations/system-design/dns/dns-simulation-wrapper";
 import SimulationDashboard from "@/components/simulations/system-design/load-balancing/simulation-dashboard";
 import { TableOfContents } from "@/components/TableOfContents";
@@ -130,7 +134,9 @@ export default async function DocPage({ params }: DocPageProps) {
 
   const hasSimulation =
     topic === "system-design" &&
-    (slugPath === "load-balancing" || slugPath === "dns");
+    (slugPath === "load-balancing" ||
+      slugPath === "dns" ||
+      slugPath === "database");
 
   if (isSimulationRoute) {
     return (
@@ -160,6 +166,8 @@ export default async function DocPage({ params }: DocPageProps) {
             <div className="mt-4">
               {slugPath === "dns" ? (
                 <DnsSimulationWrapper />
+              ) : slugPath === "database" ? (
+                <DatabaseSimulationWrapper />
               ) : (
                 <SimulationDashboard />
               )}
@@ -275,11 +283,7 @@ export default async function DocPage({ params }: DocPageProps) {
                 <TTSPlayer topic={topic} slug={slugPath} title={doc.title} />
               </div>
             </div>
-
-
-
           </div>
-
 
           {doc.description && (
             <p className="text-base md:text-lg text-muted-foreground">
@@ -297,9 +301,10 @@ export default async function DocPage({ params }: DocPageProps) {
             components={mdxComponents}
             options={{
               mdxOptions: {
-                remarkPlugins: [remarkGfm],
+                remarkPlugins: [remarkGfm, remarkMath],
                 rehypePlugins: [
                   rehypeSlug,
+                  rehypeKatex,
                   [
                     rehypePrettyCode,
                     {

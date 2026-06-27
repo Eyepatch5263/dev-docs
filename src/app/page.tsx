@@ -1,14 +1,14 @@
 "use client";
 
-import { useState, useEffect, useRef } from "react";
 import { motion } from "framer-motion";
-import { Hero } from "@/components/Hero";
-import { EngineeringTermsSlide } from "@/components/EngineeringTermsSlide";
+import { useEffect, useRef, useState } from "react";
 import { CollaborativeEditorSlide } from "@/components/CollaborativeEditorSlide";
-import { FlashDocsSection } from "@/components/FlashDocsSection";
+import { EngineeringTermsSlide } from "@/components/EngineeringTermsSlide";
 import { FlashCardsSection } from "@/components/FlashCardsSection";
-import { NewsletterForm } from "@/components/NewsletterForm";
+import { FlashDocsSection } from "@/components/FlashDocsSection";
 import { Footer } from "@/components/Footer";
+import { Hero } from "@/components/Hero";
+import { NewsletterForm } from "@/components/NewsletterForm";
 
 export default function Home() {
   const [index, setIndex] = useState(0);

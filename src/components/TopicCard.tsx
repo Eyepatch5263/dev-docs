@@ -1,9 +1,9 @@
 "use client";
 
-import Link from "next/link";
 import { motion } from "framer-motion";
-import { iconMap } from "@/lib/icon-map";
 import { FileText } from "lucide-react";
+import Link from "next/link";
+import { iconMap } from "@/lib/icon-map";
 
 interface TopicCardProps {
   id: string;

@@ -1,9 +1,9 @@
 import fs from "fs";
-import path from "path";
 import matter from "gray-matter";
+import path from "path";
 import { cache } from "react";
-import { DocContent, DocMeta, TopicMeta } from "@/app/types/docs.type";
-import { NavCategory, NavItem } from "@/app/types/nav.type";
+import type { DocContent, DocMeta, TopicMeta } from "@/app/types/docs.type";
+import type { NavCategory, NavItem } from "@/app/types/nav.type";
 
 // Re-export iconMap from shared location
 

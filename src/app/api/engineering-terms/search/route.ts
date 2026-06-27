@@ -1,6 +1,6 @@
-import { NextRequest, NextResponse } from "next/server";
-import { searchTerms } from "@/lib/elasticsearch";
+import { type NextRequest, NextResponse } from "next/server";
 import { rateLimitMiddleware } from "@/app/middleware/rateLimit";
+import { searchTerms } from "@/lib/elasticsearch";
 import { READ_RATE_LIMIT } from "@/lib/rate-limit-config";
 
 export async function GET(request: NextRequest) {

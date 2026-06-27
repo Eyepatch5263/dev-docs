@@ -1,9 +1,9 @@
 "use client";
 
-import { useState } from "react";
-import { motion, AnimatePresence } from "framer-motion";
-import { Cpu, Database, Globe, Layers, ArrowRight } from "lucide-react";
+import { AnimatePresence, motion } from "framer-motion";
+import { ArrowRight, Cpu, Database, Globe, Layers } from "lucide-react";
 import Link from "next/link";
+import { useState } from "react";
 
 type TabType = "OS" | "DBMS" | "NETWORKING" | "SYS_DESIGN";
 

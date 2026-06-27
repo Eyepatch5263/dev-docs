@@ -1,8 +1,8 @@
+import type { Metadata } from "next";
 import { redirect } from "next/navigation";
 import { getServerSession } from "next-auth";
-import { authOptions } from "@/lib/auth";
 import { SignUpForm } from "@/components/auth/SignUpForm";
-import type { Metadata } from "next";
+import { authOptions } from "@/lib/auth";
 
 export const metadata: Metadata = {
   title: "Sign Up - Explainbytes",

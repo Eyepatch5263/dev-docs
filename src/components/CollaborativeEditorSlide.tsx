@@ -2,23 +2,23 @@
 
 import { motion } from "framer-motion";
 import {
-  Plus,
-  PlayCircle,
-  Copy,
-  Link2,
-  Users,
   ArrowRight,
-  Search,
-  SlidersHorizontal,
-  MoreHorizontal,
-  FileText,
-  Edit3,
-  Send,
   CheckCircle,
-  Globe,
-  MessageSquare,
+  Copy,
+  Edit3,
+  FileText,
   GitFork,
+  Globe,
+  Link2,
+  MessageSquare,
+  MoreHorizontal,
+  PlayCircle,
+  Plus,
+  Search,
+  Send,
   Shield,
+  SlidersHorizontal,
+  Users,
 } from "lucide-react";
 import Link from "next/link";
 

@@ -1,11 +1,11 @@
-import { notFound } from "next/navigation";
-import Link from "next/link";
 import { ArrowLeft, BookOpen } from "lucide-react";
-import { Badge } from "@/components/ui/badge";
-import { getTermBySlug, getRelatedTerms } from "@/lib/elasticsearch";
-import { sampleTerms } from "../../../../data/sample-terms";
-import { TermCard } from "@/components/TermCard";
 import type { Metadata } from "next";
+import Link from "next/link";
+import { notFound } from "next/navigation";
+import { TermCard } from "@/components/TermCard";
+import { Badge } from "@/components/ui/badge";
+import { getRelatedTerms, getTermBySlug } from "@/lib/elasticsearch";
+import { sampleTerms } from "../../../../data/sample-terms";
 
 // Map category to badge variant
 const categoryVariantMap: Record<

@@ -1,10 +1,10 @@
 import { notFound } from "next/navigation";
+import type { FlashcardCategory } from "@/app/types/flashcard.type";
 import {
-  getFlashcardsByCategory,
-  getCategoryInfo,
   getAllCategories,
+  getCategoryInfo,
+  getFlashcardsByCategory,
 } from "@/lib/flashcards";
-import { FlashcardCategory } from "@/app/types/flashcard.type";
 import { CategoryClient } from "./CategoryClient";
 
 interface CategoryPageProps {

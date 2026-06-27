@@ -1,26 +1,26 @@
 "use client";
 
-import { type Editor } from "@tiptap/react";
-import { useEffect, useState } from "react";
+import type { Editor } from "@tiptap/react";
 import {
   Bold,
-  Italic,
-  Strikethrough,
   Code,
-  SquareCode,
+  FileX,
   Heading1,
   Heading2,
   Heading3,
+  Highlighter,
+  Italic,
   List,
   ListOrdered,
-  Quote,
   Minus,
-  Undo,
+  Quote,
   Redo,
-  Highlighter,
+  SquareCode,
+  Strikethrough,
   Table,
-  FileX,
+  Undo,
 } from "lucide-react";
+import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 
 interface EditorToolbarProps {

@@ -1,14 +1,14 @@
 import {
+  BrainCircuit,
   CloudUploadIcon,
   Database,
   FileText,
+  Globe,
   HardDrive,
-  LucideIcon,
+  type LucideIcon,
   Network,
   Server,
-  BrainCircuit,
   ShieldPlus,
-  Globe,
 } from "lucide-react";
 
 export const iconMap: Record<string, LucideIcon> = {

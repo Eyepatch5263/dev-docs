@@ -1,10 +1,10 @@
+import bcrypt from "bcryptjs";
 import type { NextAuthOptions } from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
 import GitHubProvider from "next-auth/providers/github";
 import GoogleProvider from "next-auth/providers/google";
-import bcrypt from "bcryptjs";
-import { db } from "./db";
 import { Resend } from "resend";
+import { db } from "./db";
 
 const resend = new Resend(process.env.RESEND_API_KEY);
 
